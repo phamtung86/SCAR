@@ -1,0 +1,112 @@
+.login{
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+}
+.login-video{
+    position: fixed; /* Đặt video cố định trên màn hình */
+    top: 0;
+    left: 0;
+    width: 100vw; /* Chiều rộng toàn màn hình */
+    height: 100vh; /* Chiều cao toàn màn hình */
+    object-fit: cover; /* Đảm bảo video luôn lấp đầy mà không bị méo */
+    z-index: -1; /* Đặt phía sau nội dung */
+    background-color: black; /* Phòng trường hợp video không tải được */
+}
+.login-wrapper{
+    width: 30%;
+    /* height: 100%; */
+    background-color: rgba(90, 90, 90, 0.603);
+    margin: auto;
+    padding: 10px;
+    border-radius: 10px;
+    
+}
+.login-logo{
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 5px solid black;
+}
+
+.login-nav{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.login-title{
+    color: white;
+    text-align: center;
+    margin: 50px 0px;
+}
+.login-input{
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+.account{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.account-label{
+    color: white;
+    text-align: left;
+}
+.account-input{
+    padding: 10px;
+    border-radius: 10px;
+    width: 90%;
+    border: none;
+}
+.account-input:focus{
+    outline: none;
+}
+.account-button-submit{
+    padding: 10px;
+    width: 50%;
+    margin: auto;
+    font-size: 18px;
+    font-weight: 650;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+.login-line{
+    margin: 2rem 0px;
+}
+.nav-icon{
+    font-size: 25px;
+    color: white;
+}
+.forgot-password{
+    color: white;
+    text-decoration: none;
+    text-align: center;
+}
+.register-title{
+    color: white;
+    text-align: center;
+}
+.register-link{
+    color: white;
+}
+.user-input-icon{
+    display: flex;
+    width: 100%;
+}
+.account-icon{
+    width: 10%;
+   
+
+}
+.user-input-icon,
+.password-input-icon{
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+}

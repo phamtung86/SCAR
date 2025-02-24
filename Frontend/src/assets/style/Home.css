@@ -1,0 +1,51 @@
+.home{
+    width: 100%;
+}
+.home_header{
+    display: flex;
+    width: 100%;
+    color: white;
+    padding: 5px;
+    justify-content: space-between;
+}
+.home_logo{
+    width: 20%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.logo_image{
+    width: 70%;
+    height: 50px;
+}
+.home_nav{
+    width: 60%;
+    background-color: #1399ff;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 5px;
+}
+.home-item{
+    color : white;
+    padding: 5px;
+    cursor: pointer;
+    font-size: 25px;
+}
+.home_account{
+    width: 20%;
+}
+.home_content{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.home_main_content{
+    width: 60%;
+    padding: 10px;
+}
+.home_item-border{
+    border-bottom: 5px solid white; 
+    border-radius: 5px;
+}
