@@ -1,0 +1,136 @@
+
+.post {
+    width: 100%;
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+    padding: 10px;
+    position: relative;
+    border-radius: 10px;
+  }
+  
+  .post-header {
+    display: flex;
+    width: 100%;
+    color: white;
+    padding: 5px;
+    align-items: center;
+    gap: 10px;
+  
+  }
+  
+  .avatar-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+  }
+  
+  .post-info {
+    text-align: left;
+    color: black;
+  }
+  
+  .post-info-name {
+    font-weight: 650;
+  }
+  
+  .post-info-time {
+    font-size: 13px;
+  }
+  .post-button-action{
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    border: none;
+    background-color: transparent;
+    font-size: 25px;
+    cursor: pointer;
+  }
+  
+  .image-post {
+    width: 100%;
+    max-height: 500px;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+  
+  .post-content {
+    padding: 10px;
+    white-space: pre-line;
+  }
+  
+  .post-actions {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    cursor: pointer;
+  }
+  
+  .slider-container {
+    position: relative;
+    margin: auto;
+    overflow: hidden;
+  }
+  
+  .slider {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+  }
+  
+  .slide {
+    min-width: 100%;
+    display: none;
+  }
+  
+  .slide.active {
+    display: block;
+  }
+  
+  .prev-btn,
+  .next-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(73, 73, 73, 0.534);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 2rem;
+    padding: 10px;
+    border-radius: 10px;
+  }
+  
+  .prev-btn {
+    left: 10px;
+  }
+  
+  .next-btn {
+    right: 10px;
+  }
+  
+  .pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+  }
+  
+  .pagination .radio-btn {
+    margin: 0 5px;
+    cursor: pointer;
+  }
+  
+  /* Hiệu ứng kính lúp */
+  .zoom-lens {
+    position: absolute;
+    top: 0;
+    width: 300px;
+    height: 300px;
+    border: 5px solid white;
+    background-repeat: no-repeat;
+    background-size: 350%;
+    pointer-events: none;
+    transform: translate(-20%, -20%);
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+  }
+  .read-more{
+    cursor: pointer;
+  }

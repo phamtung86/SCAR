@@ -1,9 +1,9 @@
-import { faBus, faCar, faHouse, faMotorcycle, faTruck } from '@fortawesome/free-solid-svg-icons';
+import { faBell, faBus, faCar, faHouse, faMotorcycle, faTruck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import logo from '../assets/image/SCAR-removebg-preview.png';
 import '../assets/style/Home.css';
-import { decodeToken } from '../configs/Decode';
+import { AuthContext } from '../context/AuthContext';
 import Social from './Social';
 
 const DISPLAY_HOME = 1;
@@ -18,15 +18,7 @@ const NavItem = ({ icon, isActive, onClick, name }) => (
 );
 
 const Home = () => {
-    const [dataToken, setDataToken] = useState(null);
     const [display, setDisplay] = useState(DISPLAY_HOME);
-    useEffect(() => {
-        const dataToken = decodeToken();
-      
-        if (dataToken) {
-            setDataToken(dataToken);
-        }
-    }, []);
 
     const menuItems = [
         { id: DISPLAY_HOME, icon: faHouse, name: "home_social" },
@@ -34,6 +26,7 @@ const Home = () => {
         { id: DISPLAY_MOTO, icon: faMotorcycle, name: "home_moto" },
     ];
 
+    const {currentUser} = useContext(AuthContext);
     return (
         <div className="home">
             <div className="home_header">
@@ -55,12 +48,18 @@ const Home = () => {
                         <FontAwesomeIcon icon={faTruck} />
                     </div>
                 </div>
-                <div className="home_account"></div>
+                <div className="home_account">
+                    <button className='home_account-button home_account-notification'>
+                        <FontAwesomeIcon icon={faBell} />
+                    </button>
+                    <button className='home_account-button'>
+                        <img src={currentUser?.profilePicture} alt="Avatar" className="home_account-avatar" />
+                    </button>
+                </div>
             </div>
             <div className="home_content">
                 <div className="home_main_content">
                     {display === DISPLAY_HOME && <Social />}
-
                 </div>
             </div>
         </div>

@@ -26,6 +26,7 @@ public class UserService implements IUserService {
         return repository.findByUserName(username);
     }
 
+
     @Override
     public void createUser(CreateUserForm createUserForm) {
         User user = modelMapper.map(createUserForm, User.class);
@@ -39,11 +40,27 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public UserDTO findUserById(Integer id) {
+    public UserDTO findUserDTOById(Integer id) {
         User user = repository.findById(id).orElse(null);
         if (user != null) {
             return modelMapper.map(user, UserDTO.class);
         }
         return null;
     }
+
+    @Override
+    public boolean isExistEmail(String email) {
+        return repository.existsByEmail(email);
+    }
+
+    @Override
+    public boolean isExistUsername(String username) {
+        return repository.existsByUserName(username);
+    }
+
+    @Override
+    public User findUserById(Integer id) {
+        return repository.findById(id).orElse(null) ;
+    }
+
 }

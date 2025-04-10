@@ -23,6 +23,13 @@ axiosClient.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
+axiosClient.interceptors.request.use((config) => {
+    if (config.data instanceof FormData) {
+        delete config.headers["Content-Type"];
+    }
+    return config;
+});
+
 // Add response interceptor
 axiosClient.interceptors.response.use(
     (response) => response, // Nếu thành công, trả về dữ liệu như bình thường
@@ -51,12 +58,12 @@ axiosClient.interceptors.response.use(
             } catch (refreshError) {
                 console.error("Không thể refresh token. Yêu cầu đăng nhập lại.");
                 
-                // // Xóa token khỏi localStorage nếu refresh token không hợp lệ
-                // localStorage.removeItem('token');
-                // localStorage.removeItem('refreshToken'); 
+                // Xóa token khỏi localStorage nếu refresh token không hợp lệ
+                localStorage.removeItem('token');
+                localStorage.removeItem('refreshToken'); 
 
-                // // Chuyển hướng về trang đăng nhập
-                // window.location.href = "/login";
+                // Chuyển hướng về trang đăng nhập
+                window.location.href = "/login";
             }
         }
 

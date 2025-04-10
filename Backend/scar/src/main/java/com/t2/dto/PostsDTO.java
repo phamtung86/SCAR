@@ -1,13 +1,15 @@
 package com.t2.dto;
 
-import com.t2.entity.PostImage;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.List;
 
 @Data
-
+@NoArgsConstructor
+@AllArgsConstructor
 public class PostsDTO {
     private Integer id;
 

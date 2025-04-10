@@ -23,10 +23,6 @@ public class JwtFilter extends OncePerRequestFilter {
 	@Autowired
 	private TokenManager tokenManager;
 
-	// Lấy JWT từ header Authorization của request.
-	// Kiểm tra tính hợp lệ của JWT.
-	// Nếu hợp lệ, xác thực người dùng và thiết lập thông tin xác thực
-	// (authentication) trong SecurityContext.
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 	        throws ServletException, IOException {
@@ -37,7 +33,7 @@ public class JwtFilter extends OncePerRequestFilter {
 	    try {
 	        if (tokenHeader != null && tokenHeader.startsWith("Bearer ")) {
 	            token = tokenHeader.substring(7);
-	            username = tokenManager.getUsernameFromToken(token); // Trích xuất username từ payload của token.
+	            username = tokenManager.getUsernameFromToken(token);
 	        } else {
 	            System.out.println("Bearer String not found in token");
 	        }

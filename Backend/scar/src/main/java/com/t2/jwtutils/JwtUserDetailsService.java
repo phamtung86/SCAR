@@ -20,7 +20,7 @@ public class JwtUserDetailsService implements UserDetailsService {
         if (u == null) {
             throw new UsernameNotFoundException("User not found with username: " + username);
         } else {
-        	return new CustomUserDetails(u.getUserName(), u.getPassWord(), u.getId(),u.getFirstName(),u.getLastName(),u.getProfilePicture(), AuthorityUtils.createAuthorityList(u.getRole().toString()));
+        	return new CustomUserDetails(u.getUserName(), u.getPassWord(), u.getId(),u.getFirstName(),u.getLastName(),u.getProfilePicture(),u.getRole(), AuthorityUtils.createAuthorityList(u.getRole().toString()));
         }
     }
 }

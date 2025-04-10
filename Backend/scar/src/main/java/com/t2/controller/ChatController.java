@@ -43,7 +43,7 @@ public class ChatController {
 
 		// Lưu tin nhắn vào cơ sở dữ liệu
 		ChatMessage saveMsg = chatMessageService.saveChatMessage(chatMessage);
-		UserDTO u = userService.findUserById(chatMessage.getSender().getId());
+		UserDTO u = userService.findUserDTOById(chatMessage.getSender().getId());
 		// Gửi thông báo đến người nhận qua WebSocket
 		simpMessagingTemplate.convertAndSendToUser(chatMessage.getRecipient().getId().toString(), "/queue/messages",
 				new ChatNotification(saveMsg.getId(), saveMsg.getSender().getId(),u.getFirstName(),u.getLastName(),

@@ -5,7 +5,6 @@ import com.t2.entity.Comments;
 import com.t2.entity.Posts;
 import com.t2.repository.CommentRepository;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,12 +48,15 @@ public class CommentService implements ICommentService {
                     parent.setReplies(new ArrayList<>());
                     commentMap.put(parentId, parent);
                 }
-
                 // Thêm comment con vào danh sách replies của cha
                 parent.getReplies().add(dto);
             }
         }
 
+        for (CommentsDTO dto : rootComments) {
+            dto.getReplies().sort(Comparator.comparing(CommentsDTO::getCreatedDate).reversed());
+        }
+         rootComments.sort(Comparator.comparing(CommentsDTO::getCreatedDate).reversed());
         return rootComments;
     }
 
@@ -71,16 +73,10 @@ public class CommentService implements ICommentService {
     }
 
     @Override
-    public List<CommentsDTO> findCommentsById(Integer id) {
-        Comments c = commentRepository.findById(id).orElse(null);
-        List<Comments> comments =  commentRepository.findCommentsByParentComment(c);
-        return modelMapper.map(comments, new TypeToken<List<CommentsDTO>>() {}.getType());
+    public Comments findCommentById(Integer id) {
+
+        return commentRepository.findById(id).orElse(null);
     }
 
-//    @Override
-//    public boolean existsByCommentId(Integer id) {
-//        Optional<Comments> comments = Optional.ofNullable(commentRepository.findCommentsById(id));
-//        return comments.isPresent();
-//    }
 
 }

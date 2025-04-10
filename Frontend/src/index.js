@@ -6,15 +6,18 @@ import './assets/style/Global.css';
 import './index.css';
 import Login from './pages/Login';
 import reportWebVitals from './reportWebVitals';
+import { AuthProvider } from './context/AuthContext';
 
 const Main = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<App />} />
-        <Route path='/Login' element={<Login />} />
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<App />} />
+          <Route path='/Login' element={<Login />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
 
   )
 };

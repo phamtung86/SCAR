@@ -9,7 +9,11 @@ public interface IUserService {
 
     void createUser(CreateUserForm createUserForm);
 
-//   User findUserById(Integer id);
+    UserDTO findUserDTOById(Integer id);
 
-    UserDTO findUserById(Integer id);
+    boolean isExistEmail(String email);
+
+    boolean isExistUsername(String username);
+
+    User findUserById(Integer id);
 }

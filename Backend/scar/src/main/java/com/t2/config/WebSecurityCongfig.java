@@ -40,7 +40,7 @@ public class WebSecurityCongfig {
                         .requestMatchers("/api/v1/auth/refresh-token").permitAll()
                         .requestMatchers("/api/v1/users/register").permitAll()
                         .requestMatchers("/ws/**").permitAll() 
-                        .anyRequest().authenticated() // Yêu cầu xác thực cho các request khác
+                        .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(authenticationEntryPoint)) // Xử lý 401 Unauthorized
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless session
