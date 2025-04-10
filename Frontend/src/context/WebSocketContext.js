@@ -1,72 +1,50 @@
-import React, { createContext, useState, useEffect } from 'react';
-import SockJS from 'sockjs-client';
-import { Client } from '@stomp/stompjs';
-import { decodeToken } from '../configs/Decode';
+import React, { createContext, useState, useEffect, useRef } from "react";
+import SockJS from "sockjs-client";
+import { Client } from "@stomp/stompjs";
 
 export const WebSocketContext = createContext(null);
 
 export const WebSocketProvider = ({ children }) => {
-  const [stompClient, setStompClient] = useState(null);
+  const stompClientRef = useRef(null);
   const [isConnected, setIsConnected] = useState(false);
-  const [usersOnline, setUsersOnline] = useState([]);
-  const [messages, setMessages] = useState([]);
-  const [dataToken, setDataToken] = useState(null);
+
   useEffect(() => {
-    const dataToken = decodeToken();
-    if (dataToken) {
-        setDataToken(dataToken);
-    }
-}, []);
-  useEffect(() => {
-    // Chỉ khởi tạo kết nối khi dataToken đã có giá trị
-    if (!dataToken) return;
+    const connectWebSocket = () => {
+      const socket = new SockJS("http://localhost:8080/ws");
+      const client = new Client({
+        webSocketFactory: () => socket,
+        reconnectDelay: 5000, // 🔄 Tự động kết nối lại sau 5 giây nếu mất kết nối
+        debug: (msg) => console.log("📝 STOMP Debug:", msg), 
 
-    const socket = new SockJS('http://localhost:8080/ws');
-    const client = new Client({
-      webSocketFactory: () => socket,
-      onConnect: () => {
-        setIsConnected(true);
-        // Dùng biến client (đối tượng vừa được tạo) để publish và subscribe
-        // client.publish({
-        //   destination: "/app/addUser",
-        //   body: JSON.stringify({ id: dataToken.userId, username: dataToken.sub }),
-        // });
-        // client.publish({
-        //   destination: "/app/user-status",
-        //   body: dataToken.userId,
-        // });
+        onConnect: () => {
+    
+          setIsConnected(true);
+        },
 
-        // client.subscribe(`/user/${dataToken.userId}/queue/messages`, (message) => {
-        //   setMessages(prevMessages => [
-        //     ...prevMessages,
-        //     JSON.parse(message.body),
-        //   ]);
-        // });
+        onStompError: (frame) => {
+          console.error("🔴 Lỗi STOMP:", frame.headers["message"]);
+        },
 
-        // client.subscribe("/topic/status", (message) => {
-        //   const userStatus = JSON.parse(message.body);
-        //   setUsersOnline(userStatus);
-        // });
+        onWebSocketClose: (event) => {
+          console.warn("⚠️ WebSocket đã đóng! Lý do:", event.reason);
+          setIsConnected(false);
+          setTimeout(connectWebSocket, 5000); // 🔄 Kết nối lại sau 5 giây
+        },
+      });
 
-        // client.subscribe("/user/public", (message) => {
-        //   console.log("Public message:", message.body);
-        // });
-      },
-      onStompError: (frame) => {
-        console.error("Error: " + frame.headers["message"]);
-      },
-    });
+      client.activate();
+      stompClientRef.current = client;
+    };
 
-    client.activate();
-    setStompClient(client);
+    connectWebSocket();
 
     return () => {
-      client.deactivate();
+      stompClientRef.current?.deactivate();
     };
-  }, [dataToken]);
+  }, []);
 
   return (
-    <WebSocketContext.Provider value={{ stompClient, isConnected, usersOnline, messages, setDataToken }}>
+    <WebSocketContext.Provider value={{ stompClient: stompClientRef.current, isConnected }}>
       {children}
     </WebSocketContext.Provider>
   );

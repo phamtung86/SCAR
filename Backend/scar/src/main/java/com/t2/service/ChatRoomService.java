@@ -25,8 +25,8 @@ public class ChatRoomService implements IChatRoomService {
 		if (senderId == null || receiverId == null) {
 			throw new IllegalArgumentException("Sender ID and Receiver ID must not be null");
 		}
-		UserDTO senderDto = userService.findUserById(senderId);
-		UserDTO receiverDto = userService.findUserById(receiverId);
+		UserDTO senderDto = userService.findUserDTOById(senderId);
+		UserDTO receiverDto = userService.findUserDTOById(receiverId);
 
 		if (senderDto == null || receiverDto == null) {
 			throw new IllegalArgumentException("Sender or receiver not found");
@@ -49,8 +49,8 @@ public class ChatRoomService implements IChatRoomService {
 
 	@Override
 	public String createChatId(Integer senderId, Integer receiverId) {
-		UserDTO senderDto = userService.findUserById(senderId);
-		UserDTO receiverDto = userService.findUserById(receiverId);
+		UserDTO senderDto = userService.findUserDTOById(senderId);
+		UserDTO receiverDto = userService.findUserDTOById(receiverId);
 		User sender = modelMapper.map(senderDto, User.class);
 		User receiver = modelMapper.map(receiverDto, User.class);
 

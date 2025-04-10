@@ -1,25 +1,54 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import CommentApi from '../../api/CommentApi';
 import '../../assets/style/Comment.css';
-import axiosClient from '../../configs/axiosClient';
 import { WebSocketContext } from '../../context/WebSocketContext';
 import CommentInput from './CommentInput';
 import CommentItem from './CommentItem';
+import { lockScrollToElement, unlockScrollFromElement } from '../../utils/BlockScroll';
 
-const Comment = ({ currentUser, changeStatusDisplayAction, postId, author }) => {
+
+const DISPLAY_NONE = 0;
+const DISPLAY_COMMENTS = 1;
+
+const Comment = ({ displayAction, currentUser, changeStatusDisplayAction, postId, author }) => {
     const [comments, setComments] = useState([]);
     const [contentComment, setContentComment] = useState('');
     const [contentReply, setContentReply] = useState('');
     const { stompClient, isConnected } = useContext(WebSocketContext);
     const inputRef = useRef(null);
     const lastCommentRef = useRef(null);
-    const [replyingToCommentId, setReplyingToCommentId] = useState(null); 
+    const [replyingToCommentId, setReplyingToCommentId] = useState(null);
+    const popupRef = useRef(null);
+
+    // useEffect(() => {
+    //     if (displayAction === DISPLAY_COMMENTS) {
+    //         // Focus vào popup
+    //         if (popupRef.current) {
+    //             popupRef.current.focus();
+    //         }
+
+    //         // Chặn cuộn trang
+    //         document.body.style.overflow = "hidden";
+    //     } else {
+    //         document.body.style.overflow = "auto";
+    //     }
+
+    //     return () => {
+    //         document.body.style.overflow = "auto";
+    //     };
+    // }, [displayAction]);
+
+    lockScrollToElement(popupRef.current);
+
 
     // Fetch comments
     const fetchComments = useCallback(async () => {
         if (!postId) return;
         try {
-            const { data } = await axiosClient.get(`/api/v1/comments/post/${postId}`);
-            setComments(data);
+            const response = await CommentApi.getCommentsByPostId(postId);
+            if (response) {
+                setComments(response.data);
+            }
         } catch (error) {
             console.error("Error fetching comments: ", error);
         }
@@ -29,33 +58,26 @@ const Comment = ({ currentUser, changeStatusDisplayAction, postId, author }) => 
         fetchComments();
     }, [fetchComments]);
 
-    // Ham lay data comment reply
-    const fetchCommentReplysByCommentId = async (commentId) => {
-        try {
-            const response = await axiosClient.get(`/api/v1/comments/${commentId}`);
-            if (response.status === 200) {
-                // setCommentReplies(response.data)
-                return response.data;
-            }
-        } catch (error) {
-            console.error("Error fetching comment replies: ", error);
-        }
-    };
-
     // Subscribe WebSocket
     useEffect(() => {
         if (!stompClient || !isConnected) return;
+
         const subscription = stompClient.subscribe('/topic/comments', (message) => {
-            setComments(JSON.parse(message.body));
+            try {
+                const data = JSON.parse(message.body);
+                setComments(data.body);
+            } catch (error) {
+                console.error("Lỗi parse JSON:", error);
+            }
         });
 
-        return () => subscription.unsubscribe();
+        return () => {
+            if (subscription) {
+                subscription.unsubscribe();
+            }
+        };
     }, [stompClient, isConnected]);
 
-    // Auto-scroll khi có comment mới
-    useEffect(() => {
-        lastCommentRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [comments]);
 
     // Gửi bình luận
     const handleSendComment = async () => {
@@ -65,7 +87,7 @@ const Comment = ({ currentUser, changeStatusDisplayAction, postId, author }) => 
         const message = {
             content,
             user: {
-                id: currentUser?.userId,
+                id: currentUser?.id,
                 firstName: currentUser?.fullName?.split(' ')[0],
                 lastName: currentUser?.fullName?.split(' ')[1],
                 profilePicture: currentUser?.profilePicture,
@@ -84,6 +106,31 @@ const Comment = ({ currentUser, changeStatusDisplayAction, postId, author }) => 
         inputRef.current?.focus();
     };
 
+    // Ham thay doi trang thai like
+    const changeStatusCommentLike = async (postId, commentId, userId) => {
+        if (!stompClient || !isConnected) {
+            alert("Không thể thực hiện hành động này. Vui lòng thử lại sau")
+            return;
+        }
+
+        const message = {
+            postId: postId,
+            commentId: commentId,
+            userId: userId
+        };
+
+        stompClient.publish({
+            destination: '/app/change-status',
+            body: JSON.stringify(message),
+        });
+
+        setContentComment('');
+        setReplyingToCommentId(null);
+        inputRef.current?.focus();
+    };
+
+
+
     // Xử lý chọn comment để trả lời
     const handleSetReplyingTo = (commentId) => {
         setReplyingToCommentId((prev) => (prev === commentId ? null : commentId));
@@ -99,14 +146,19 @@ const Comment = ({ currentUser, changeStatusDisplayAction, postId, author }) => 
 
 
     return (
-        <div className='comment'>
+        <div className='comment' tabIndex={0}>
             <div className='comment-window'>
-                <button className='comment-close' onClick={() => changeStatusDisplayAction(0)}>X</button>
+                <button className='comment-close' onClick={() => {
+                    changeStatusDisplayAction(DISPLAY_NONE);
+                    unlockScrollFromElement(popupRef.current);
+                }
+                }>X</button>
                 <div className='comment-title'>Bài viết của <strong>{author?.firstName} {author?.lastName}</strong></div>
                 <div className="comment_content_user">
-                    {comments.map((comment) => (
+                    {Array.isArray(comments) && comments.map((comment) => (
                         <CommentItem
                             key={comment.id}
+                            postId={postId}
                             comment={comment}
                             currentUser={currentUser}
                             replyingToCommentId={replyingToCommentId}
@@ -115,6 +167,7 @@ const Comment = ({ currentUser, changeStatusDisplayAction, postId, author }) => 
                             handleSetComment={handleSetComment}
                             setComments={setComments}
                             handleSetCommentReply={handleSetCommentReply}
+                            changeStatusCommentLike={changeStatusCommentLike}
                         />
                     ))}
                     <div ref={lastCommentRef} />

@@ -4,6 +4,7 @@ import com.t2.dto.CommentsDTO;
 import com.t2.service.ICommentService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,21 +22,18 @@ public class CommentController {
     private ICommentService commentService;
 
     @GetMapping("/post/{id}")
-    public List<CommentsDTO> getComments(@PathVariable Integer id) {
-        return commentService.getCommentsByPostId(id);
+    public ResponseEntity<List<CommentsDTO> > findCommentsByPost(@PathVariable Integer id) {
+        return ResponseEntity.ok(commentService.getCommentsByPostId(id));
     }
 
     @Transactional
     @MessageMapping("/comment")
     @SendTo("/topic/comments")
-    public List<CommentsDTO> addComment(CommentsDTO comment) {
+    public ResponseEntity<List<CommentsDTO>> addComment(CommentsDTO comment) {
         commentService.saveComment(comment);
-        return commentService.getCommentsByPostId(comment.getPostsId());
+        List<CommentsDTO> commentsDTOS = commentService.getCommentsByPostId(comment.getPostsId());
+        return ResponseEntity.ok(commentsDTOS);
     }
 
-    @GetMapping("/{id}")
-    public List<CommentsDTO> getCommentById(@PathVariable Integer id) {
-        return commentService.findCommentsById(id);
-    }
 }
 

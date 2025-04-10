@@ -1,9 +1,9 @@
 package com.t2.jwtutils;
 
+import com.t2.config.DotEnvConfig;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -16,17 +16,11 @@ import java.util.Map;
 public class TokenManager {
     private static final long TOKEN_VALIDITY = 24 * 60 * 60 ;
 
-    @Value("${secret}")
-    private String jwtSecret;
-
     // Generate JWT Token
     public String generateToken(CustomUserDetails customUserDetails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("sub", customUserDetails.getUsername());
         claims.put("exp", (new Date().getTime() + TOKEN_VALIDITY));
-        claims.put("userId", customUserDetails.getUserId());
-        claims.put("fullName", customUserDetails.getFullName());
-        claims.put("profilePicture", customUserDetails.getProfilePicture());
         return Jwts
                 .builder()
                 .setClaims(claims)
@@ -97,6 +91,8 @@ public class TokenManager {
 
     // Create HMAC key from jwtSecret
     private Key key() {
+        DotEnvConfig dotENV = new DotEnvConfig();
+        String jwtSecret = DotEnvConfig.getSecret();
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
 }

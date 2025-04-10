@@ -9,12 +9,17 @@ import com.t2.repository.PostRepository;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,15 +34,26 @@ public class PostService implements IPostService{
     private IFriendShipService friendShipService;
     @Autowired
     private IUserService userService;
+    @Autowired
+    private IPostImageService postImageService;
 
+    @Transactional
     @Override
-    public void createPost(CreatePostForm createPostForm) {
-        Posts posts = modelMapper.map(createPostForm, Posts.class);
-        if (posts != null){
-            postRepository.save(posts);
-        } else {
-            throw new IllegalArgumentException("Dữ liệu bài viết không hợp lệ");
+    public void createPost(CreatePostForm createPostForm) throws IOException {
+        Posts posts = new Posts();
+        User user = userService.findUserById(createPostForm.getUserId());
+        posts.setUser(user);
+        posts.setContent(createPostForm.getContent());
+        posts.setCreatedDate(new Date());
+        postRepository.save(posts);
+
+        Posts p = postRepository.findTopByOrderByIdDesc();
+        if(createPostForm.getImages() != null && !createPostForm.getImages().isEmpty()) {
+            for (MultipartFile f : createPostForm.getImages()) {
+                postImageService.uploadImage(f,p);
+            }
         }
+
     }
 
     @Override
@@ -51,10 +67,12 @@ public class PostService implements IPostService{
                 LocalDateTime.now()
         );
 
-        double recencyScore = 1 / (1 + Math.exp(hoursSincePosted - 10));
+//        double recencyScore = 1 / (1 + Math.exp(hoursSincePosted - 10));
+        double recencyScore = Math.exp(-0.1 * hoursSincePosted);
+
         double engagementScore = (5 * likes) + (10 * comments);
 
-        UserDTO userDTO = userService.findUserById(userId);
+        UserDTO userDTO = userService.findUserDTOById(userId);
         User user = modelMapper.map(userDTO, User.class);
         UserDTO postUserDto = posts.getUser();
         User postUser = modelMapper.map(postUserDto, User.class);
@@ -65,14 +83,12 @@ public class PostService implements IPostService{
         return engagementScore * socialFactor + recencyScore;
     }
 
+    @Transactional
     @Override
     public List<PostsDTO> showPosts(Integer userId) {
         List<Posts> posts = postRepository.findAll();
         List<PostsDTO> postsDTO = modelMapper.map(posts, new TypeToken<List<PostsDTO>>(){}.getType());
 
-        for (PostsDTO postsDTO1 : postsDTO) {
-            System.out.println(calculateScore(postsDTO1, userId));
-        }
         return postsDTO.stream()
                 .sorted(Comparator.comparingDouble(post -> -calculateScore(post, userId)))
                 .collect(Collectors.toList());
@@ -81,5 +97,19 @@ public class PostService implements IPostService{
     @Override
     public Posts findPostById(Integer postId) {
         return postRepository.findById(postId).orElse(null);
+    }
+
+    @Modifying
+    @Override
+    public void deletePost(Integer postId) {
+        postRepository.deleteById(postId);
+    }
+
+    @Override
+    public List<PostsDTO> findPostsByUserId(Integer userId) {
+        User user = userService.findUserById(userId);
+        List<Posts> posts = postRepository.findPostsByUser(user);
+        List<PostsDTO> postsDTO = modelMapper.map(posts, new TypeToken<List<PostsDTO>>() {}.getType());
+        return postsDTO;
     }
 }

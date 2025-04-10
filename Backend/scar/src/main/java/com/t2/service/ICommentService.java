@@ -10,7 +10,7 @@ public interface ICommentService {
 
     void saveComment(CommentsDTO comment);
 
-    List<CommentsDTO> findCommentsById(Integer id);
+    Comments findCommentById(Integer id);
 
-//    boolean existsByCommentId(Integer id);
+
 }

@@ -17,6 +17,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("api/v1/auth")
 public class JwtController {
@@ -49,25 +51,31 @@ public class JwtController {
                 .sameSite("None")
                 .maxAge(7 * 24 * 60 * 60) // Hết hạn sau 7 ngày
                 .build();
-        System.out.println(cookie);
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(new JwtResponseModel(accessToken));
+        return ResponseEntity.ok(Map.of(
+                "accessToken", accessToken,
+                "user", Map.of(
+                        "id", userDetails.getUserId(),
+                        "username", userDetails.getUsername(),
+                        "fullName", userDetails.getFullName(),
+                        "role", userDetails.getRole(),
+                        "profilePicture", userDetails.getProfilePicture()
+                )
+        ));
     }
+//    @PostMapping("/refresh-token")
+//    public ResponseEntity<?> refreshToken(@CookieValue(name = "refreshToken", required = false) String refreshToken) {
+//        if (refreshToken == null || !tokenManager.validateTokenRefresh(refreshToken)) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token expired. Please log in again.");
+//        }
+//
+//        String username = tokenManager.extractUsername(refreshToken);
+//        CustomUserDetails userDetails = jwtUserDetailsService.loadUserByUsername(username);
+//        String newAccessToken = tokenManager.generateToken(userDetails);
+//
+//        return ResponseEntity.ok(new JwtResponseModel(newAccessToken));
+//    }
 
-
-    @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken(@CookieValue(name = "refreshToken", required = false) String refreshToken) {
-        if (refreshToken == null || !tokenManager.validateTokenRefresh(refreshToken)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token expired. Please log in again.");
-        }
-
-        String username = tokenManager.extractUsername(refreshToken);
-        CustomUserDetails userDetails = jwtUserDetailsService.loadUserByUsername(username);
-        String newAccessToken = tokenManager.generateToken(userDetails);
-
-        return ResponseEntity.ok(new JwtResponseModel(newAccessToken));
-    }
+//
 
 }
 

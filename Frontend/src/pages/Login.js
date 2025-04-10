@@ -1,29 +1,27 @@
 import { faArrowLeft, faHouse, faLock, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import axios from "axios";
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
-import { Client } from '@stomp/stompjs';
-import SockJS from "sockjs-client";
+import AuthApi from '../api/Auth';
 import logo from '../assets/image/SCAR.jpg';
 import vf9 from '../assets/image/VF9.mp4';
 import '../assets/style/Login.css';
+import { AuthContext } from '../context/AuthContext';
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState("");
-  const [dataToken, setDataToken] = useState(null);
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:8080/api/v1/auth/login", { username, password });
-
-      if (response.data.token) {
-        localStorage.setItem("token", response.data.token);
-        setDataToken(response.data);
+      const response = await AuthApi.login({ username, password });
+    
+      if (response.data) {
+        login(response.data.user, response.data.accessToken); 
         navigate("/");
       }
     } catch (error) {

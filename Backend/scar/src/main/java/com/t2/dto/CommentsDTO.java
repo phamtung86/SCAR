@@ -28,4 +28,6 @@ public class CommentsDTO {
 
     private List<CommentsDTO> replies;
 
+    private List<CommentLikesDTO> commentLikes;
+
 }
