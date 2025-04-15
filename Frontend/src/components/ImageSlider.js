@@ -6,18 +6,18 @@ const ImageSlider = ({ images }) => {
   const [isZooming, setIsZooming] = useState(false);
   const [imageStyles, setImageStyles] = useState([]);
 
-  const totalImages = images.length;
+  const totalImages = images?.length;
 
   // Xử lý tỷ lệ ảnh để hiển thị phù hợp
   useEffect(() => {
     const loadImageSizes = async () => {
       const styles = await Promise.all(
-        images.map((img) => {
+        images?.map((img) => {
           return new Promise((resolve) => {
             const image = new Image();
             image.src = img.imageUrl;
             image.onload = () => {
-              const aspectRatio = image.naturalWidth / image.naturalHeight;
+              const aspectRatio = image?.naturalWidth / image?.naturalHeight;
               resolve({
                 width: "100%",
                 height: aspectRatio > 1 ? "300px" : "500px",
@@ -30,7 +30,7 @@ const ImageSlider = ({ images }) => {
       setImageStyles(styles);
     };
 
-    if (images.length > 0) {
+    if (images?.length > 0) {
       loadImageSizes();
     }
   }, [images]);
@@ -53,7 +53,7 @@ const ImageSlider = ({ images }) => {
   return (
     <div className="slider-container">
       <div className="slider">
-        {images.map((image, index) => (
+        {images?.map((image, index) => (
           <div
             key={index}
             className={`slide ${index === currentIndex ? "active" : ""}`}
@@ -71,7 +71,7 @@ const ImageSlider = ({ images }) => {
               <div
                 className="zoom-lens"
                 style={{
-                  backgroundImage: `url(${image.imageUrl})`,
+                  backgroundImage: `url(${image?.imageUrl})`,
                   backgroundPosition: `${zoomPos.x}% ${zoomPos.y}%`,
                 }}
               ></div>

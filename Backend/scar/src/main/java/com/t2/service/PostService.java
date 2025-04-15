@@ -5,6 +5,7 @@ import com.t2.dto.UserDTO;
 import com.t2.entity.Posts;
 import com.t2.entity.User;
 import com.t2.form.CreatePostForm;
+import com.t2.mapper.PostMapper;
 import com.t2.repository.PostRepository;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
@@ -24,18 +25,22 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class PostService implements IPostService{
+public class PostService implements IPostService {
 
     @Autowired
     private PostRepository postRepository;
     @Autowired
     private ModelMapper modelMapper;
+
     @Autowired
     private IFriendShipService friendShipService;
     @Autowired
     private IUserService userService;
     @Autowired
     private IPostImageService postImageService;
+
+    @Autowired
+    private PostMapper postMapper;
 
     @Transactional
     @Override
@@ -48,9 +53,9 @@ public class PostService implements IPostService{
         postRepository.save(posts);
 
         Posts p = postRepository.findTopByOrderByIdDesc();
-        if(createPostForm.getImages() != null && !createPostForm.getImages().isEmpty()) {
+        if (createPostForm.getImages() != null && !createPostForm.getImages().isEmpty()) {
             for (MultipartFile f : createPostForm.getImages()) {
-                postImageService.uploadImage(f,p);
+                postImageService.uploadImage(f, p);
             }
         }
 
@@ -60,7 +65,7 @@ public class PostService implements IPostService{
     public Double calculateScore(PostsDTO posts, Integer userId) {
         if (posts == null) return 0.0;
 
-        int likes = (posts.getLikes() != null) ? posts.getLikes().size() : 0;
+        int likes = Math.max(posts.getTotalLikes(), 0);
         int comments = (posts.getComments() != null) ? posts.getComments().size() : 0;
         long hoursSincePosted = ChronoUnit.HOURS.between(
                 posts.getCreatedDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),
@@ -87,12 +92,15 @@ public class PostService implements IPostService{
     @Override
     public List<PostsDTO> showPosts(Integer userId) {
         List<Posts> posts = postRepository.findAll();
-        List<PostsDTO> postsDTO = modelMapper.map(posts, new TypeToken<List<PostsDTO>>(){}.getType());
 
+        List<PostsDTO> postsDTO = postMapper.toDTOs(posts);
+
+        // Sắp xếp theo điểm số
         return postsDTO.stream()
                 .sorted(Comparator.comparingDouble(post -> -calculateScore(post, userId)))
                 .collect(Collectors.toList());
     }
+
 
     @Override
     public Posts findPostById(Integer postId) {
@@ -109,7 +117,8 @@ public class PostService implements IPostService{
     public List<PostsDTO> findPostsByUserId(Integer userId) {
         User user = userService.findUserById(userId);
         List<Posts> posts = postRepository.findPostsByUser(user);
-        List<PostsDTO> postsDTO = modelMapper.map(posts, new TypeToken<List<PostsDTO>>() {}.getType());
+        List<PostsDTO> postsDTO = modelMapper.map(posts, new TypeToken<List<PostsDTO>>() {
+        }.getType());
         return postsDTO;
     }
 }

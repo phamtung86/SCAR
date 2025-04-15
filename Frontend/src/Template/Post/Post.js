@@ -12,7 +12,7 @@ const DISPLAY_COMMENTS = 1;
 const DISPLAY_NONE = 0;
 const DISPLAY_POST_ACTIONS = 2;
 
-const MAX_CONTENT_LENGTH = 150; // Giới hạn số ký tự hiển thị ban đầu
+const MAX_CONTENT_LENGTH = 150; // Giới hạn số ký tự hiển thị ban đầu 
 
 const Post = ({ post, setPostId, setAuthor, user, author, postId }) => {
     const { stompClient, isConnected } = useContext(WebSocketContext);
@@ -89,7 +89,7 @@ const Post = ({ post, setPostId, setAuthor, user, author, postId }) => {
                 <div className="post-actions">
                     <div className="post-action" onClick={() => handleLike()}>
                         <FontAwesomeIcon icon={isLiked(post?.likes) ? faHeartSolid : faHeartRegular}
-                            style={{ color: isLiked(post?.likes) ? "#f5385e" : "inherit" }} /> {post?.likes?.length} Yêu thích
+                            style={{ color: isLiked(post?.likes) ? "#f5385e" : "inherit" }} /> {post?.totalLikes} Yêu thích
                     </div>
                     <div className="post-action" onClick={() => {
                         setDisplayAction(DISPLAY_COMMENTS)

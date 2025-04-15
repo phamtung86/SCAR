@@ -15,7 +15,7 @@ public class Brands {
 
     private String name;
 
-    @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private List<Cars> cars;
 
 }

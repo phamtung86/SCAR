@@ -5,88 +5,43 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0e5023a0-69d0-4743-9f57-9e088a85e3c6" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/scar/.env" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/config/DotEnvConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/config/InternationalizationConfiguration.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/config/exception/AuthExceptionHandler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/config/exception/ErrorResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/config/exception/RestExceptionHandler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/config/exception/UserException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/CommentLikeController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/dto/CommentLikesDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/form/ChangeStatusLikeCommentForm.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/form/ChangeStatusLikeForm.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/CommentLikeRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/PostImageRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/CommentLikeService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ICommentLikeService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/IPostImageService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/PostImageService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/util/ImageUtils.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/validation/User/EmailExists.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/validation/User/EmailExistsValidator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/validation/User/UsernameExists.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/validation/User/UsernameExistsValidator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/resources/messages.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/dto/socket/LikeUpdate.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/mapper/CommentsMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/mapper/PostImageMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/mapper/PostMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/mapper/UserMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/.env" beforeDir="false" afterPath="$PROJECT_DIR$/scar/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/scar/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/ScarApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/ScarApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/config/WebSecurityCongfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/config/WebSecurityCongfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/BrandsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/BrandsController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/ChatController.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/ChatController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/CommentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/CommentController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/JwtController.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/JwtController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/config/DotEnvConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/config/DotEnvConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/LikeController.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/LikeController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/PostController.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/PostController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/UserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/dto/CommentsDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/dto/CommentsDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/dto/PostImageDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/dto/PostImageDTO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/dto/PostsDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/dto/PostsDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Brands.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Brands.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Cars.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Cars.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/ChatMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/ChatMessage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/ChatRoom.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/ChatRoom.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/CommentLikes.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/CommentLikes.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Comments.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Comments.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/FriendShips.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/FriendShips.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/GroupMembers.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/GroupMembers.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/GroupPost.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/GroupPost.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Groups.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Groups.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Likes.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Likes.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/PostImage.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/PostImage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/form/CreateNewUserForm.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/form/CreateNewUserForm.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/form/CreatePostForm.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/form/CreatePostForm.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/form/CreateUserForm.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/form/CreateUserForm.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/jwtutils/CustomUserDetails.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/jwtutils/CustomUserDetails.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/jwtutils/JwtFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/jwtutils/JwtFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/jwtutils/JwtUserDetailsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/jwtutils/JwtUserDetailsService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/jwtutils/TokenManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/jwtutils/TokenManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/models/JwtResponseModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/models/JwtResponseModel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/CommentRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/CommentRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Posts.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Posts.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Type.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Type.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/UserCar.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/UserCar.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/LikeRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/LikeRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/PostRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/PostRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/UserRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ChatRoomService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ChatRoomService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/CommentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/CommentService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ICommentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ICommentService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ILikesService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ILikesService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/IPostService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/IPostService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/IUserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/IUserService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/LikeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/LikeService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/PostService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/PostService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/UserService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/public/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/public/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/src/App.css" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/src/App.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/src/App.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/src/Template/Comments/Comment.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/src/Template/Comments/CommentAvatar.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/src/Template/Comments/CommentInput.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/src/Template/Comments/CommentItem.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/src/Template/TimeAgo.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/src/assets/style/Comment.css" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/src/assets/style/Comment.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/src/assets/style/Home.css" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/src/assets/style/Home.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/src/assets/style/Social.css" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/src/assets/style/Social.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/src/configs/Decode.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/src/configs/axiosClient.js" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/src/configs/axiosClient.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/src/context/WebSocketContext.js" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/src/context/WebSocketContext.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/src/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/src/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/src/pages/Home.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/src/pages/Login.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/src/pages/Social.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/src/Template/Post/Post.js" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/src/Template/Post/Post.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/src/components/ImageSlider.js" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/src/components/ImageSlider.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/src/pages/Social.js" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/src/pages/Social.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -96,8 +51,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Interface" />
         <option value="Class" />
+        <option value="Interface" />
       </list>
     </option>
   </component>
@@ -113,32 +68,32 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.ScarApplication.executor&quot;: &quot;Run&quot;,
-    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
-    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
-    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
-    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;Spring Boot.ScarApplication.executor&quot;: &quot;Run&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;PT&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;M:/Source Code/VS Code/SCAR_DETAIL/SCAR/Backend/scar/src/main/java/com/t2/util&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.22988506&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.projectsettings.compiler.annotationProcessors&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.ScarApplication.executor": "Run",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Spring Boot.ScarApplication.executor": "Run",
+    "git-widget-placeholder": "PT",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "M:/Source Code/VS Code/SCAR_DETAIL/SCAR/Backend/scar/src/main/java/com/t2/util",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.22988506",
+    "settings.editor.selected.configurable": "reference.projectsettings.compiler.annotationProcessors",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
       <recent name="com.t2.exception" />
@@ -227,6 +182,9 @@
       <workItem from="1744213372403" duration="1177000" />
       <workItem from="1744259597896" duration="2211000" />
       <workItem from="1744275140280" duration="1433000" />
+      <workItem from="1744343011491" duration="356000" />
+      <workItem from="1744633780934" duration="5100000" />
+      <workItem from="1744678942313" duration="17013000" />
     </task>
     <servers />
   </component>
@@ -254,6 +212,16 @@
           <url>file://$PROJECT_DIR$/scar/src/main/java/com/t2/service/CommentLikeService.java</url>
           <line>29</line>
           <option name="timeStamp" value="9" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/scar/src/main/java/com/t2/controller/LikeController.java</url>
+          <line>32</line>
+          <option name="timeStamp" value="17" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/scar/src/main/java/com/t2/service/LikeService.java</url>
+          <line>39</line>
+          <option name="timeStamp" value="18" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-method">
           <url>file://$PROJECT_DIR$/scar/src/main/java/com/t2/controller/UserController.java</url>

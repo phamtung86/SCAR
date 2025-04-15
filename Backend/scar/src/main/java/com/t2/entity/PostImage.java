@@ -24,7 +24,7 @@ public class PostImage {
     private String imageUrl;
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "post_id", referencedColumnName = "id", nullable = false)
     private Posts post;
 }

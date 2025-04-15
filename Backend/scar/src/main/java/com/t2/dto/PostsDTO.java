@@ -25,5 +25,5 @@ public class PostsDTO {
 
     private List<CommentsDTO> comments;
 
-    private List<LikesDTO> likes;
+    private Integer totalLikes;
 }

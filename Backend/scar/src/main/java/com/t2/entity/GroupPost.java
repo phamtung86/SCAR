@@ -15,12 +15,12 @@ public class GroupPost {
     @EmbeddedId
     private GroupPostKey id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("groupId") // Sử dụng đúng tên trường trong GroupPostKey
     @JoinColumn(name = "group_id")
     private Groups group;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("postId") // Đồng bộ tên với trường trong GroupPostKey
     @JoinColumn(name = "post_id")
     private Posts post;

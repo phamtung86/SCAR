@@ -27,14 +27,14 @@ public class Posts {
 
     private Date updatedDate;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    @OneToMany(mappedBy = "posts",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "posts",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Comments> comments;
 
-    @OneToMany(mappedBy = "posts",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "posts",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Likes> likes;
 
 }

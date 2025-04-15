@@ -16,11 +16,11 @@ public class CommentLikes {
 
     private Date createdDate;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "comment_id", referencedColumnName = "id", nullable = false)
     private Comments comments;
 }
