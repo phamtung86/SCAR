@@ -16,7 +16,7 @@ public class Type {
 
     private String name;
 
-    @OneToMany(mappedBy = "type")
+    @OneToMany(mappedBy = "type", fetch = FetchType.LAZY)
     private List<Cars> cars;
 
 }

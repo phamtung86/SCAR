@@ -14,12 +14,12 @@ public class GroupMembers {
     @EmbeddedId
     private GroupMemberKey id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("groupId")
     @JoinColumn(name = "group_id", referencedColumnName = "id")
     private Groups group;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("userId")
     @JoinColumn(name = "member_id", referencedColumnName = "id")
     private User user;

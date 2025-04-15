@@ -27,6 +27,6 @@ public class Groups {
     @Column(name = "update_date")
     private Date updateDate;
 
-    @OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "group", fetch = FetchType.LAZY)
     private List<GroupMembers> groupMembers;
 }

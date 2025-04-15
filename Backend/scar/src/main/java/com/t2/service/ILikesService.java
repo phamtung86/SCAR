@@ -9,5 +9,8 @@ public interface ILikesService {
 
     void changeStatusLikes(Integer userId,Integer postId);
 
-    List<LikesDTO> findLikesByPosts(Integer postId);
+
+    int countLikesByPostId(Integer postId);
+
+    boolean isLiked(Integer userId,Integer postId);
 }

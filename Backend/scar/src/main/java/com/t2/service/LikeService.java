@@ -52,10 +52,15 @@ public class LikeService implements ILikesService{
     }
 
     @Override
-    public List<LikesDTO> findLikesByPosts(Integer postId) {
+    public int countLikesByPostId(Integer postId) {
         Posts posts = postService.findPostById(postId);
-        List<Likes> likes = likeRepository.findLikesByPosts(posts);
-        List<LikesDTO> likesDTO = modelMapper.map(likes, new TypeToken<List<LikesDTO>>(){}.getType());
-        return likesDTO;
+        return likeRepository.countLikesByPosts(posts);
+    }
+
+    @Override
+    public boolean isLiked(Integer userId, Integer postId) {
+        Posts posts = postService.findPostById(postId);
+        User user = userService.findUserById(userId);
+        return likeRepository.existsLikesByUserAndPosts(user,posts);
     }
 }

@@ -18,16 +18,16 @@ public class ChatMessage {
 
     private String chatId;
 
-    @ManyToOne
-    @JoinColumn(name = "chat_room_id", referencedColumnName = "id")  // Khóa ngoại liên kết với ChatRoom
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "chat_room_id", referencedColumnName = "id")
     private ChatRoom chatRoom;
 
-    @ManyToOne
-    @JoinColumn(name = "sender_id", referencedColumnName = "id")  // Khóa ngoại liên kết với User (sender)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "sender_id", referencedColumnName = "id")
     private User sender;
 
-    @ManyToOne
-    @JoinColumn(name = "recipient_id", referencedColumnName = "id")  // Khóa ngoại liên kết với User (recipient)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "recipient_id", referencedColumnName = "id")
     private User recipient;
 
     private String content;

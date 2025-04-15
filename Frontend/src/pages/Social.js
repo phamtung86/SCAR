@@ -25,12 +25,15 @@ const Social = () => {
             const subscription = stompClient.subscribe('/topic/social', (message) => {
                 try {
                     const data = JSON.parse(message.body);
-                    if (data.body.id && typeof data.body.likes !== "undefined") {
-                        // Cập nhật số lượng like của bài viết có ID tương ứng
+                    console.log(data);
+                    if (data) {
+                
                         setPosts(prevPosts => prevPosts.map(post =>
-                            post.id === data.body.id ? { ...post, likes: data.body.likes } : post
+                            post.id === data.postId ? { ...post, totalLikes: data.totalLikes } : post
+                            // console.log(post?.id === data.postID)
                         ));
                     }
+                    console.log(posts);
 
                 } catch (error) {
                     console.error("Error parsing WebSocket data:", error);
@@ -46,6 +49,8 @@ const Social = () => {
     const fetchPosts = async (userId) => {
         try {
             const response = await PostApi.getPosts(userId)
+            console.log(response);
+            
             if (response.status === 200) {
                 setPosts(response.data)
             }
@@ -107,13 +112,13 @@ const Social = () => {
                 {
                     posts.map(post => (
                         <Post
-                            key={post.id}
+                            key={post?.id}
                             post={post}
                             setPostId={setPostId}
                             setAuthor={setAuthor}
                             user={currentUser}
                             author={author}
-                            postId={postId}
+                            postId={post?.id}
                         />
                     ))
                 }

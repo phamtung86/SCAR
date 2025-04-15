@@ -15,12 +15,12 @@ public class FriendShips {
     @EmbeddedId
     private FriendShipsKey id; // Dùng composite key
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("userId")
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("friendId")
     @JoinColumn(name = "friend_id", nullable = false)
     private User friend;

@@ -53,19 +53,20 @@ public class User {
     @Column(name = "status")
     private String status;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<GroupMembers> groupMembers;
 
-    @OneToMany(mappedBy = "sender" ,fetch = FetchType.EAGER)
-    private List<ChatMessage> sentMessages; // Danh sách tin nhắn gửi đi
+    @OneToMany(mappedBy = "sender", fetch = FetchType.LAZY)
+    private List<ChatMessage> sentMessages;
 
-    @OneToMany(mappedBy = "recipient", fetch = FetchType.EAGER)
-    private List<ChatMessage> receivedMessages; // Danh sách tin nhắn nhận được
+    @OneToMany(mappedBy = "recipient", fetch = FetchType.LAZY)
+    private List<ChatMessage> receivedMessages;
 
-    @OneToMany(mappedBy = "sender", fetch = FetchType.EAGER)
-    private List<ChatRoom> senderRooms; // Danh sách phòng chat mà người dùng là người gửi
+    @OneToMany(mappedBy = "sender", fetch = FetchType.LAZY)
+    private List<ChatRoom> senderRooms;
 
-    @OneToMany(mappedBy = "recipient", fetch = FetchType.EAGER)
-    private List<ChatRoom> recipientRooms; // Danh sách phòng chat mà người dùng là người nhận
+    @OneToMany(mappedBy = "recipient", fetch = FetchType.LAZY)
+    private List<ChatRoom> recipientRooms;
+
 
 }

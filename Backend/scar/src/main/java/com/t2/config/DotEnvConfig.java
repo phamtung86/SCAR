@@ -35,5 +35,14 @@ public class DotEnvConfig {
         return dotenv != null ? dotenv.get("CLOUD_API_SECRET") : null;
     }
 
+    public static String getDbUrl(){
+        return dotenv != null ? dotenv.get("DB_URL") : null;
+    }
+    public static String getDbUsername(){
+        return dotenv != null ? dotenv.get("DB_USERNAME") : null;
+    }
+    public static String getDbPassword(){
+        return dotenv != null ? dotenv.get("DB_PASSWORD") : null;
+    }
 
 }

@@ -20,5 +20,6 @@ public interface LikeRepository extends JpaRepository<Likes,Integer> {
     @Transactional
     void deleteLikesByUserAndPosts(User user, Posts posts);
 
+    int countLikesByPosts(Posts posts);
 
 }

@@ -140,7 +140,20 @@
             <artifactId>cloudinary-http45</artifactId>
             <version>1.38.0</version>
         </dependency>
+        <!-- Thư viện MapStruct chính -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>1.5.5.Final</version>
+        </dependency>
 
+        <!-- Annotation Processor (để nó tạo mapper tự động khi build) -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-processor</artifactId>
+            <version>1.5.5.Final</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
 
