@@ -1,0 +1,80 @@
+package com.t2.controller;
+
+import com.t2.dto.ChatMessageDTO;
+import com.t2.dto.UserDTO;
+import com.t2.entity.User;
+import com.t2.form.UpdateProfileForm;
+import com.t2.models.UserResponse;
+import com.t2.service.IUserReviewService;
+import com.t2.service.IUserService;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("api/v1/users")
+@Validated
+public class UserController {
+
+    @Autowired
+    private IUserService userService;
+    @Autowired
+    private IUserReviewService iUserReviewService;
+    @Autowired
+    private ModelMapper modelMapper;
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Integer id) {
+        UserDTO userDTO = userService.findUserDTOById(id);
+        UserResponse userResponse = modelMapper.map(userDTO, UserResponse.class);
+        userResponse.setRating(iUserReviewService.calculateRateByUserId(id));
+        if (userDTO == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(userResponse);
+    }
+
+    @PutMapping
+    public ResponseEntity<?> updateUser(@ModelAttribute UpdateProfileForm updateProfileForm, @RequestParam(name = "id") Integer id) throws IOException {
+        updateProfileForm.setId(id);
+        boolean isUpdate = userService.updateUser(updateProfileForm);
+        return isUpdate ? ResponseEntity.ok().build() : ResponseEntity.status(500).body("Edit profile failed");
+    }
+
+    @MessageMapping("/user-status/online")
+    @SendTo("/topic/status")
+    public List<UserDTO> updateUserStatusOnline(Integer id) {
+        try {
+            userService.updateStatusUser(id, "ONLINE");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return userService.findUserByStaus("ONLINE");
+    }
+
+    @MessageMapping("/user-status/offline")
+    @SendTo("/topic/status")
+    public List<UserDTO> updateUserStatusOffline(Integer id) {
+        try {
+            userService.updateStatusUser(id, "OFFLINE");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return userService.findUserByStaus("ONLINE");
+    }
+
+    @GetMapping("/chatted/{userId}")
+    public List<Map<String, Object>> findUserChatted(
+            @PathVariable(name = "userId") Integer userId) {
+        return userService.findUserChatted(userId);
+    }
+
+}

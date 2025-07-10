@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="0e5023a0-69d0-4743-9f57-9e088a85e3c6" name="Changes" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="AnnotationType" />
+        <option value="Interface" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="2p32uvHmdiPLKcqEkgQ9QieVXg9" />
+  <component name="ProjectViewState">
+    <option name="flattenModules" value="true" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.ScarApplication.executor": "Run",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Spring Boot.ScarApplication.executor": "Run",
+    "git-widget-placeholder": "PT",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "M:/Source Code/VS Code/SCAR_DETAIL/SCAR/Backend",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.22988506",
+    "settings.editor.selected.configurable": "reference.projectsettings.compiler.annotationProcessors",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="com.t2.entity" />
+      <recent name="com.t2.exception" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="M:\Source Code\VS Code\SCAR_DETAIL\SCAR\Backend\scar\src\main\java\com\t2\util" />
+      <recent name="M:\Source Code\VS Code\SCAR_DETAIL\SCAR\Backend\scar\src\main\java\com\t2\config\exception" />
+      <recent name="M:\Source Code\VS Code\SCAR_DETAIL\SCAR\Backend\scar\src\main\java\com\t2\config" />
+      <recent name="M:\Source Code\VS Code\SCAR_DETAIL\SCAR\Backend\scar\src\main\java\com\t2\controller" />
+      <recent name="M:\Source Code\VS Code\SCAR_DETAIL\SCAR\Backend\scar\src\main\java\com\t2\dto" />
+    </key>
+    <key name="ExtractSuperBase.RECENT_KEYS">
+      <recent name="com.t2.config.exception" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Application.ScarApplication">
+    <configuration name="ScarApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.t2.ScarApplication" />
+      <module name="scar" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.t2.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ScarApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="scar" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.t2.ScarApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.ScarApplication" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="0e5023a0-69d0-4743-9f57-9e088a85e3c6" name="Changes" comment="" />
+      <created>1731980665066</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1731980665066</updated>
+      <workItem from="1731980666067" duration="133000" />
+      <workItem from="1737256756217" duration="8142000" />
+      <workItem from="1737682086813" duration="219000" />
+      <workItem from="1737851434025" duration="2999000" />
+      <workItem from="1737899539271" duration="1012000" />
+      <workItem from="1738627205851" duration="16759000" />
+      <workItem from="1738803255163" duration="26098000" />
+      <workItem from="1738889546380" duration="15148000" />
+      <workItem from="1738926828419" duration="6958000" />
+      <workItem from="1738977238108" duration="8396000" />
+      <workItem from="1739406238281" duration="7727000" />
+      <workItem from="1739841309621" duration="10603000" />
+      <workItem from="1740012646866" duration="5522000" />
+      <workItem from="1740052633989" duration="789000" />
+      <workItem from="1740102505610" duration="8767000" />
+      <workItem from="1740124149223" duration="2289000" />
+      <workItem from="1740128418890" duration="2000" />
+      <workItem from="1740387189727" duration="675000" />
+      <workItem from="1740410759926" duration="3595000" />
+      <workItem from="1740462115743" duration="12782000" />
+      <workItem from="1741067268902" duration="1774000" />
+      <workItem from="1741099989953" duration="6750000" />
+      <workItem from="1741140024368" duration="10338000" />
+      <workItem from="1741189115677" duration="3361000" />
+      <workItem from="1741584348200" duration="5000" />
+      <workItem from="1741597120999" duration="601000" />
+      <workItem from="1741673103120" duration="3504000" />
+      <workItem from="1741744917931" duration="13840000" />
+      <workItem from="1741833016531" duration="1913000" />
+      <workItem from="1741845646288" duration="574000" />
+      <workItem from="1741941202635" duration="2000" />
+      <workItem from="1741941332310" duration="52000" />
+      <workItem from="1742035001975" duration="3953000" />
+      <workItem from="1742179367671" duration="39000" />
+      <workItem from="1742179423670" duration="2419000" />
+      <workItem from="1742350700123" duration="45000" />
+      <workItem from="1742397028613" duration="6268000" />
+      <workItem from="1742438687617" duration="69000" />
+      <workItem from="1742458181186" duration="16132000" />
+      <workItem from="1742530559259" duration="56000" />
+      <workItem from="1742547611369" duration="761000" />
+      <workItem from="1742972312575" duration="5372000" />
+      <workItem from="1743001718921" duration="2251000" />
+      <workItem from="1743084306503" duration="15101000" />
+      <workItem from="1743137441371" duration="80000" />
+      <workItem from="1744213372403" duration="1177000" />
+      <workItem from="1744259597896" duration="2211000" />
+      <workItem from="1744275140280" duration="1433000" />
+      <workItem from="1744343011491" duration="356000" />
+      <workItem from="1744633780934" duration="5100000" />
+      <workItem from="1744678942313" duration="17013000" />
+      <workItem from="1744938363266" duration="1127000" />
+      <workItem from="1744957486907" duration="2008000" />
+      <workItem from="1744970715737" duration="908000" />
+      <workItem from="1744973776444" duration="9000" />
+      <workItem from="1745055073343" duration="3765000" />
+      <workItem from="1745201664419" duration="3381000" />
+      <workItem from="1745228375723" duration="262000" />
+      <workItem from="1745230851397" duration="181000" />
+      <workItem from="1745307838254" duration="24000" />
+      <workItem from="1745574020209" duration="850000" />
+      <workItem from="1745634784775" duration="10000" />
+      <workItem from="1745724452012" duration="3842000" />
+      <workItem from="1746369300320" duration="570000" />
+      <workItem from="1746423681970" duration="7589000" />
+      <workItem from="1746433924587" duration="13000" />
+      <workItem from="1746451471268" duration="1130000" />
+      <workItem from="1746521793757" duration="3417000" />
+      <workItem from="1746528031761" duration="755000" />
+      <workItem from="1746579687269" duration="22000" />
+      <workItem from="1746585546942" duration="1149000" />
+      <workItem from="1746673510464" duration="1974000" />
+      <workItem from="1746751530979" duration="2027000" />
+      <workItem from="1747028124007" duration="5567000" />
+      <workItem from="1747038154727" duration="462000" />
+      <workItem from="1747038629550" duration="66000" />
+      <workItem from="1747496463479" duration="3262000" />
+      <workItem from="1747554094957" duration="604000" />
+      <workItem from="1747616214523" duration="354000" />
+      <workItem from="1748831249880" duration="2885000" />
+      <workItem from="1748913902280" duration="10539000" />
+      <workItem from="1748953168805" duration="8000" />
+      <workItem from="1748959373655" duration="2829000" />
+      <workItem from="1748999654711" duration="14000" />
+      <workItem from="1749017039016" duration="7982000" />
+      <workItem from="1749055793151" duration="832000" />
+      <workItem from="1749090438985" duration="10000" />
+      <workItem from="1749211513326" duration="3754000" />
+      <workItem from="1749223688754" duration="2452000" />
+      <workItem from="1749271256704" duration="14000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName=".env" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/scar/src/main/java/com/t2/service/LikeService.java</url>
+          <line>29</line>
+          <option name="timeStamp" value="21" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/scar/src/main/java/com/t2/controller/ChatMessageController.java</url>
+          <line>45</line>
+          <option name="timeStamp" value="34" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <watches-manager>
+      <configuration name="Application">
+        <watch expression="method.clazz" />
+      </configuration>
+    </watches-manager>
+  </component>
+</project>
