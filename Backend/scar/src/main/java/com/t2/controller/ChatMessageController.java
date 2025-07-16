@@ -8,10 +8,13 @@ import com.t2.entity.ChatMessage;
 import com.t2.entity.ChatNotification;
 import com.t2.form.ChatMessage.ChatMessageCRUDForm;
 import com.t2.form.ChatMessage.ChatMessageForm;
+import com.t2.form.UploadImageForm;
 import com.t2.service.ICarService;
 import com.t2.service.IChatMessageService;
 import com.t2.service.IUserService;
+import com.t2.util.ImageUtils;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -19,6 +22,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,26 +43,46 @@ public class ChatMessageController {
     private IUserService userService;
     @Autowired
     private ICarService iCarService;
+    @Autowired
+    private ImageUtils imageUtils;
 
     @Transactional
     @MessageMapping("/chat")
     public void processMessage(@Payload ChatMessageForm chatMessageForm) {
-        ChatMessage chatMessage = modelMapper.map(chatMessageForm, ChatMessage.class);
+        try {
+            ChatMessage baseMessage = modelMapper.map(chatMessageForm, ChatMessage.class);
+            UserDTO sender = userService.findUserDTOById(baseMessage.getSender().getId());
+            UserDTO recipient = userService.findUserDTOById(baseMessage.getRecipient().getId());
+            CarDTO carDTO = modelMapper.map(iCarService.getCarById(baseMessage.getCar().getId()), CarDTO.class);
 
-        // Lưu tin nhắn vào cơ sở dữ liệu
-        ChatMessage saveMsg = chatMessageService.saveChatMessage(chatMessage);
-        UserDTO sender = userService.findUserDTOById(chatMessage.getSender().getId());
-        UserDTO recipient = userService.findUserDTOById(chatMessage.getRecipient().getId());
+            List<UploadImageForm> images = chatMessageForm.getImages();
+            if (images != null && !images.isEmpty()) {
+                for (UploadImageForm imgUrl : images) {
+                    ChatMessage message = new ChatMessage();
+                    BeanUtils.copyProperties(baseMessage, message);
+                    message.setContent(imgUrl.getUrl());
+                    message.setContentImageId(imgUrl.getPublicId());
 
+                    ChatMessage saveMsg = chatMessageService.saveChatMessage(message);
+                    sendMessageToRecipient(saveMsg, sender, recipient, carDTO);
+                }
+            } else {
+                ChatMessage saveMsg = chatMessageService.saveChatMessage(baseMessage);
+                sendMessageToRecipient(saveMsg, sender, recipient, carDTO);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendMessageToRecipient(ChatMessage saveMsg, UserDTO sender, UserDTO recipient, CarDTO carDTO) {
         ChatRoomDTO chatRoomDTO = Optional.ofNullable(saveMsg.getChatRoom())
                 .map(room -> modelMapper.map(room, ChatRoomDTO.class)).orElse(null);
 
-        CarDTO carDTO = modelMapper.map(iCarService.getCarById(saveMsg.getCar().getId()), CarDTO.class);
-
         simpMessagingTemplate.convertAndSendToUser(
-                chatMessage.getRecipient().getId().toString(),
-//                "/car/" + chatMessageForm.getCarId() +
-                        "/queue/messages",
+                recipient.getId().toString(),
+                "/queue/messages",
                 new ChatNotification(
                         saveMsg.getId(),
                         chatRoomDTO,
@@ -74,6 +98,7 @@ public class ChatMessageController {
                 )
         );
     }
+
 
     @PostMapping("/chat")
     public ResponseEntity<?> saveMessage(@RequestBody ChatMessageForm chatMessageForm) {
@@ -146,4 +171,5 @@ public class ChatMessageController {
 //            );
 //        }
     }
+
 }

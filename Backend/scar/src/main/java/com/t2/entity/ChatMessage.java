@@ -55,6 +55,9 @@ public class ChatMessage {
 
     private Boolean isEdited = false;
 
+    @Column(name = "content_image_id")
+    private String contentImageId;
+
     public enum MessageStatus {
         SENT, DELIVERED, READ
     }

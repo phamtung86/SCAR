@@ -26,8 +26,12 @@ import {
   Star
 } from "lucide-react"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { useUserOnline } from "../contexts/UserOnlineContext"
+import { getCurrentUser } from "@/lib/utils/get-current-user"
+import { useWebSocket } from "../contexts/WebsocketContext"
+import { useChat } from "@/hooks/use-chat"
 
 
 interface car {
@@ -108,6 +112,8 @@ export function CarDetails({ carId }: CarDetailsProps) {
   const [liked, setLiked] = useState(false)
   const [car, setCar] = useState<car | null>(null)
   const { usersOnline } = useUserOnline();
+  const route = useRouter();
+  const user = getCurrentUser()
 
   const isOnline = usersOnline.some((u) => u.id === car?.user.id);
   const fetchCarDetails = async (id: number) => {
@@ -134,6 +140,22 @@ export function CarDetails({ carId }: CarDetailsProps) {
     color: "Màu sắc",
 
   }
+  const { stompClient } = useWebSocket();
+  const {
+    sendMessage,
+  } = useChat(stompClient)
+
+  const handleSendMessage = (carId : number, sellerId: number) => {
+    if (!user) {
+      route.push(`/auth`);
+      return;
+    }
+    if (user?.id === sellerId) return;
+    const message = "Xin chào, bạn cần chúng tôi tư vấn gì không.";
+    sendMessage(user.id, sellerId, "", carId, "TEXT");
+    sendMessage(sellerId, user.id, message, carId, "TEXT");
+    route.push(`/messages?carId=${carId}&sellerId=${sellerId}`);
+  };
 
   useEffect(() => {
     fetchCarDetails(carId)
@@ -422,7 +444,9 @@ export function CarDetails({ carId }: CarDetailsProps) {
                   <Phone className="h-4 w-4 mr-2" />
                   {car?.user?.phone}
                 </Button>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full" onClick={
+                  () => {handleSendMessage(car?.id, car?.user?.id)}}
+                  >
                   <MessageCircle className="h-4 w-4 mr-2" />
                   Nhắn tin
                 </Button>

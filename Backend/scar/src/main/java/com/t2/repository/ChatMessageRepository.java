@@ -21,6 +21,6 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     List<ChatMessage> findMessagesBetweenTwoUsers(@Param("carId") Integer carId, @Param("user1") Integer user1, @Param("user2") Integer user2);
 
 
-    List<ChatMessage> findByRecipientId(Integer recipientId);
+    List<ChatMessage> findByRecipientIdOrderByCreatedAtDesc(Integer recipientId);
 
 }

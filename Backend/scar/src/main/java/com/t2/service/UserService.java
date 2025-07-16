@@ -143,7 +143,6 @@ public class UserService implements IUserService {
 
             if (!seen.contains(key)) {
                 seen.add(key);
-
                 UserResponse userResponse = modelMapper.map(sender, UserResponse.class);
                 CarResponse carResponse = modelMapper.map(car, CarResponse.class);
 

@@ -21,6 +21,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import CarAPI from "@/lib/api/car"
 import chatMessageAPI from '@/lib/api/chat-message'
+import ImageProcess from '@/lib/api/image-process'
 import { formatMoney } from '@/lib/utils/money-format'
 import { formatTime } from '@/lib/utils/time-format'
 import { useChat } from "../../hooks/use-chat"
@@ -30,6 +31,7 @@ import { AppointmentModal } from "../modals/appointment-modal"
 import { LocationModal } from "../modals/location-modal"
 import { PriceOfferModal } from "../modals/price-offer-modal"
 import { UserProfileModal } from "../modals/user-profile-modal"
+import { getCurrentUser } from '@/lib/utils/get-current-user'
 
 export default function FullCarChatApp() {
   const searchParams = useSearchParams()
@@ -39,7 +41,7 @@ export default function FullCarChatApp() {
   const carId = carIdParam ? parseInt(carIdParam) : undefined
   const sellerId = sellerIdParam ? parseInt(sellerIdParam) : undefined
   const { stompClient, isConnected, message } = useWebSocket();
-
+  const user = getCurrentUser()
   const route = useRouter();
 
   const {
@@ -52,10 +54,10 @@ export default function FullCarChatApp() {
     sendMessage,
     sendPriceOffer,
     markAsRead,
-    initializeChatFromCar, // Thêm function này vào hook
+    initializeChatFromCar, 
     setMessages,
     setUsers,
-    fetchUserChatted
+    fetchUserChatted,
   } = useChat(stompClient)
 
   const [messageInput, setMessageInput] = useState("")
@@ -64,55 +66,41 @@ export default function FullCarChatApp() {
   const [showAppointmentModal, setShowAppointmentModal] = useState(false)
   const [showLocationModal, setShowLocationModal] = useState(false)
   const [showUserProfileModal, setShowUserProfileModal] = useState(false)
-  const [showCarDetails, setShowCarDetails] = useState(false)
   const [isTyping, setIsTyping] = useState(false)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [carInfo, setCarInfo] = useState<any>(null)
-
   const [isEnter, setIsEnter] = useState(false)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
-
-  const showNotification = (message: string) => {
-    if (Notification.permission === "granted") {
-      new Notification("📨 Tin nhắn mới", {
-        body: message,
-        icon: "/logo.png", // tùy chọn icon
-      });
-    } else if (Notification.permission !== "denied") {
-      Notification.requestPermission().then((permission) => {
-        if (permission === "granted") {
-          new Notification("📨 Tin nhắn mới", {
-            body: message,
-          });
-        }
-      });
-    }
-  };
-
   useEffect(() => {
-    console.log("isConnected ", isConnected);
+    if (!isConnected || !stompClient) return;
+    if (message?.recipient?.id === user?.id && message?.car?.id === carId) {
+      setMessages((prev) => [...prev, message]);
+    };
 
-    if (!isConnected) return;
 
-    if (!stompClient) return;
-    setMessages((prev) => [...prev, message]);
-
-    const isExisting = users.some(
-      (u) => u?.sender?.id === message?.sender?.id && u?.car?.id === message?.car?.id
+    const existingIndex = users.findIndex(
+      (u) =>
+        u?.sender?.id === message?.sender?.id &&
+        u?.car?.id === message?.car?.id
     );
-    console.log("Thong bao ", document.hidden || !document.hasFocus());
 
-    // if (document.hidden || !document.hasFocus()) {
-    showNotification(`💬 Tin nhắn mới từ ${message?.sender?.fullName}`);
-    // }
-    if (!isExisting) {
+    if (existingIndex === -1) {
       setUsers((prev) => [...prev, { sender: message.sender, car: message.car }]);
+    } else {
+      //Đã tồn tại: Di chuyển user đó lên đầu danh sách
+      setUsers((prev) => {
+        const newUsers = [...prev];
+        const [existingUser] = newUsers.splice(existingIndex, 1); // xóa phần tử cũ
+        newUsers.unshift(existingUser); // thêm vào đầu
+        return newUsers;
+      });
     }
   }, [isConnected, carId, message]);
+
 
   const fetchCarInfo = async (carId: number) => {
     try {
@@ -149,14 +137,6 @@ export default function FullCarChatApp() {
     return () => clearTimeout(timeout);
   }, [messages, selectedChat]);
 
-  useEffect(() => {
-    if (messageInput) {
-      setIsTyping(true)
-      const timer = setTimeout(() => setIsTyping(false), 1000)
-      return () => clearTimeout(timer)
-    }
-  }, [messageInput])
-
   const handleSendMessage = () => {
     if (messageInput.trim()) {
       sendMessage(currentUserId, sellerId, messageInput.trim(), carId, "TEXT")
@@ -172,32 +152,49 @@ export default function FullCarChatApp() {
     }
   }
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
     if (file && currentUserId && sellerId) {
-      const imageUrl = URL.createObjectURL(file)
-      // const message = `[Hình ảnh] ${file.name}`
-      sendMessage(currentUserId, sellerId, imageUrl, carId, "IMAGE")
+      const formData = new FormData();
+      formData.append("images", file);
+      try {
+        const response = await ImageProcess.uploadImage(formData);
+        if (response) {
+          const uploadedUrls = response.data;
+          sendMessage(currentUserId, sellerId, "", carId, "IMAGE", uploadedUrls);
+          setIsEnter((pre) => !pre)
+        }
+      } catch (error) {
+        console.error("Lỗi khi upload ảnh:", error);
+      }
     }
-  }
+  };
+
 
   const handleLocationShare = (address: string, latitude?: number, longitude?: number) => {
     const locationText = `Vị trí: ${address}`
     sendMessage(currentUserId, sellerId, locationText, carId, "LOCATION")
+    setIsEnter((pre) => !pre)
   }
 
   const handleAppointmentSchedule = (date: string, time: string, note: string) => {
     const appointmentText = `Đặt lịch xem xe: ${date} lúc ${time}${note ? ` - ${note}` : ""}`
     sendMessage(currentUserId, sellerId, appointmentText, carId, "APPOINTMENT")
+    setIsEnter((pre) => !pre)
   }
 
   const hasUnreadMessages = () => {
     return messages.some(msg => !msg.read && msg.sender.id !== currentUserId);
   };
 
-  const renderMessage = (message: any, index: number) => {
-    if (!message?.content?.trim()) return null; // Loại bỏ tin nhắn rỗng
 
+  const handleNavigateCarDetail = (carId: number) => {
+    route.push(`car/${carId}`)
+  }
+
+  const renderMessage = (message: any, index: number) => {
+    if (!message?.content?.trim()) return null;
     const isMe = message?.sender?.id === currentUserId;
 
     return (
@@ -211,12 +208,12 @@ export default function FullCarChatApp() {
 
         <div className="max-w-[70%]">
           <div className={`rounded-2xl px-4 py-2 ${isMe ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
-            {message.type === "TEXT" && <p className="text-sm whitespace-pre-wrap">{message.content}</p>}
+            {message?.type === "TEXT" && <p className="text-sm whitespace-pre-wrap">{message?.content}</p>}
 
-            {message.type === "IMAGE" && (
-              <div className="cursor-pointer" onClick={() => setSelectedImage(message.content)}>
+            {message?.type === "IMAGE" && (
+              <div className="cursor-pointer" onClick={() => setSelectedImage(message?.content)}>
                 <Image
-                  src={message.content || "/placeholder.svg"}
+                  src={message?.content || "/placeholder.svg"}
                   alt="Shared image"
                   width={300}
                   height={200}
@@ -225,33 +222,33 @@ export default function FullCarChatApp() {
               </div>
             )}
 
-            {message.type === "LOCATION" && (
+            {message?.type === "LOCATION" && (
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4" />
                 <div>
                   <p className="text-sm font-medium">Vị trí được chia sẻ</p>
-                  <p className="text-xs opacity-80">{message.content}</p>
+                  <p className="text-xs opacity-80">{message?.content}</p>
                 </div>
               </div>
             )}
 
-            {message.type === "PRICE_OFFER" && (
+            {message?.type === "PRICE_OFFER" && (
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <DollarSign className="w-4 h-4" />
                   <span className="text-sm font-medium">Đề xuất giá</span>
                 </div>
-                <p className="text-lg font-bold">{message.metadata?.offerPrice}</p>
-                <p className="text-sm opacity-80">{message.content.split(" - ")[1]}</p>
+                <p className="text-lg font-bold">{formatMoney(message?.content.split(":")[1].split(" - ")[0])}</p>
+                <p className="text-sm opacity-80">Ghi chú: {message?.content.split(" - ")[1]}</p>
               </div>
             )}
 
-            {message.type === "APPOINTMENT" && (
+            {message?.type === "APPOINTMENT" && (
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
                 <div>
                   <p className="text-sm font-medium">Lịch hẹn</p>
-                  <p className="text-xs opacity-80">{message.content}</p>
+                  <p className="text-xs opacity-80">{message?.content}</p>
                 </div>
               </div>
             )}
@@ -259,7 +256,7 @@ export default function FullCarChatApp() {
 
           <p className={`text-xs mt-1 ${isMe ? "text-right text-muted-foreground" : "text-left text-muted-foreground"}`}>
             {formatTime(message?.createdAt)}
-            {isMe && !message.read && <span className="ml-1">●</span>}
+            {isMe && !message?.read && <span className="ml-1">●</span>}
           </p>
         </div>
 
@@ -427,7 +424,7 @@ export default function FullCarChatApp() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => setShowUserProfileModal(true)}>Xem thông tin</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setShowCarDetails(true)}>Chi tiết xe</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleNavigateCarDetail(carId)}>Chi tiết xe</DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem className="text-red-600">
                         <Flag className="w-4 h-4 mr-2" />
@@ -442,7 +439,7 @@ export default function FullCarChatApp() {
             {/* Car Info Card - Hiển thị thông tin xe khi có carId */}
             {carId && (
               <div className="p-4 border-b bg-muted/10">
-                <CarInfoCard carInfo={carInfo} onViewDetails={() => setShowCarDetails(true)} />
+                <CarInfoCard carInfo={carInfo} onViewDetails={() => handleNavigateCarDetail(carId)} />
               </div>
             )}
 
