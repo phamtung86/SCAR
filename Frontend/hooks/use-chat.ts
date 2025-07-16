@@ -130,56 +130,39 @@ export function useChat(stompClient: Client | null) {
   const [selectedChat, setSelectedChat] = useState<ChatUser | null>(null);
   const [priceOffers, setPriceOffers] = useState<any[]>([]);
 
-  // Hiển thị thông báo khi nhận tin nhắn mới
-  function showNotification(message: ChatMessage) {
-    if (Notification.permission !== "granted") {
-      Notification.requestPermission();
-    }
-
-    if (Notification.permission === "granted") {
-      const title = message.sender.fullName || "Người dùng";
-      const body =
-        message.type === "TEXT"
-          ? message.content
-          : message.type === "IMAGE"
-            ? "Đã gửi một hình ảnh"
-            : message.type === "PRICE_OFFER"
-              ? "Gửi một đề xuất giá"
-              : "Tin nhắn mới";
-
-      new Notification(title, {
-        body,
-        icon: message.sender.profilePicture || "/placeholder.svg",
-      });
-    }
-  }
-
   // Gửi tin nhắn
   const sendMessage = useCallback(
-    (senderId: number, recipientId: number, content: string, carId?: number | null, type: ChatMessage["type"] = "TEXT") => {
+    (
+      senderId: number,
+      recipientId: number,
+      content: string,
+      carId?: number | null,
+      type: ChatMessage["type"] = "TEXT",
+      imageUrls?: string[] 
+    ) => {
       if (stompClient && stompClient.connected) {
         const message: Omit<ChatMessage, "id"> = {
-          senderId: senderId,
-          recipientId: recipientId,
-          content,
+          senderId,
+          recipientId,
+          content: type === "IMAGE" ? "" : content,
           timestamp: new Date().toISOString(),
           carId: carId ?? null,
           type,
+          ...(type === "IMAGE" && imageUrls && imageUrls.length > 0
+            ? { images: imageUrls }
+            : {}),
         };
-        // stompClient.publish({
-        //   destination: "/app/chat",
-        //   body: JSON.stringify(message),
-        // });
-        console.log(message);
-        
+        stompClient.publish({
+          destination: "/app/chat",
+          body: JSON.stringify(message),
+        });
       } else {
         console.warn("WebSocket chưa được kết nối.");
       }
     },
-
-
     [stompClient]
   );
+
 
   // Gửi đề xuất giá
   const sendPriceOffer = useCallback(
@@ -218,12 +201,13 @@ export function useChat(stompClient: Client | null) {
           sender: item.sender,
           car: item.car,
         }));
+
         setUsers(chatUsers);
       }
     } catch (error) {
       console.log("Lỗi khi lấy thông tin chat ", error);
     }
-  }, [currentUserId]); // <- dependencies
+  }, [currentUserId]);
 
 
   // Khởi tạo chat từ car
@@ -234,10 +218,6 @@ export function useChat(stompClient: Client | null) {
           console.warn("Thiếu thông tin để khởi tạo chat.");
           return;
         }
-        // 1. Lấy danh sách người đã chat
-
-
-        // 2. Lấy tin nhắn
         const resMessages = await chatMessageAPI.findChatMessages(currentUserId, sellerId, carId);
         if (resMessages.status === 200) {
           setMessages(resMessages.data);
@@ -262,7 +242,6 @@ export function useChat(stompClient: Client | null) {
     initializeChatFromCar,
     setMessages,
     setUsers,
-    showNotification,
     fetchUserChatted
   };
 }

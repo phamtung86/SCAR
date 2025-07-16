@@ -1,14 +1,13 @@
 package com.t2.form;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UploadImageForm {
     private String url;
     private String publicId;
-
-    public UploadImageForm(String url, String publicId) {
-        this.url = url;
-        this.publicId = publicId;
-    }
 }

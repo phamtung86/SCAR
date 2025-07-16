@@ -27,7 +27,6 @@ public class ChatMessageService implements IChatMessageService {
         var chatId = chatRoomService
                 .getChatRoomId(chatMessage.getSender().getId(), chatMessage.getRecipient().getId(), true)
                 .orElseThrow(() -> new IllegalArgumentException("Unable to find or create chat room"));
-
         chatMessage.setChatId(chatId);
         chatMessage.setCreatedAt(new Date());
         chatMessage.setRead(false);
@@ -51,7 +50,7 @@ public class ChatMessageService implements IChatMessageService {
 
     @Override
     public List<ChatMessageDTO> findChatMessagesByReceiver(Integer receiverId) {
-        List<ChatMessage> chatMessages = chatMessageRepository.findByRecipientId(receiverId);
+        List<ChatMessage> chatMessages = chatMessageRepository.findByRecipientIdOrderByCreatedAtDesc(receiverId);
         return modelMapper.map(chatMessages, new TypeToken<List<ChatMessageDTO>>() {
         }.getType());
     }

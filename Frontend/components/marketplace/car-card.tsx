@@ -14,9 +14,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { getStompClient } from '../configs/socket-config'
 import { useUserOnline } from "../contexts/UserOnlineContext"
-import chatMessageAPI from "@/lib/api/chat-message"
 import { useWebSocket } from "../contexts/WebsocketContext"
 
 interface Car {
@@ -123,7 +121,7 @@ export function CarCard({ car, viewMode }: CarCardProps) {
       console.error("Error updating view count:", error)
     }
   }
-  const { stompClient, isConnected, message } = useWebSocket();
+  const { stompClient } = useWebSocket();
   const {
     sendMessage,
   } = useChat(stompClient)
@@ -135,7 +133,6 @@ export function CarCard({ car, viewMode }: CarCardProps) {
     }
     if (user?.id === sellerId) return;
     const message = "Xin chào, bạn cần chúng tôi tư vấn gì không.";
-    // chatMessageAPI.sendHelloMessage(user.id, sellerId, message, car?.id, "TEXT");
     sendMessage(user.id, sellerId, "", car?.id, "TEXT");
     sendMessage(sellerId, user.id, message, car?.id, "TEXT");
     route.push(`/messages?carId=${car?.id}&sellerId=${sellerId}`);

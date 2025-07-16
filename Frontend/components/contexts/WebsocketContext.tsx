@@ -11,6 +11,17 @@ type WebSocketContextType = {
   message: []
 };
 
+type ChatMessage = {
+  id?: number;
+  sender: UserDTO;
+  recipient?: UserDTO;
+  content: string;
+  timestamp: string;
+  carId?: number | null;
+  type: "TEXT" | "IMAGE" | "PRICE_OFFER";
+  isRead?: boolean;
+};
+
 const WebSocketContext = createContext<WebSocketContextType>({
   stompClient: null,
   isConnected: false,
@@ -26,6 +37,29 @@ export const WebSocketProvider = ({ children }: { children: React.ReactNode }) =
   const userId = currentUser?.id;
   const initialized = useRef(false);
 
+  function showNotification(message: ChatMessage) {
+    if (Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
+    if (Notification.permission === "granted") {
+      const title = `📨 Tin nhắn mới từ ${message?.sender?.fullName || "Người dùng"}`;
+      const body =
+        message?.type === "TEXT"
+          ? message?.content
+          : message?.type === "IMAGE"
+            ? "Đã gửi một hình ảnh"
+            : message?.type === "PRICE_OFFER"
+              ? "Gửi một đề xuất giá"
+              : message?.type === "APPOINTMENT"
+                ? "Gửi một lịch hẹn xem xe"
+                : "Tin nhắn mới";
+
+      new Notification(title, {
+        body,
+        icon: message?.sender?.profilePicture || "/placeholder.svg",
+      });
+    }
+  }
   useEffect(() => {
     if (!userId || initialized.current) return;
 
@@ -51,6 +85,9 @@ export const WebSocketProvider = ({ children }: { children: React.ReactNode }) =
         client.subscribe(`/user/${userId}/queue/messages`, (message: IMessage) => {
           const payload = JSON.parse(message.body);
           setMessage(payload);
+          if (document.hidden || !document.hasFocus()) {
+            showNotification(payload);
+          }
         });
       },
 

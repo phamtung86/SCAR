@@ -30,4 +30,6 @@ public class ChatMessageDTO {
     private String type;
 
     private boolean isRead;
+
+    private String contentImageId;
 }
