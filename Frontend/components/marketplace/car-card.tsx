@@ -125,7 +125,7 @@ export function CarCard({ car, viewMode }: CarCardProps) {
   const {
     sendMessage,
   } = useChat(stompClient)
-
+  
   const handleSendMessage = (sellerId: number) => {
     if (!user) {
       route.push(`/auth`);
@@ -137,8 +137,6 @@ export function CarCard({ car, viewMode }: CarCardProps) {
     sendMessage(sellerId, user.id, message, car?.id, "TEXT");
     route.push(`/messages?carId=${car?.id}&sellerId=${sellerId}`);
   };
-
-
 
   if (viewMode === "list") {
     return (

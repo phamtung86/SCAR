@@ -52,6 +52,8 @@ export const WebSocketProvider = ({ children }: { children: React.ReactNode }) =
               ? "Gửi một đề xuất giá"
               : message?.type === "APPOINTMENT"
                 ? "Gửi một lịch hẹn xem xe"
+              : message?.type === "VIDEO"
+                ? "Đã gửi một video"
                 : "Tin nhắn mới";
 
       new Notification(title, {

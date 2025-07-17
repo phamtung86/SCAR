@@ -60,11 +60,11 @@ public class ChatMessageService implements IChatMessageService {
         List<ChatMessage> chatMessages = chatMessageRepository.findChatMessagesBySenderIdOrRecipientIdAndCarIdAndIsRead(receiverId, senderId, carId, isRead);
         List<ChatMessage> chatMessagesResponse = new ArrayList<>();
         if (!chatMessages.isEmpty()) {
-            for (ChatMessage c : chatMessages) {
-                c.setRead(true);
-                ChatMessage chatMessage = chatMessageRepository.save(c);
-                chatMessagesResponse.add(chatMessage);
+            for (ChatMessage msg : chatMessages) {
+                msg.setRead(true);
+                chatMessagesResponse.add(msg);
             }
+            chatMessageRepository.saveAll(chatMessages);
         }
         return chatMessagesResponse;
     }

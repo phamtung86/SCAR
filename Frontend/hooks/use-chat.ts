@@ -1,13 +1,11 @@
 "use client";
 
-import CarAPI from "@/lib/api/car";
 import chatMessageAPI from "@/lib/api/chat-message";
 import userAPI from "@/lib/api/user";
 import { getCurrentUser } from "@/lib/utils/get-current-user";
 import { Client } from "@stomp/stompjs";
 import { useCallback, useMemo, useState } from "react";
 
-// ✅ Định nghĩa type
 type UserDTO = {
   id: number
   usename: string
@@ -117,7 +115,7 @@ type ChatMessage = {
   content: string;
   timestamp: string;
   carId?: number | null;
-  type: "TEXT" | "IMAGE" | "PRICE_OFFER";
+  type: "TEXT" | "IMAGE" | "PRICE_OFFER" | "VIDEO" | "APPOINTMENT";
   isRead?: boolean;
 };
 
@@ -148,12 +146,35 @@ export function useChat(stompClient: Client | null) {
           timestamp: new Date().toISOString(),
           carId: carId ?? null,
           type,
-          ...(type === "IMAGE" && imageUrls && imageUrls.length > 0
-            ? { images: imageUrls }
+          ...(type === "IMAGE" || type === "VIDEO" && imageUrls && imageUrls.length > 0
+            ? { files: imageUrls }
             : {}),
         };
         stompClient.publish({
           destination: "/app/chat",
+          body: JSON.stringify(message),
+        });
+      } else {
+        console.warn("WebSocket chưa được kết nối.");
+      }
+    },
+    [stompClient]
+  );
+  const changeStatusIsRead = useCallback(
+    (
+      senderId: number,
+      recipientId: number,
+      carId?: number | null,
+    ) => {
+      if (stompClient && stompClient.connected) {
+        const message: Omit<ChatMessage, "id"> = {
+          senderId,
+          recipientId,
+          carId: carId ?? null,  
+        };
+        
+        stompClient.publish({
+          destination: "/app/seen",
           body: JSON.stringify(message),
         });
       } else {
@@ -201,7 +222,6 @@ export function useChat(stompClient: Client | null) {
           sender: item.sender,
           car: item.car,
         }));
-
         setUsers(chatUsers);
       }
     } catch (error) {
@@ -242,6 +262,7 @@ export function useChat(stompClient: Client | null) {
     initializeChatFromCar,
     setMessages,
     setUsers,
-    fetchUserChatted
+    fetchUserChatted,
+    changeStatusIsRead
   };
 }

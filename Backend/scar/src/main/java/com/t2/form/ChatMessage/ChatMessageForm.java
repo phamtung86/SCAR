@@ -18,6 +18,6 @@ public class ChatMessageForm extends ChatMessageCRUDForm {
 
     private String type;
 
-    private List<UploadImageForm> images;
+    private List<UploadImageForm> files;
 
 }

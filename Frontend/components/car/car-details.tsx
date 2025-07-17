@@ -445,7 +445,7 @@ export function CarDetails({ carId }: CarDetailsProps) {
                   {car?.user?.phone}
                 </Button>
                 <Button variant="outline" className="w-full" onClick={
-                  () => {handleSendMessage(car?.id, car?.user?.id)}}
+                  () => {handleSendMessage(car?.id, car?.user?.id);}}
                   >
                   <MessageCircle className="h-4 w-4 mr-2" />
                   Nhắn tin
