@@ -22,10 +22,10 @@ public class ImageProcessController {
     private ImageUtils imageUtils;
 
     @PostMapping
-    public ResponseEntity<List<UploadImageForm>> uploadImage(@ModelAttribute(name = "images") List<MultipartFile> images) {
+    public ResponseEntity<List<UploadImageForm>> uploadImage(@ModelAttribute(name = "file") List<MultipartFile> files) {
         List<UploadImageForm> uploadImageForms = new ArrayList<>();
         try {
-            for (MultipartFile f : images) {
+            for (MultipartFile f : files) {
                 UploadImageForm upload = imageUtils.uploadFile(f);
                 if (upload != null) {
                     uploadImageForms.add(upload);

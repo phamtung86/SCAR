@@ -36,24 +36,29 @@ public class ImageUtils {
         File fileUpload = convert(file);
         log.info("Converted file: {}", fileUpload);
 
-        // Upload lên Cloudinary
+        // Upload lên Cloudinary (ảnh hoặc video)
         Map uploadResult = cloudinary.uploader().upload(
                 fileUpload,
-                ObjectUtils.asMap("public_id", publicId, "resource_type", "image")
+                ObjectUtils.asMap(
+                        "public_id", publicId,
+                        "resource_type", "auto" // Cho phép ảnh và video
+                )
         );
         cleanDisk(fileUpload);
 
-        // Lấy URL từ kết quả trả về của Cloudinary
+        // Lấy URL từ kết quả trả về
         String url = (String) uploadResult.get("secure_url");
 
         return new UploadImageForm(url, publicId);
     }
 
-
     private File convert(MultipartFile file) throws IOException {
-        assert file.getOriginalFilename() != null;
-        File convFile = new File(StringUtils.join(generatePublicValue(file.getOriginalFilename()), getFileName(file.getOriginalFilename())[1]));
-        try(InputStream is = file.getInputStream()) {
+        String[] nameAndExt = getFileName(file.getOriginalFilename());
+        String fileName = nameAndExt[0];
+        String extension = nameAndExt[1];
+
+        File convFile = new File(fileName + extension);
+        try (InputStream is = file.getInputStream()) {
             Files.copy(is, convFile.toPath());
         }
         return convFile;
@@ -61,36 +66,37 @@ public class ImageUtils {
 
     private void cleanDisk(File file) {
         try {
-            log.info("file.toPath(): {}", file.toPath());
-            Path filePath = file.toPath();
-            Files.delete(filePath);
+            log.info("Deleting temporary file: {}", file.toPath());
+            Files.deleteIfExists(file.toPath());
         } catch (IOException e) {
-            log.error("Error");
+            log.error("Error cleaning temporary file", e);
         }
     }
 
-    public String generatePublicValue(String originalName){
-        String fileName = getFileName(originalName)[0];
-        return StringUtils.join(UUID.randomUUID().toString(), "_", fileName);
+    public String generatePublicValue(String originalName) {
+        String[] nameAndExt = getFileName(originalName);
+        String fileName = nameAndExt[0];
+        return UUID.randomUUID().toString() + "_" + fileName;
     }
 
     public String[] getFileName(String originalName) {
-        return originalName.split("\\.");
+        String name = StringUtils.substringBeforeLast(originalName, ".");
+        String extension = "." + StringUtils.substringAfterLast(originalName, ".");
+        return new String[]{name, extension};
     }
 
     public void deleteFile(String publicId) throws IOException {
         cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
     }
+
     public String extractPublicIdFromUrl(String url) {
-        if (url == null || url.isEmpty()) return null;
+        if (StringUtils.isEmpty(url)) return null;
         try {
-            // Ví dụ: https://res.cloudinary.com/demo/image/upload/v123456789/my_folder/my_image.jpg
             String[] parts = url.split("/");
             String fileWithExt = parts[parts.length - 1];
-            return fileWithExt.substring(0, fileWithExt.lastIndexOf(".")); // bỏ phần .jpg, .png...
+            return StringUtils.substringBeforeLast(fileWithExt, ".");
         } catch (Exception e) {
             return null;
         }
     }
-
 }

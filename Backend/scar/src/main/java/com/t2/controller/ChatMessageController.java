@@ -22,11 +22,9 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/v1/chat-messages")
@@ -55,14 +53,13 @@ public class ChatMessageController {
             UserDTO recipient = userService.findUserDTOById(baseMessage.getRecipient().getId());
             CarDTO carDTO = modelMapper.map(iCarService.getCarById(baseMessage.getCar().getId()), CarDTO.class);
 
-            List<UploadImageForm> images = chatMessageForm.getImages();
+            List<UploadImageForm> images = chatMessageForm.getFiles();
             if (images != null && !images.isEmpty()) {
                 for (UploadImageForm imgUrl : images) {
                     ChatMessage message = new ChatMessage();
                     BeanUtils.copyProperties(baseMessage, message);
                     message.setContent(imgUrl.getUrl());
                     message.setContentImageId(imgUrl.getPublicId());
-
                     ChatMessage saveMsg = chatMessageService.saveChatMessage(message);
                     sendMessageToRecipient(saveMsg, sender, recipient, carDTO);
                 }
@@ -124,52 +121,53 @@ public class ChatMessageController {
         return chatMessageService.findChatMessagesByReceiver(recipientId);
     }
 
-    @PutMapping("/change-status-read")
-    public void changeStatusRead(@RequestBody ChatMessageCRUDForm chatMessageCRUDForm) {
+    private void sendMessageToRecipient(List<ChatMessage> messages, UserDTO sender, UserDTO recipient, CarDTO carDTO) {
+        if (messages == null || messages.isEmpty()) return;
 
-        chatMessageService.changeStatusRead(
-                chatMessageCRUDForm.getRecipientId(),
-                chatMessageCRUDForm.getSenderId(),
-                chatMessageCRUDForm.getCarId(),
+        ChatRoomDTO chatRoomDTO = Optional.ofNullable(messages.get(0).getChatRoom())
+                .map(room -> modelMapper.map(room, ChatRoomDTO.class)).orElse(null);
+
+        List<ChatNotification> notifications = messages.stream().map(msg ->
+                new ChatNotification(
+                        msg.getId(),
+                        chatRoomDTO,
+                        msg.getChatId(),
+                        sender,
+                        recipient,
+                        msg.getContent(),
+                        msg.getCreatedAt(),
+                        msg.getUpdateAt(),
+                        carDTO,
+                        msg.getType().toString(),
+                        msg.isRead()
+                )
+        ).toList();
+
+        simpMessagingTemplate.convertAndSendToUser(
+                recipient.getId().toString(),
+                "/queue/seen",
+                notifications // Gửi list
+        );
+    }
+
+
+    @Transactional
+    @MessageMapping("/seen")
+    public void markMessagesAsRead(@Payload ChatMessageCRUDForm form) {
+        UserDTO sender = userService.findUserDTOById(form.getSenderId());
+        UserDTO recipient = userService.findUserDTOById(form.getRecipientId());
+        CarDTO carDTO = modelMapper.map(iCarService.getCarById(form.getCarId()), CarDTO.class);
+
+        List<ChatMessage> updatedMessages = chatMessageService.changeStatusRead(
+                form.getRecipientId(),
+                form.getSenderId(),
+                form.getCarId(),
                 true
         );
 
-//        List<ChatMessage> updatedMessages = chatMessageService.changeStatusRead(
-//                chatMessageCRUDForm.getRecipientId(),
-//                chatMessageCRUDForm.getSenderId(),
-//                chatMessageCRUDForm.getCarId(),
-//                true
-//        );
-//
-//        UserDTO sender = userService.findUserDTOById(chatMessageCRUDForm.getSenderId());
-//        UserDTO recipient = userService.findUserDTOById(chatMessageCRUDForm.getRecipientId());
-//        CarDTO carDTO = modelMapper.map(iCarService.getCarById(chatMessageCRUDForm.getCarId()), CarDTO.class);
-//
-//        for (ChatMessage saveMsg : updatedMessages) {
-//            ChatRoomDTO chatRoomDTO = Optional.ofNullable(saveMsg.getChatRoom())
-//                    .map(room -> modelMapper.map(room, ChatRoomDTO.class))
-//                    .orElse(null);
-//
-//            ChatNotification notification = new ChatNotification(
-//                    saveMsg.getId(),
-//                    chatRoomDTO,
-//                    saveMsg.getChatId(),
-//                    sender,
-//                    recipient,
-//                    saveMsg.getContent(),
-//                    saveMsg.getCreatedAt(),
-//                    saveMsg.getUpdateAt(),
-//                    carDTO,
-//                    saveMsg.getType().toString(),
-//                    true // Trạng thái đã đọc
-//            );
-//
-//            simpMessagingTemplate.convertAndSendToUser(
-//                    sender.getId().toString(),
-//                    "/queue/messages",
-//                    notification
-//            );
-//        }
+        sendMessageToRecipient(updatedMessages, sender, recipient, carDTO);
     }
 
 }
+
+

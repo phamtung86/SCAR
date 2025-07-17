@@ -63,7 +63,7 @@ public class ChatMessage {
     }
 
     public enum MessageType{
-        TEXT, IMAGE, LOCATION, PRICE_OFFER, APPOINTMENT
+        TEXT, IMAGE, LOCATION, PRICE_OFFER, APPOINTMENT, VIDEO
     }
 
 }
