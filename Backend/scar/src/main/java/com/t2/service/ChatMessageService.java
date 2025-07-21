@@ -56,8 +56,8 @@ public class ChatMessageService implements IChatMessageService {
     }
 
     @Override
-    public List<ChatMessage> changeStatusRead(Integer receiverId, Integer senderId, Integer carId, boolean isRead) {
-        List<ChatMessage> chatMessages = chatMessageRepository.findChatMessagesBySenderIdOrRecipientIdAndCarIdAndIsRead(receiverId, senderId, carId, isRead);
+    public List<ChatMessage> changeStatusRead(Integer recipientId, Integer senderId, Integer carId, boolean isRead) {
+        List<ChatMessage> chatMessages = chatMessageRepository.findMessagesBetweenTwoUsersIsRead(recipientId, senderId, carId, false);
         List<ChatMessage> chatMessagesResponse = new ArrayList<>();
         if (!chatMessages.isEmpty()) {
             for (ChatMessage msg : chatMessages) {
@@ -67,5 +67,26 @@ public class ChatMessageService implements IChatMessageService {
             chatMessageRepository.saveAll(chatMessages);
         }
         return chatMessagesResponse;
+    }
+
+    @Override
+    public ChatMessage editMessage(Long id, String message) {
+        ChatMessage chatMessage = chatMessageRepository.findById(id).orElse(null);
+        if (chatMessage != null){
+            chatMessage.setContent(message);
+            chatMessage.setIsEdited(true);
+            return chatMessageRepository.save(chatMessage);
+        }
+        return null;
+    }
+
+    @Override
+    public ChatMessage deleteMessage(Long id) {
+        ChatMessage chatMessage = chatMessageRepository.findById(id).orElse(null);
+        if(chatMessage != null){
+            chatMessageRepository.deleteById(id);
+            return chatMessage;
+        }
+        return null;
     }
 }

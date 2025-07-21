@@ -1,48 +1,103 @@
 "use client"
 
+import type React from "react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Textarea } from "@/components/ui/textarea"
-import ImageProcess from '@/lib/api/image-process'
-import { getCurrentUser } from '@/lib/utils/get-current-user'
-import { formatMoney } from '@/lib/utils/money-format'
-import { formatTime } from '@/lib/utils/time-format'
-import { Bell, Calendar, Camera, Car, Check, CheckCheck, CornerUpRight, DollarSign, Edit, Flag, MapPin, MessageSquare, MoreVertical, Paperclip, Phone, Search, Send, Settings, Shield, Smile, Star, Trash2, Video, X } from 'lucide-react'
+import CarAPI from "@/lib/api/car"
+import ImageProcess from "@/lib/api/image-process"
+import { getCurrentUser } from "@/lib/utils/get-current-user"
+import { formatMoney } from "@/lib/utils/money-format"
+import { formatDateToDateTime, formatTime } from "@/lib/utils/time-format"
+import {
+  Bell,
+  Calendar,
+  Camera,
+  Car,
+  Check,
+  CheckCheck,
+  CornerUpRight,
+  DollarSign,
+  Edit,
+  Flag,
+  MapPin,
+  MessageSquare,
+  MoreVertical,
+  Paperclip,
+  Phone,
+  Search,
+  Send,
+  Settings,
+  Shield,
+  Smile,
+  Star,
+  Trash2,
+  Video,
+  X,
+} from "lucide-react"
 import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { useChat } from "../../hooks/use-chat"
-import { useWebSocket } from '../contexts/WebsocketContext'
+import { useWebSocket } from "../contexts/WebsocketContext"
 import { AppointmentModal } from "../modals/appointment-modal"
 import { LocationModal } from "../modals/location-modal"
 import { PriceOfferModal } from "../modals/price-offer-modal"
 import { UserProfileModal } from "../modals/user-profile-modal"
-import chatMessageAPI from "@/lib/api/chat-message"
-import CarAPI from "@/lib/api/car"
+import dayjs from "dayjs"
+import MessageForward from "./message-forward"
+
+type UserDTO = {
+  id: number
+  usename: string
+  email: string
+  firstName: string
+  lastName: string
+  profilePicture?: string
+  createdAt: string
+  updatedAt: string
+  role: string
+  status: string
+  verified: boolean
+  bio: string
+  location: string
+  phone: string
+  fullName: string
+  rating: number
+  rank: string
+}
+
 type ChatMessage = {
-  id?: number;
-  sender: UserDTO;
-  recipient?: UserDTO;
-  content: string;
-  timestamp: string;
-  carId?: number | null;
-  type: "TEXT" | "IMAGE" | "PRICE_OFFER";
-  isRead?: boolean;
-};
+  id?: number
+  sender: UserDTO
+  recipient?: UserDTO
+  content: string
+  timestamp: string
+  carId?: number | null
+  type: "TEXT" | "IMAGE" | "PRICE_OFFER"
+  isRead?: boolean
+  isEdited?: boolean
+}
 export default function FullCarChatApp() {
   const searchParams = useSearchParams()
   const carIdParam = searchParams.get("carId")
   const sellerIdParam = searchParams.get("sellerId")
 
-  const carId = carIdParam ? parseInt(carIdParam) : undefined
-  const sellerId = sellerIdParam ? parseInt(sellerIdParam) : undefined
-  const { stompClient, isConnected, message } = useWebSocket();
+  const carId = carIdParam ? Number.parseInt(carIdParam) : undefined
+  const sellerId = sellerIdParam ? Number.parseInt(sellerIdParam) : undefined
   const user = getCurrentUser()
-  const route = useRouter();
+  const route = useRouter()
+  const { stompClient, isConnected, message } = useWebSocket()
 
   const {
     users,
@@ -58,7 +113,9 @@ export default function FullCarChatApp() {
     setMessages,
     setUsers,
     fetchUserChatted,
-    changeStatusIsRead
+    changeStatusIsRead,
+    editMessage,
+    deleteMessage,
   } = useChat(stompClient)
 
   const [messageInput, setMessageInput] = useState("")
@@ -72,45 +129,45 @@ export default function FullCarChatApp() {
   const [carInfo, setCarInfo] = useState<any>(null)
   const [isEnter, setIsEnter] = useState(false)
   const [replyToMessage, setReplyToMessage] = useState<any>(null)
-  const [editMessageId, setEditMessageId] = useState(null);
-  const [editingText, setEditingText] = useState("");
+  const [editMessageId, setEditMessageId] = useState(null)
+  const [editingText, setEditingText] = useState("")
+  const [showForwardModal, setShowForwardModal] = useState(false)
+  const [messageToForward, setMessageToForward] = useState<any>(null)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    if (!isConnected || !stompClient) return;
+    if (!isConnected || !stompClient) return
     if (message?.recipient?.id === user?.id && message?.car?.id === carId) {
-      setMessages((prev) => [...prev, message]);
-    };
+      setMessages((prev) => [...prev, message])
+    }
     const existingIndex = users.findIndex(
-      (u) =>
-        u?.sender?.id === message?.sender?.id &&
-        u?.car?.id === message?.car?.id
-    );
+      (u) => u?.sender?.id === message?.sender?.id && u?.car?.id === message?.car?.id,
+    )
 
     if (existingIndex === -1) {
-      setUsers((prev) => [...prev, { sender: message.sender, car: message.car }]);
+      setUsers((prev) => [...prev, { sender: message.sender, car: message.car }])
     } else {
       //Đã tồn tại: Di chuyển user đó lên đầu danh sách
       setUsers((prev) => {
-        const newUsers = [...prev];
-        const [existingUser] = newUsers.splice(existingIndex, 1); // xóa phần tử cũ
-        newUsers.unshift(existingUser); // thêm vào đầu
-        return newUsers;
-      });
+        const newUsers = [...prev]
+        const [existingUser] = newUsers.splice(existingIndex, 1) // xóa phần tử cũ
+        newUsers.unshift(existingUser) // thêm vào đầu
+        return newUsers
+      })
     }
-  }, [isConnected, carId, message]);
+  }, [isConnected, carId, message])
 
   const fetchCarInfo = async (carId: number) => {
     try {
-      const response = await CarAPI.getCarById(carId);
+      const response = await CarAPI.getCarById(carId)
       if (response.status === 200) {
-        setCarInfo(response.data);
+        setCarInfo(response.data)
       }
     } catch (error) {
-      console.error("Failed to fetch car info:", error);
+      console.error("Failed to fetch car info:", error)
     }
   }
 
@@ -119,27 +176,50 @@ export default function FullCarChatApp() {
       fetchCarInfo(carId)
     }
   }, [carId])
-  useEffect(() => {
-    if (!isConnected || !stompClient) return;
-    stompClient.subscribe(`/user/${currentUserId}/queue/seen`, (message) => {
-      const readMessages: ChatMessage[] = JSON.parse(message.body);
-console.log(message);
 
+  const subcribeIsRead = () => {
+    if (!isConnected || !stompClient) return
+    stompClient.subscribe(`/user/${currentUserId}/queue/seen`, (message) => {
+      const readMessages: ChatMessage[] = JSON.parse(message.body)
       setMessages((prev) =>
-        prev.map((msg) =>
-          readMessages.find((rm) => rm.id === msg.id)
-            ? { ...msg, read: true }
-            : msg
-        )
-      );
-    });
+        prev.map((msg) => (readMessages.find((rm) => rm.id === msg.id) ? { ...msg, read: true } : msg)),
+      )
+    })
+  }
+
+  const subcribeEdit = () => {
+    if (!isConnected || !stompClient) return
+    stompClient.subscribe(`/user/${currentUserId}/queue/edit`, (message) => {
+      const readMessages: ChatMessage = JSON.parse(message.body)
+      setMessages((prev) =>
+        prev.map((msg) => (msg.id === readMessages.id ? { ...msg, content: readMessages.content, edited: true } : msg)),
+      )
+    })
+  }
+  const subcribeDelete = () => {
+    if (!isConnected || !stompClient) return
+    stompClient.subscribe(`/user/${currentUserId}/queue/delete`, (message) => {
+      const readMessages: ChatMessage = JSON.parse(message.body)
+      setMessages((prev) => {
+        const newArr = [...prev]
+        const index = newArr.findIndex((msg) => msg.id === readMessages.id)
+        if (index !== -1) newArr.splice(index, 1)
+        return newArr
+      })
+    })
+  }
+
+  useEffect(() => {
+    subcribeIsRead()
+    subcribeEdit()
+    subcribeDelete()
   }, [])
 
   useEffect(() => {
     if (carId && sellerId) {
-      initializeChatFromCar(carId, sellerId);
+      initializeChatFromCar(carId, sellerId)
     }
-  }, [isEnter, carId, sellerId]);
+  }, [isEnter, carId, sellerId])
 
   useEffect(() => {
     fetchUserChatted()
@@ -147,11 +227,11 @@ console.log(message);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 200);
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    }, 200)
 
-    return () => clearTimeout(timeout);
-  }, [messages, selectedChat]);
+    return () => clearTimeout(timeout)
+  }, [messages, selectedChat])
 
   const handleSendMessage = () => {
     if (messageInput.trim()) {
@@ -169,25 +249,25 @@ console.log(message);
   }
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file || !currentUserId || !sellerId) return;
+    const file = event.target.files?.[0]
+    if (!file || !currentUserId || !sellerId) return
 
-    const formData = new FormData();
-    formData.append("files", file);
+    const formData = new FormData()
+    formData.append("files", file)
 
     try {
-      const response = await ImageProcess.uploadImage(formData);
+      const response = await ImageProcess.uploadImage(formData)
       if (response.status === 200) {
-        const uploadedUrl = response.data;
-        const type = file.type.startsWith("image/") ? "IMAGE" : "VIDEO";
+        const uploadedUrl = response.data
+        const type = file.type.startsWith("image/") ? "IMAGE" : "VIDEO"
 
-        sendMessage(currentUserId, sellerId, "", carId, type, uploadedUrl);
-        setIsEnter((pre) => !pre);
+        sendMessage(currentUserId, sellerId, "", carId, type, uploadedUrl)
+        setIsEnter((pre) => !pre)
       }
     } catch (error) {
-      console.error("Lỗi khi upload file:", error);
+      console.error("Lỗi khi upload file:", error)
     }
-  };
+  }
 
   const handleLocationShare = (address: string, latitude?: number, longitude?: number) => {
     const locationText = `Vị trí: ${address}`
@@ -202,56 +282,63 @@ console.log(message);
   }
 
   const hasUnreadMessages = () => {
-    return messages.some(msg => !msg.read && msg.sender.id !== currentUserId);
-  };
-
+    return messages.some((msg) => !msg.read && msg.sender.id !== currentUserId)
+  }
 
   const handleNavigateCarDetail = (carId: number) => {
     route.push(`car/${carId}`)
   }
 
-  // inside renderMessage, below line where message?.type === "TEXT"
   const handleEditMessage = (msg) => {
-    setEditMessageId(msg.id);
-    setEditingText(msg.content);
-  };
+    setEditMessageId(msg.id)
+    setEditingText(msg.content)
+  }
 
   const handleSubmitEdit = async () => {
     if (editingText.trim()) {
       try {
-        // await chatMessageAPI.updateMessage(editMessageId, editingText);
-        // setEditMessageId(null);
-        // setEditingText("");
-        // setIsEnter(pre => !pre);
+        editMessage(editMessageId, currentUserId, sellerId, carId, editingText)
+        setEditMessageId(null)
+        setEditingText("")
+        setIsEnter((pre) => !pre)
       } catch (err) {
-        console.error("Lỗi khi chỉnh sửa tin nhắn", err);
+        console.error("Lỗi khi chỉnh sửa tin nhắn", err)
       }
     }
-  };
+  }
 
-  const handleForwardMessage = async (msg) => {
-    if (!currentUserId || !sellerId) return;
+  const handleForwardMessage = (msg: any) => {
+    setMessageToForward(msg)
+    setShowForwardModal(true)
+  }
+
+  const handleForwardToContacts = async (selectedContacts: number[], message: any) => {
     try {
-      await sendMessage(currentUserId, sellerId, msg.content, carId, msg.type);
-      setIsEnter(pre => !pre);
+      // Gửi tin nhắn đến từng người được chọn
+      for (const contactId of selectedContacts) {
+        await sendMessage(currentUserId, contactId, message.content, carId, message.type)
+      }
+
+      alert(`Đã chuyển tiếp tin nhắn đến ${selectedContacts.length} người`)
+      setIsEnter((pre) => !pre)
     } catch (err) {
-      console.error("Lỗi khi chuyển tiếp tin nhắn:", err);
+      console.error("Lỗi khi chuyển tiếp tin nhắn:", err)
     }
-  };
+  }
 
   const handleDeleteMessage = async (msgId) => {
     try {
-      // await chatMessageAPI.deleteMessage(msgId);
-      // setMessages(prev => prev.filter(m => m.id !== msgId));
+      deleteMessage(msgId, currentUserId, sellerId, carId)
+      setMessages((prev) => prev.filter((m) => m.id !== msgId))
+      setIsEnter((pre) => !pre)
     } catch (err) {
-      console.error("Lỗi khi xóa tin nhắn:", err);
+      console.error("Lỗi khi xóa tin nhắn:", err)
     }
-  };
+  }
 
   const renderMessage = (message: any, index: number) => {
-    if (!message?.content?.trim()) return null;
-    const isMe = message?.sender?.id === currentUserId;
-
+    if (!message?.content?.trim()) return null
+    const isMe = message?.sender?.id === currentUserId
     return (
       <div key={index} className={`flex items-end gap-2 mb-4 ${isMe ? "justify-end" : "justify-start"} items-center`}>
         {!isMe && (
@@ -321,8 +408,13 @@ console.log(message);
             )}
           </div>
 
-          <p className={`text-xs mt-1 ${isMe ? "text-right text-muted-foreground" : "text-left text-muted-foreground"}`}>
-            {formatTime(message?.createdAt)}
+          <p
+            className={`text-xs mt-1 ${isMe ? "text-right text-muted-foreground" : "text-left text-muted-foreground"}`}
+          >
+            {dayjs().diff(dayjs(message?.createdAt), "hour") < 24
+              ? formatTime(message?.createdAt)
+              : formatDateToDateTime(message?.createdAt)}
+            {message?.edited && <span className="italic ml-1">(đã chỉnh sửa)</span>}
             {isMe && (
               <span className="inline-flex items-center ml-1">
                 {message.read ? (
@@ -333,14 +425,18 @@ console.log(message);
               </span>
             )}
           </p>
-
         </div>
 
         {isMe && (
+
           <Avatar className="w-8 h-8">
-            <AvatarImage src={message?.sender?.profilePicture || "/placeholder.svg"} alt={message?.sender?.id.toString()} />
+            <AvatarImage
+              src={message?.sender?.profilePicture || "/placeholder.svg"}
+              alt={message?.sender?.id.toString()}
+            />
             <AvatarFallback>{message?.sender?.fullName?.charAt(0)}</AvatarFallback>
           </Avatar>
+
         )}
 
         <DropdownMenu>
@@ -350,9 +446,11 @@ console.log(message);
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => handleEditMessage(message)}>
-              <Edit className="w-4 h-4 mr-2" /> Chỉnh sửa
-            </DropdownMenuItem>
+            {message.type === "TEXT" && isMe && (
+              <DropdownMenuItem onClick={() => handleEditMessage(message)}>
+                <Edit className="w-4 h-4 mr-2" /> Chỉnh sửa
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem onClick={() => handleForwardMessage(message)}>
               <CornerUpRight className="w-4 h-4 mr-2" /> Chuyển tiếp
             </DropdownMenuItem>
@@ -366,9 +464,8 @@ console.log(message);
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-    );
-  };
-
+    )
+  }
 
   return (
     <div className="flex h-screen max-w-7xl mx-auto border rounded-lg overflow-hidden bg-background">
@@ -405,29 +502,20 @@ console.log(message);
             {users.map((user, index) => (
               <div
                 key={index}
-                className={`p-3 rounded-lg cursor-pointer hover:bg-muted/50 transition-colors mb-2 ${user?.sender?.id === user?.sender?.id &&
-                  user?.car?.id === user?.car?.id
-                  ? "bg-muted"
-                  : ""
+                className={`p-3 rounded-lg cursor-pointer hover:bg-muted/50 transition-colors mb-2 ${user?.sender?.id === user?.sender?.id && user?.car?.id === user?.car?.id ? "bg-muted" : ""
                   }`}
                 onClick={() => {
-                  // const isSameUser =
-                  //   user?.sender?.id === user?.sender?.id &&
-                  //   user?.car?.id === user?.car?.id;
-
-                  //   console.log(user);
-
-                  // if (!isSameUser) {
-                  setSelectedChat(user);
-                  route.push(`/messages?carId=${user.car.id}&sellerId=${user.sender.id}`);
-                  // }
+                  setSelectedChat(user)
+                  route.push(`/messages?carId=${user.car.id}&sellerId=${user.sender.id}`)
                 }}
-
               >
                 <div className="flex items-start gap-3">
                   <div className="relative">
                     <Avatar className="w-12 h-12">
-                      <AvatarImage src={user?.sender?.profilePicture || "/placeholder.svg"} alt={user?.sender?.firstName.charAt(0)} />
+                      <AvatarImage
+                        src={user?.sender?.profilePicture || "/placeholder.svg"}
+                        alt={user?.sender?.firstName.charAt(0)}
+                      />
                       <AvatarFallback>{user?.sender?.firstName.charAt(0)}</AvatarFallback>
                     </Avatar>
                     {user?.sender?.status && (
@@ -450,29 +538,30 @@ console.log(message);
                         {user?.car?.carModelsBrandName} {user?.car?.carModelsName} {user?.car?.year}
                       </span>
                       <span className="text-xs font-medium text-primary">{formatMoney(user?.car?.price)}</span>
-                      <Avatar className="w-14 h-14 rounded-[10px] object-cover" onClick={() => setSelectedImage(user?.car?.carImages?.[0]?.imageUrl)}>
+                      <Avatar
+                        className="w-14 h-14 rounded-[10px] object-cover"
+                        onClick={() => setSelectedImage(user?.car?.carImages?.[0]?.imageUrl)}
+                      >
                         <AvatarImage
                           src={user?.car?.carImages?.[0]?.imageUrl || "/placeholder.svg"}
                           alt={user?.car?.carImages?.[0]?.carTitle}
                           className="!rounded-[10px] object-cover"
                         />
-                        <AvatarFallback>
-                          {user?.car?.carImages?.[0]?.imageUrl}
-                        </AvatarFallback>
+                        <AvatarFallback>{user?.car?.carImages?.[0]?.imageUrl}</AvatarFallback>
                       </Avatar>
-
                     </div>
                     {/* <p className="text-sm text-muted-foreground truncate mt-1">{user.lastMessage}</p> */}
                     <div className="flex items-center justify-between mt-2">
-
-                      {
-                        user?.sender?.rating > 0 ?
-                          <div className="flex items-center gap-1">
-                            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                            <span className="text-xs">{user?.sender?.rating > 0 ? Math.round(user?.sender?.rating * 10) / 10 : ""}</span>
-                          </div>
-                          : ""
-                      }
+                      {user?.sender?.rating > 0 ? (
+                        <div className="flex items-center gap-1">
+                          <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                          <span className="text-xs">
+                            {user?.sender?.rating > 0 ? Math.round(user?.sender?.rating * 10) / 10 : ""}
+                          </span>
+                        </div>
+                      ) : (
+                        ""
+                      )}
                     </div>
                   </div>
                 </div>
@@ -492,7 +581,10 @@ console.log(message);
                 <div className="flex items-center gap-3 cursor-pointer" onClick={() => setShowUserProfileModal(true)}>
                   <div className="relative">
                     <Avatar className="w-10 h-10">
-                      <AvatarImage src={selectedChat?.sender?.profilePicture || "/placeholder.svg"} alt={selectedChat?.sender?.firstName} />
+                      <AvatarImage
+                        src={selectedChat?.sender?.profilePicture || "/placeholder.svg"}
+                        alt={selectedChat?.sender?.firstName}
+                      />
                       <AvatarFallback>{selectedChat?.sender?.firstName?.charAt(0)}</AvatarFallback>
                     </Avatar>
                     {selectedChat?.sender?.status && (
@@ -558,14 +650,9 @@ console.log(message);
               <div className="mb-2 p-2 border-l-4 border-primary bg-muted rounded text-sm flex justify-between items-center">
                 <div className="flex flex-col">
                   <span className="font-medium text-primary">Trả lời: {replyToMessage.sender.fullName}</span>
-                  <span className="line-clamp-1">{replyToMessage.content || '[media]'}</span>
+                  <span className="line-clamp-1">{replyToMessage.content || "[media]"}</span>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setReplyToMessage(null)}
-                  className="ml-2"
-                >
+                <Button variant="ghost" size="icon" onClick={() => setReplyToMessage(null)} className="ml-2">
                   <X className="w-4 h-4" />
                 </Button>
               </div>
@@ -606,55 +693,35 @@ console.log(message);
                   </Button>
                 </div>
 
-                {/* <Textarea
+                {editMessageId && (
+                  <div className="text-sm bg-yellow-100 px-3 py-1 rounded mb-2">
+                    Đang chỉnh sửa, "{editingText}"
+                    <Button variant="link" size="sm" onClick={() => setEditMessageId(null)}>
+                      Hủy
+                    </Button>
+                  </div>
+                )}
+                <Textarea
                   placeholder="Nhập tin nhắn..."
-                  value={messageInput}
-                  onChange={(e) => setMessageInput(e.target.value)}
+                  value={editMessageId ? editingText : messageInput}
+                  onChange={(e) => (editMessageId ? setEditingText(e.target.value) : setMessageInput(e.target.value))}
                   onKeyPress={handleKeyPress}
-                  className="flex-1 min-h-[40px] max-h-[120px] resize-none"
-                  rows={1}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault()
+                      editMessageId ? handleSubmitEdit() : handleSendMessage()
+                    }
+                  }}
                   onClick={async () => {
                     if (hasUnreadMessages()) {
                       try {
                         if (currentUserId === null) {
                           return
                         } else {
-                          await chatMessageAPI.changeStatusIsRead(currentUserId, selectedChat?.sender?.id, carInfo?.id);
+                          changeStatusIsRead(currentUserId, selectedChat?.sender?.id, carInfo?.id)
                         }
                       } catch (err) {
-                        console.error("Lỗi khi đánh dấu đã đọc:", err);
-                      }
-                    }
-                  }}
-                /> */}
-
-                {editMessageId && (
-                  <div className="text-sm bg-yellow-100 px-3 py-1 rounded mb-2">
-                    Đang chỉnh sửa, "{editingText}"
-                    <Button variant="link" size="sm" onClick={() => setEditMessageId(null)}>Hủy</Button>
-                  </div>
-                )}
-                <Textarea
-                  placeholder="Nhập tin nhắn..."
-                  value={editMessageId ? editingText : messageInput}
-                  onChange={(e) => editMessageId ? setEditingText(e.target.value) : setMessageInput(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      editMessageId ? handleSubmitEdit() : handleSendMessage();
-                    }
-                  }}
-                  onClick={async () => {
-                    if (hasUnreadMessages()) {
-                      try {
-                        if (currentUserId === null) {
-                          return
-                        } else {       
-                          changeStatusIsRead(currentUserId, selectedChat?.sender?.id, carInfo?.id);
-                        }
-                      } catch (err) {
-                        console.error("Lỗi khi đánh dấu đã đọc:", err);
+                        console.error("Lỗi khi đánh dấu đã đọc:", err)
                       }
                     }
                   }}
@@ -740,6 +807,16 @@ console.log(message);
           </div>
         </div>
       )}
+      <MessageForward
+        isOpen={showForwardModal}
+        onClose={() => {
+          setShowForwardModal(false)
+          setMessageToForward(null)
+        }}
+        messageToForward={messageToForward}
+        onForward={handleForwardToContacts}
+        users={users}
+      />
     </div>
   )
 }

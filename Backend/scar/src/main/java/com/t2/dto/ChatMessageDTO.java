@@ -31,5 +31,7 @@ public class ChatMessageDTO {
 
     private boolean isRead;
 
+    private boolean isEdited;
+
     private String contentImageId;
 }

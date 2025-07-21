@@ -7,7 +7,6 @@ export function formatTime(date: Date | string | number | null | undefined): str
     let parsedDate: Date;
 
     if (typeof date === 'string') {
-      // Trường hợp chuỗi là số timestamp
       if (!isNaN(Number(date)) && date.length > 10) {
         parsedDate = new Date(Number(date));
       } else {
@@ -24,7 +23,7 @@ export function formatTime(date: Date | string | number | null | undefined): str
     const options: Intl.DateTimeFormatOptions = {
       hour: '2-digit',
       minute: '2-digit',
-      second: '2-digit',
+      // second: '2-digit',
     };
 
     return parsedDate.toLocaleTimeString('vi-VN', options);
