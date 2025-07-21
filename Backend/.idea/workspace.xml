@@ -5,18 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0e5023a0-69d0-4743-9f57-9e088a85e3c6" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/form/ChatMessage/DeleteChatMessageForm.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/form/ChatMessage/EditChatMessageForm.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/ChatMessageController.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/ChatMessageController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/ImageProcessController.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/ImageProcessController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/ChatMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/ChatMessage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/form/ChatMessage/ChatMessageForm.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/form/ChatMessage/ChatMessageForm.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/dto/ChatMessageDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/dto/ChatMessageDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/ChatMessageRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/ChatMessageRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ChatMessageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ChatMessageService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/util/ImageUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/util/ImageUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/components/car/car-details.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/car/car-details.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/components/contexts/WebsocketContext.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/contexts/WebsocketContext.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/components/marketplace/car-card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/marketplace/car-card.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/IChatMessageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/IChatMessageService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Frontend/components/messages/messages-content.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/messages/messages-content.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Frontend/hooks/use-chat.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/hooks/use-chat.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/lib/utils/time-format.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/lib/utils/time-format.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

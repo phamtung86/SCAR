@@ -117,6 +117,7 @@ type ChatMessage = {
   carId?: number | null;
   type: "TEXT" | "IMAGE" | "PRICE_OFFER" | "VIDEO" | "APPOINTMENT";
   isRead?: boolean;
+  isEdited?: boolean;
 };
 
 export function useChat(stompClient: Client | null) {
@@ -176,6 +177,60 @@ export function useChat(stompClient: Client | null) {
         stompClient.publish({
           destination: "/app/seen",
           body: JSON.stringify(message),
+        });
+      } else {
+        console.warn("WebSocket chưa được kết nối.");
+      }
+    },
+    [stompClient]
+  );
+
+  const editMessage = useCallback(
+    (
+      messageId?: number,
+      senderId: number,
+      recipientId: number,
+      carId?: number | null,
+      msg: string
+    ) => {
+      if (stompClient && stompClient.connected) {
+        const messageEdit = {
+          id: messageId,
+          senderId,
+          recipientId,
+          carId: carId ?? null, 
+          message : msg 
+        };
+      
+        stompClient.publish({
+          destination: "/app/edit",
+          body: JSON.stringify(messageEdit),
+        });
+      } else {
+        console.warn("WebSocket chưa được kết nối.");
+      }
+    },
+    [stompClient]
+  );
+
+  const deleteMessage = useCallback(
+    (
+      messageId?: number,
+      senderId: number,
+      recipientId: number,
+      carId?: number | null,
+    ) => {
+      if (stompClient && stompClient.connected) {
+        const messageEdit = {
+          id: messageId,
+          senderId,
+          recipientId,
+          carId: carId ?? null, 
+        };
+      
+        stompClient.publish({
+          destination: "/app/delete",
+          body: JSON.stringify(messageEdit),
         });
       } else {
         console.warn("WebSocket chưa được kết nối.");
@@ -263,6 +318,8 @@ export function useChat(stompClient: Client | null) {
     setMessages,
     setUsers,
     fetchUserChatted,
-    changeStatusIsRead
+    changeStatusIsRead,
+    editMessage,
+    deleteMessage
   };
 }

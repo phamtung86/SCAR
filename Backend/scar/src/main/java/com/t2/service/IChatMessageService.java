@@ -14,5 +14,9 @@ public interface IChatMessageService {
 
     List<ChatMessageDTO> findChatMessagesByReceiver(Integer receiverId);
 
-    List<ChatMessage> changeStatusRead (Integer receiverId,Integer senderId, Integer carId ,boolean isRead);
+    List<ChatMessage> changeStatusRead (Integer recipientId,Integer senderId, Integer carId ,boolean isRead);
+
+    ChatMessage editMessage (Long id, String message);
+
+    ChatMessage deleteMessage (Long id);
 }

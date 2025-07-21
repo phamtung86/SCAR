@@ -8,6 +8,8 @@ import com.t2.entity.ChatMessage;
 import com.t2.entity.ChatNotification;
 import com.t2.form.ChatMessage.ChatMessageCRUDForm;
 import com.t2.form.ChatMessage.ChatMessageForm;
+import com.t2.form.ChatMessage.DeleteChatMessageForm;
+import com.t2.form.ChatMessage.EditChatMessageForm;
 import com.t2.form.UploadImageForm;
 import com.t2.service.ICarService;
 import com.t2.service.IChatMessageService;
@@ -61,11 +63,11 @@ public class ChatMessageController {
                     message.setContent(imgUrl.getUrl());
                     message.setContentImageId(imgUrl.getPublicId());
                     ChatMessage saveMsg = chatMessageService.saveChatMessage(message);
-                    sendMessageToRecipient(saveMsg, sender, recipient, carDTO);
+                    sendMessageToRecipient(saveMsg, sender, recipient, carDTO, "/queue/messages");
                 }
             } else {
                 ChatMessage saveMsg = chatMessageService.saveChatMessage(baseMessage);
-                sendMessageToRecipient(saveMsg, sender, recipient, carDTO);
+                sendMessageToRecipient(saveMsg, sender, recipient, carDTO, "/queue/messages");
             }
 
         } catch (Exception e) {
@@ -73,13 +75,13 @@ public class ChatMessageController {
         }
     }
 
-    private void sendMessageToRecipient(ChatMessage saveMsg, UserDTO sender, UserDTO recipient, CarDTO carDTO) {
+    private void sendMessageToRecipient(ChatMessage saveMsg, UserDTO sender, UserDTO recipient, CarDTO carDTO, String destination) {
         ChatRoomDTO chatRoomDTO = Optional.ofNullable(saveMsg.getChatRoom())
                 .map(room -> modelMapper.map(room, ChatRoomDTO.class)).orElse(null);
 
         simpMessagingTemplate.convertAndSendToUser(
                 recipient.getId().toString(),
-                "/queue/messages",
+                destination,
                 new ChatNotification(
                         saveMsg.getId(),
                         chatRoomDTO,
@@ -121,7 +123,7 @@ public class ChatMessageController {
         return chatMessageService.findChatMessagesByReceiver(recipientId);
     }
 
-    private void sendMessageToRecipient(List<ChatMessage> messages, UserDTO sender, UserDTO recipient, CarDTO carDTO) {
+    private void sendListMessageToRecipient(List<ChatMessage> messages, UserDTO sender, UserDTO recipient, CarDTO carDTO) {
         if (messages == null || messages.isEmpty()) return;
 
         ChatRoomDTO chatRoomDTO = Optional.ofNullable(messages.get(0).getChatRoom())
@@ -165,7 +167,29 @@ public class ChatMessageController {
                 true
         );
 
-        sendMessageToRecipient(updatedMessages, sender, recipient, carDTO);
+        sendListMessageToRecipient(updatedMessages, sender, recipient, carDTO);
+    }
+
+    @Transactional
+    @MessageMapping("/edit")
+    public void editChatMessage(@Payload EditChatMessageForm editChatMessageForm) {
+
+        UserDTO sender = userService.findUserDTOById(editChatMessageForm.getSenderId());
+        UserDTO recipient = userService.findUserDTOById(editChatMessageForm.getRecipientId());
+        CarDTO carDTO = modelMapper.map(iCarService.getCarById(editChatMessageForm.getCarId()), CarDTO.class);
+        ChatMessage chatMessage = chatMessageService.editMessage(editChatMessageForm.getId(), editChatMessageForm.getMessage());
+        sendMessageToRecipient(chatMessage, sender, recipient, carDTO,"/queue/edit");
+    }
+
+    @Transactional
+    @MessageMapping("/delete")
+    public void delete(@Payload DeleteChatMessageForm deleteChatMessageForm) {
+
+        UserDTO sender = userService.findUserDTOById(deleteChatMessageForm.getSenderId());
+        UserDTO recipient = userService.findUserDTOById(deleteChatMessageForm.getRecipientId());
+        CarDTO carDTO = modelMapper.map(iCarService.getCarById(deleteChatMessageForm.getCarId()), CarDTO.class);
+        ChatMessage chatMessage = chatMessageService.deleteMessage(deleteChatMessageForm.getId());
+        sendMessageToRecipient(chatMessage, sender, recipient, carDTO,"/queue/delete");
     }
 
 }
