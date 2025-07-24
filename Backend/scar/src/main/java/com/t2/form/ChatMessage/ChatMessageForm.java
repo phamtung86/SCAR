@@ -1,13 +1,15 @@
 package com.t2.form.ChatMessage;
 
 import com.t2.form.UploadImageForm;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Date;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class ChatMessageForm extends ChatMessageCRUDForm {
     private Long id;
@@ -20,4 +22,5 @@ public class ChatMessageForm extends ChatMessageCRUDForm {
 
     private List<UploadImageForm> files;
 
+    private Integer parentChatId;
 }

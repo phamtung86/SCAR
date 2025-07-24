@@ -58,6 +58,10 @@ public class ChatMessage {
     @Column(name = "content_image_id")
     private String contentImageId;
 
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
+    private ChatMessage parentChat;
+
     public enum MessageStatus {
         SENT, DELIVERED, READ
     }

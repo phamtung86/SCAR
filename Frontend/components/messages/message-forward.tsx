@@ -12,12 +12,13 @@ interface MessageForwardProps {
     isOpen: boolean
     onClose: () => void
     messageToForward: any
-    onForward: (selectedContacts: number[], message: any) => void
+    onForward: (selectedContacts: number[], message: any, selectedCarInfor: number) => void
     users: []
 }
 
 export default function MessageForward({ isOpen, onClose, messageToForward, onForward, users }: MessageForwardProps) {
     const [selectedContacts, setSelectedContacts] = useState<number[]>([])
+    const [selectedCarInfor, setSelectedCarInfor] = useState<number>()
     const [searchQuery, setSearchQuery] = useState("")
     const [isForwarding, setIsForwarding] = useState(false)
     const filteredItems = users.filter((item) => item?.sender?.fullName.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -35,7 +36,7 @@ export default function MessageForward({ isOpen, onClose, messageToForward, onFo
         await new Promise((resolve) => setTimeout(resolve, 1500))
 
         // Gọi callback để xử lý chuyển tiếp
-        onForward(selectedContacts, messageToForward)
+        onForward(selectedContacts, messageToForward, selectedCarInfor)
 
         setIsForwarding(false)
         setSelectedContacts([])
@@ -119,7 +120,10 @@ export default function MessageForward({ isOpen, onClose, messageToForward, onFo
                                         key={index}
                                         className={`flex item?s-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${isSelected ? "bg-blue-50 border border-blue-200" : "hover:bg-gray-50"
                                             }`}
-                                        onClick={() => handleContactSelect(item?.sender?.id)}
+                                        onClick={() => {
+                                            handleContactSelect(item?.sender?.id);
+                                            setSelectedCarInfor(item?.car.id)
+                                        }}
                                     >
                                         <div
                                             className={`w-5 h-5 rounded border-2 flex item?.sender?s-center justify-center ${isSelected ? "bg-blue-500 border-blue-500" : "border-gray-300"
