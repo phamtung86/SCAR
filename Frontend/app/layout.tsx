@@ -3,6 +3,7 @@ import { LayoutClient } from "@/components/layout/layout-client";
 import { Inter } from "next/font/google";
 import { type ReactNode } from "react";
 import "./globals.css";
+import ConnectionStatus from "@/components/ui/Connection-status";
 
 
 const inter = Inter({ subsets: ["latin"] });
@@ -20,6 +21,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className={inter.className}>
         <WebSocketProvider>
           <LayoutClient>{children}</LayoutClient>
+          <ConnectionStatus />
         </WebSocketProvider>
       </body>
     </html>

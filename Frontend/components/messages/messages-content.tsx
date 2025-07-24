@@ -19,6 +19,7 @@ import ImageProcess from "@/lib/api/image-process"
 import { getCurrentUser } from "@/lib/utils/get-current-user"
 import { formatMoney } from "@/lib/utils/money-format"
 import { formatDateToDateTime, formatTime } from "@/lib/utils/time-format"
+import dayjs from "dayjs"
 import {
   Bell,
   Calendar,
@@ -35,6 +36,7 @@ import {
   MoreVertical,
   Paperclip,
   Phone,
+  Reply,
   Search,
   Send,
   Settings,
@@ -54,7 +56,6 @@ import { AppointmentModal } from "../modals/appointment-modal"
 import { LocationModal } from "../modals/location-modal"
 import { PriceOfferModal } from "../modals/price-offer-modal"
 import { UserProfileModal } from "../modals/user-profile-modal"
-import dayjs from "dayjs"
 import MessageForward from "./message-forward"
 
 type UserDTO = {
@@ -92,7 +93,6 @@ export default function FullCarChatApp() {
   const searchParams = useSearchParams()
   const carIdParam = searchParams.get("carId")
   const sellerIdParam = searchParams.get("sellerId")
-
   const carId = carIdParam ? Number.parseInt(carIdParam) : undefined
   const sellerId = sellerIdParam ? Number.parseInt(sellerIdParam) : undefined
   const user = getCurrentUser()
@@ -116,6 +116,7 @@ export default function FullCarChatApp() {
     changeStatusIsRead,
     editMessage,
     deleteMessage,
+    forwardMessage
   } = useChat(stompClient)
 
   const [messageInput, setMessageInput] = useState("")
@@ -137,28 +138,35 @@ export default function FullCarChatApp() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!isConnected || !stompClient) return
-    if (message?.recipient?.id === user?.id && message?.car?.id === carId) {
-      setMessages((prev) => [...prev, message])
+    if (!isConnected || !stompClient || !message) return;
+    console.log("Tin nhan den ",message);
+    if (message?.sender?.id === sellerId && message?.recipient?.id === user?.id && message?.car?.id === carId) {
+      setMessages((prev) => [...prev, message]);
     }
+
     const existingIndex = users.findIndex(
-      (u) => u?.sender?.id === message?.sender?.id && u?.car?.id === message?.car?.id,
-    )
+      (u) => u?.sender?.id === message.sender?.id && u?.car?.id === message.car?.id
+    );
 
     if (existingIndex === -1) {
-      setUsers((prev) => [...prev, { sender: message.sender, car: message.car }])
+      setUsers((prev) => [
+        ...prev,
+        { sender: message.sender, car: message.car, isRead: false },
+      ]);
     } else {
-      //Đã tồn tại: Di chuyển user đó lên đầu danh sách
       setUsers((prev) => {
-        const newUsers = [...prev]
-        const [existingUser] = newUsers.splice(existingIndex, 1) // xóa phần tử cũ
-        newUsers.unshift(existingUser) // thêm vào đầu
-        return newUsers
-      })
+        const newUsers = [...prev];
+        const [existingUser] = newUsers.splice(existingIndex, 1);
+        newUsers.unshift({ ...existingUser, isRead: false });
+        return newUsers;
+      });
+
     }
-  }, [isConnected, carId, message])
+  }, [isConnected, stompClient, carId, message]);
+
 
   const fetchCarInfo = async (carId: number) => {
     try {
@@ -178,14 +186,21 @@ export default function FullCarChatApp() {
   }, [carId])
 
   const subcribeIsRead = () => {
-    if (!isConnected || !stompClient) return
+    if (!isConnected || !stompClient) return;
+
     stompClient.subscribe(`/user/${currentUserId}/queue/seen`, (message) => {
-      const readMessages: ChatMessage[] = JSON.parse(message.body)
+      const readMessages: ChatMessage[] = JSON.parse(message.body);
+      console.log("seen ", readMessages);
+      
+      if (!readMessages || readMessages.length === 0) return;
       setMessages((prev) =>
-        prev.map((msg) => (readMessages.find((rm) => rm.id === msg.id) ? { ...msg, read: true } : msg)),
-      )
-    })
-  }
+        prev.map((msg) =>
+          readMessages.find((rm) => rm.id === msg.id) ? { ...msg, read: true } : msg
+        )
+      );
+    });
+  };
+
 
   const subcribeEdit = () => {
     if (!isConnected || !stompClient) return
@@ -235,9 +250,10 @@ export default function FullCarChatApp() {
 
   const handleSendMessage = () => {
     if (messageInput.trim()) {
-      sendMessage(currentUserId, sellerId, messageInput.trim(), carId, "TEXT")
+      sendMessage(currentUserId, sellerId, messageInput.trim(), carId, "TEXT", [], replyToMessage?.id)
       setMessageInput("")
       setIsEnter((pre) => !pre)
+      setReplyToMessage(null)
     }
   }
 
@@ -260,8 +276,7 @@ export default function FullCarChatApp() {
       if (response.status === 200) {
         const uploadedUrl = response.data
         const type = file.type.startsWith("image/") ? "IMAGE" : "VIDEO"
-
-        sendMessage(currentUserId, sellerId, "", carId, type, uploadedUrl)
+        sendMessage(currentUserId, sellerId, "", carId, type, uploadedUrl, null)
         setIsEnter((pre) => !pre)
       }
     } catch (error) {
@@ -271,13 +286,13 @@ export default function FullCarChatApp() {
 
   const handleLocationShare = (address: string, latitude?: number, longitude?: number) => {
     const locationText = `Vị trí: ${address}`
-    sendMessage(currentUserId, sellerId, locationText, carId, "LOCATION")
+    sendMessage(currentUserId, sellerId, locationText, carId, "LOCATION", [], null)
     setIsEnter((pre) => !pre)
   }
 
   const handleAppointmentSchedule = (date: string, time: string, note: string) => {
     const appointmentText = `Đặt lịch xem xe: ${date} lúc ${time}${note ? ` - ${note}` : ""}`
-    sendMessage(currentUserId, sellerId, appointmentText, carId, "APPOINTMENT")
+    sendMessage(currentUserId, sellerId, appointmentText, carId, "APPOINTMENT", [], null)
     setIsEnter((pre) => !pre)
   }
 
@@ -312,14 +327,11 @@ export default function FullCarChatApp() {
     setShowForwardModal(true)
   }
 
-  const handleForwardToContacts = async (selectedContacts: number[], message: any) => {
+  const handleForwardToContacts = async (selectedContacts: number[], message: any, selectedCarInfor: number) => {
     try {
-      // Gửi tin nhắn đến từng người được chọn
       for (const contactId of selectedContacts) {
-        await sendMessage(currentUserId, contactId, message.content, carId, message.type)
+        await forwardMessage(currentUserId, contactId, message.content, selectedCarInfor, message.type)
       }
-
-      alert(`Đã chuyển tiếp tin nhắn đến ${selectedContacts.length} người`)
       setIsEnter((pre) => !pre)
     } catch (err) {
       console.error("Lỗi khi chuyển tiếp tin nhắn:", err)
@@ -336,11 +348,126 @@ export default function FullCarChatApp() {
     }
   }
 
+  const handleReadMessage = (message: any) => {
+    const { sender, car } = message;
+    setUsers((prev) =>
+      prev.map((u) =>
+        u?.sender?.id === sender?.id && u?.car?.id === car?.id
+          ? { ...u, isRead: true }
+          : u
+      )
+    );
+  }
+
+  const scrollToMessage = (messageId: number) => {
+    console.log("Scrolling to message:", messageId)
+
+    const messageElement = document.getElementById(`message-${messageId}`)
+    const messagesContainer = messagesContainerRef.current
+
+    // Tìm ScrollArea container (parent của messagesContainer)
+    const scrollContainer =
+      messagesContainer?.closest("[data-radix-scroll-area-viewport]") || messagesContainer?.parentElement?.parentElement
+
+    if (messageElement && scrollContainer) {
+      // Tính toán vị trí của message trong scroll container
+      const containerRect = scrollContainer.getBoundingClientRect()
+      const messageRect = messageElement.getBoundingClientRect()
+
+      // Scroll đến vị trí message trong container
+      const scrollTop =
+        scrollContainer.scrollTop +
+        messageRect.top -
+        containerRect.top -
+        containerRect.height / 2 +
+        messageRect.height / 2
+
+      scrollContainer.scrollTo({
+        top: scrollTop,
+        behavior: "smooth",
+      })
+
+      // Highlight message
+      messageElement.classList.add("highlight-message")
+      setTimeout(() => {
+        messageElement.classList.remove("highlight-message")
+      }, 2000)
+    } else {
+      console.log("Message element or scroll container not found:", {
+        messageElement,
+        messagesContainer,
+        scrollContainer,
+      })
+
+      // Fallback: sử dụng scrollIntoView
+      if (messageElement) {
+        messageElement.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        })
+        messageElement.classList.add("highlight-message")
+        setTimeout(() => {
+          messageElement.classList.remove("highlight-message")
+        }, 2000)
+      }
+    }
+  }
+
+  const renderReplyAttachment = (replyTo: ChatMessage) => {
+    if (!replyTo) return null
+
+    return (
+      <div
+        className="mb-2 p-2 border-l-4 border-primary/50 bg-muted/30 rounded-r cursor-pointer hover:bg-muted/50 transition-colors"
+        onClick={() => scrollToMessage(replyTo?.id)}
+      >
+        <div className="flex items-center gap-1 mb-1">
+          <Reply className="w-3 h-3 text-primary" />
+          <span className="text-xs font-medium text-primary">{replyTo?.sender?.fullName}</span>
+        </div>
+
+        <div className="text-xs text-white text-muted-foreground line-clamp-2">
+          {replyTo?.type === "TEXT" && replyTo?.content}
+          {replyTo?.type === "IMAGE" && (
+            <div className="flex items-center gap-1">
+              <Camera className="w-3 h-3" />
+              <span>Hình ảnh</span>
+            </div>
+          )}
+          {replyTo?.type === "VIDEO" && (
+            <div className="flex items-center gap-1">
+              <Video className="w-3 h-3" />
+              <span>Video</span>
+            </div>
+          )}
+          {replyTo?.type === "LOCATION" && (
+            <div className="flex items-center gap-1">
+              <MapPin className="w-3 h-3" />
+              <span>Vị trí</span>
+            </div>
+          )}
+          {replyTo?.type === "PRICE_OFFER" && (
+            <div className="flex items-center gap-1">
+              <DollarSign className="w-3 h-3" />
+              <span>Đề xuất giá</span>
+            </div>
+          )}
+          {replyTo?.type === "APPOINTMENT" && (
+            <div className="flex items-center gap-1">
+              <Calendar className="w-3 h-3" />
+              <span>Lịch hẹn</span>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
   const renderMessage = (message: any, index: number) => {
     if (!message?.content?.trim()) return null
     const isMe = message?.sender?.id === currentUserId
     return (
-      <div key={index} className={`flex items-end gap-2 mb-4 ${isMe ? "justify-end" : "justify-start"} items-center`}>
+      <div id={`message-${message?.id}`} key={index} className={`flex items-end gap-2 mb-4 ${isMe ? "justify-end" : "justify-start"} items-center`}>
         {!isMe && (
           <Avatar className="w-8 h-8">
             <AvatarImage src={message?.sender?.profilePicture || "/placeholder.svg"} alt={message?.sender?.id} />
@@ -348,8 +475,13 @@ export default function FullCarChatApp() {
           </Avatar>
         )}
 
-        <div className="max-w-[70%]">
-          <div className={`rounded-2xl px-4 py-2 ${isMe ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
+        <div className="max-w-[70%] ">
+          <div
+            className={`rounded-2xl px-4 py-2 text-white`}
+            style={{ backgroundColor: isMe ? "#3f6eeeff" : "#8E34EA" }}
+          >
+
+            {message?.parentChat && renderReplyAttachment(message.parentChat)}
             {message?.type === "TEXT" && <p className="text-sm whitespace-pre-wrap">{message?.content}</p>}
 
             {message?.type === "IMAGE" && (
@@ -447,17 +579,29 @@ export default function FullCarChatApp() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {message.type === "TEXT" && isMe && (
-              <DropdownMenuItem onClick={() => handleEditMessage(message)}>
+              <DropdownMenuItem onClick={() => {
+                handleEditMessage(message)
+                handleReadMessage(message)
+              }}>
                 <Edit className="w-4 h-4 mr-2" /> Chỉnh sửa
               </DropdownMenuItem>
             )}
-            <DropdownMenuItem onClick={() => handleForwardMessage(message)}>
+            <DropdownMenuItem onClick={() => {
+              handleForwardMessage(message)
+              handleReadMessage(message)
+            }}>
               <CornerUpRight className="w-4 h-4 mr-2" /> Chuyển tiếp
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleDeleteMessage(message.id)}>
+            <DropdownMenuItem onClick={() => {
+              handleDeleteMessage(message.id)
+              handleReadMessage(message)
+            }}>
               <Trash2 className="w-4 h-4 mr-2 text-red-600" /> Xóa
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setReplyToMessage(message)}>
+            <DropdownMenuItem onClick={() => {
+              setReplyToMessage(message)
+              handleReadMessage(message)
+            }}>
               <MessageSquare className="w-4 h-4 mr-2" />
               Trả lời
             </DropdownMenuItem>
@@ -499,18 +643,21 @@ export default function FullCarChatApp() {
         {/* Chat List */}
         <ScrollArea className="flex-1">
           <div className="p-2">
-            {users.map((user, index) => (
+            {users.filter((user) => user?.sender?.id !== "undefined" && user?.sender?.id !== undefined).map((user, index) => (
+
               <div
                 key={index}
-                className={`p-3 rounded-lg cursor-pointer hover:bg-muted/50 transition-colors mb-2 ${user?.sender?.id === user?.sender?.id && user?.car?.id === user?.car?.id ? "bg-muted" : ""
-                  }`}
+                className={`${user.isRead ? "bg-gray-100" : "bg-blue-300"
+                  } p-3 rounded-lg cursor-pointer hover:bg-muted/50 transition-colors mb-2`}
                 onClick={() => {
-                  setSelectedChat(user)
-                  route.push(`/messages?carId=${user.car.id}&sellerId=${user.sender.id}`)
+                  setSelectedChat(user);
+                  route.push(`/messages?carId=${user.car.id}&sellerId=${user.sender.id}`);
                 }}
               >
+
                 <div className="flex items-start gap-3">
                   <div className="relative">
+
                     <Avatar className="w-12 h-12">
                       <AvatarImage
                         src={user?.sender?.profilePicture || "/placeholder.svg"}
@@ -661,15 +808,24 @@ export default function FullCarChatApp() {
             <div className="p-4 border-t bg-background">
               {/* Quick Actions */}
               <div className="flex gap-2 mb-3 overflow-x-auto">
-                <Button variant="outline" size="sm" onClick={() => setShowLocationModal(true)}>
+                <Button variant="outline" size="sm" onClick={() => {
+                  setShowLocationModal(true);
+                  handleReadMessage(message)
+                }}>
                   <MapPin className="w-4 h-4 mr-1" />
                   Vị trí
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => setShowAppointmentModal(true)}>
+                <Button variant="outline" size="sm" onClick={() => {
+                  setShowAppointmentModal(true)
+                  handleReadMessage(message)
+                }}>
                   <Calendar className="w-4 h-4 mr-1" />
                   Đặt lịch
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => setShowPriceOfferModal(true)}>
+                <Button variant="outline" size="sm" onClick={() => {
+                  setShowPriceOfferModal(true)
+                  handleReadMessage(message)
+                }}>
                   <DollarSign className="w-4 h-4 mr-1" />
                   Thương lượng
                 </Button>
@@ -702,7 +858,13 @@ export default function FullCarChatApp() {
                   </div>
                 )}
                 <Textarea
-                  placeholder="Nhập tin nhắn..."
+                  placeholder={
+                    replyToMessage
+                      ? `Trả lời ${replyToMessage.sender.fullName}...`
+                      : editMessageId
+                        ? "Chỉnh sửa tin nhắn..."
+                        : "Nhập tin nhắn..."
+                  }
                   value={editMessageId ? editingText : messageInput}
                   onChange={(e) => (editMessageId ? setEditingText(e.target.value) : setMessageInput(e.target.value))}
                   onKeyPress={handleKeyPress}
@@ -710,6 +872,16 @@ export default function FullCarChatApp() {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault()
                       editMessageId ? handleSubmitEdit() : handleSendMessage()
+                    }
+                    // Escape để hủy reply hoặc edit
+                    if (e.key === "Escape") {
+                      if (editMessageId) {
+                        setEditMessageId(null)
+                        setEditingText("")
+                      }
+                      if (replyToMessage) {
+                        setReplyToMessage(null)
+                      }
                     }
                   }}
                   onClick={async () => {
@@ -719,12 +891,16 @@ export default function FullCarChatApp() {
                           return
                         } else {
                           changeStatusIsRead(currentUserId, selectedChat?.sender?.id, carInfo?.id)
+                          handleReadMessage(message)
                         }
                       } catch (err) {
                         console.error("Lỗi khi đánh dấu đã đọc:", err)
                       }
                     }
                   }}
+                  className={`${replyToMessage ? "border-primary/50 focus:border-primary" : ""} ${editMessageId ? "border-yellow-400 focus:border-yellow-500" : ""
+                    }`}
+                  rows={replyToMessage || editMessageId ? 3 : 2}
                 />
                 <Button size="icon" onClick={handleSendMessage} disabled={!messageInput.trim()}>
                   <Send className="w-4 h-4" />

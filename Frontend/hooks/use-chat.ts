@@ -103,9 +103,10 @@ type CarDTO = {
   ]
 };
 
-type ChatUser = {
+type ChatUser = {   
   sender: UserDTO;
   car: CarDTO;
+  isRead : boolean
 };
 
 type ChatMessage = {
@@ -118,6 +119,7 @@ type ChatMessage = {
   type: "TEXT" | "IMAGE" | "PRICE_OFFER" | "VIDEO" | "APPOINTMENT";
   isRead?: boolean;
   isEdited?: boolean;
+  parentChat: ChatMessage
 };
 
 export function useChat(stompClient: Client | null) {
@@ -137,7 +139,8 @@ export function useChat(stompClient: Client | null) {
       content: string,
       carId?: number | null,
       type: ChatMessage["type"] = "TEXT",
-      imageUrls?: string[] 
+      imageUrls?: string[],
+      parentChatId: number | null
     ) => {
       if (stompClient && stompClient.connected) {
         const message: Omit<ChatMessage, "id"> = {
@@ -146,10 +149,39 @@ export function useChat(stompClient: Client | null) {
           content: type === "IMAGE" ? "" : content,
           timestamp: new Date().toISOString(),
           carId: carId ?? null,
+          parentChatId : parentChatId ?? null,
           type,
           ...(type === "IMAGE" || type === "VIDEO" && imageUrls && imageUrls.length > 0
             ? { files: imageUrls }
             : {}),
+        };
+        stompClient.publish({
+          destination: "/app/chat",
+          body: JSON.stringify(message),
+        }); 
+      } else {
+        console.warn("WebSocket chưa được kết nối.");
+      }
+    },
+    [stompClient]
+  );
+
+  const forwardMessage = useCallback(
+    (
+      senderId: number,
+      recipientId: number,
+      content: string,
+      carId?: number | null,
+      type: ChatMessage["type"] = "TEXT",
+    ) => {
+      if (stompClient && stompClient.connected) {
+        const message: Omit<ChatMessage, "id"> = {
+          senderId,
+          recipientId,
+          content: content,
+          timestamp: new Date().toISOString(),
+          carId: carId ?? null,
+          type,
         };
         stompClient.publish({
           destination: "/app/chat",
@@ -161,6 +193,7 @@ export function useChat(stompClient: Client | null) {
     },
     [stompClient]
   );
+
   const changeStatusIsRead = useCallback(
     (
       senderId: number,
@@ -171,9 +204,9 @@ export function useChat(stompClient: Client | null) {
         const message: Omit<ChatMessage, "id"> = {
           senderId,
           recipientId,
-          carId: carId ?? null,  
+          carId: carId ?? null,
         };
-        
+
         stompClient.publish({
           destination: "/app/seen",
           body: JSON.stringify(message),
@@ -198,10 +231,10 @@ export function useChat(stompClient: Client | null) {
           id: messageId,
           senderId,
           recipientId,
-          carId: carId ?? null, 
-          message : msg 
+          carId: carId ?? null,
+          message: msg
         };
-      
+
         stompClient.publish({
           destination: "/app/edit",
           body: JSON.stringify(messageEdit),
@@ -225,9 +258,9 @@ export function useChat(stompClient: Client | null) {
           id: messageId,
           senderId,
           recipientId,
-          carId: carId ?? null, 
+          carId: carId ?? null,
         };
-      
+
         stompClient.publish({
           destination: "/app/delete",
           body: JSON.stringify(messageEdit),
@@ -276,7 +309,10 @@ export function useChat(stompClient: Client | null) {
         const chatUsers: ChatUser[] = resUsers.data.map((item: any) => ({
           sender: item.sender,
           car: item.car,
+          isRead : item.isRead
         }));
+        console.log(chatUsers);
+        
         setUsers(chatUsers);
       }
     } catch (error) {
@@ -320,6 +356,7 @@ export function useChat(stompClient: Client | null) {
     fetchUserChatted,
     changeStatusIsRead,
     editMessage,
-    deleteMessage
+    deleteMessage,
+    forwardMessage
   };
 }

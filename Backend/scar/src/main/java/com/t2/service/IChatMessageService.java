@@ -19,4 +19,8 @@ public interface IChatMessageService {
     ChatMessage editMessage (Long id, String message);
 
     ChatMessage deleteMessage (Long id);
+
+    boolean hasUnreadMessagesByReceiver(Integer recipientId, Integer senderId, Integer carId, boolean isRead);
+
+    ChatMessage findById (Long id);
 }

@@ -6,7 +6,6 @@ import com.t2.dto.UserDTO;
 import com.t2.entity.User;
 import com.t2.form.CreateUserForm;
 import com.t2.form.UpdateProfileForm;
-import com.t2.form.UploadImageForm;
 import com.t2.models.CarResponse;
 import com.t2.models.UserResponse;
 import com.t2.repository.UserRepository;
@@ -94,12 +93,17 @@ public class UserService implements IUserService {
                     }
                 }
                 // Upload ảnh mới
-                UploadImageForm uploadImageForm = imageUtils.uploadFile(updateProfileForm.getProfilePicture());
-                user.setProfilePicture(uploadImageForm.getUrl());
-                user.setPicturePublicId(uploadImageForm.getPublicId());
+                imageUtils.uploadFile(updateProfileForm.getProfilePicture()).thenAccept(upload -> {
+                    if (upload != null) {
+                        user.setProfilePicture(upload.getUrl());
+                        user.setPicturePublicId(upload.getPublicId());
+                    }
+                }).exceptionally(throwable -> {
+                    // Xử lý lỗi
+                    System.err.println("Lỗi khi tải ảnh: " + throwable.getMessage());
+                    return null;
+                });
             }
-
-            // Update các thông tin còn lại
             user.setFirstName(updateProfileForm.getFirstName());
             user.setLastName(updateProfileForm.getLastName());
             user.setEmail(updateProfileForm.getEmail());
@@ -116,7 +120,7 @@ public class UserService implements IUserService {
     @Override
     public void updateStatusUser(Integer userId, String status) {
         User u = repository.findById(userId).orElse(null);
-        if (u != null){
+        if (u != null) {
             u.setStatus(status);
             u.setUpdateAt(new Date());
             repository.save(u);
@@ -127,7 +131,8 @@ public class UserService implements IUserService {
     public List<UserDTO> findUserByStaus(String status) {
         List<User> users = repository.findByStatus(status);
 
-        return modelMapper.map(users, new TypeToken<List<UserDTO>>(){}.getType());
+        return modelMapper.map(users, new TypeToken<List<UserDTO>>() {
+        }.getType());
     }
 
     @Override
@@ -145,13 +150,14 @@ public class UserService implements IUserService {
                 seen.add(key);
                 UserResponse userResponse = modelMapper.map(sender, UserResponse.class);
                 CarResponse carResponse = modelMapper.map(car, CarResponse.class);
-
                 Double rate = iUserReviewService.calculateRateByUserId(userResponse.getId());
                 userResponse.setRating(rate);
+                boolean isReadLastMessage = iChatMessageService.hasUnreadMessagesByReceiver(receiver, sender.getId(), car.getId(), false);
 
                 Map<String, Object> map = new HashMap<>();
                 map.put("sender", userResponse);
                 map.put("car", carResponse);
+                map.put("isRead", isReadLastMessage);
 
                 result.add(map);
             }

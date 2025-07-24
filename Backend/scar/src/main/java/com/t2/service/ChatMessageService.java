@@ -62,6 +62,7 @@ public class ChatMessageService implements IChatMessageService {
         if (!chatMessages.isEmpty()) {
             for (ChatMessage msg : chatMessages) {
                 msg.setRead(true);
+                msg.setStatus(ChatMessage.MessageStatus.READ);
                 chatMessagesResponse.add(msg);
             }
             chatMessageRepository.saveAll(chatMessages);
@@ -88,5 +89,16 @@ public class ChatMessageService implements IChatMessageService {
             return chatMessage;
         }
         return null;
+    }
+
+    @Override
+    public boolean hasUnreadMessagesByReceiver(Integer recipientId, Integer senderId, Integer carId, boolean isRead) {
+        List<ChatMessage> chatMessages = chatMessageRepository.findByRecipientIdAndSenderIdAndCarIdAndIsRead(recipientId, senderId, carId, false);
+        return chatMessages.isEmpty();
+    }
+
+    @Override
+    public ChatMessage findById(Long id) {
+        return chatMessageRepository.findById(id).orElse(null);
     }
 }

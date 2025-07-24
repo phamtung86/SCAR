@@ -6,6 +6,9 @@ import com.t2.form.UploadImageForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,9 +16,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
 
 @Service
 @RequiredArgsConstructor
@@ -24,54 +29,129 @@ public class ImageUtils {
 
     private final Cloudinary cloudinary;
 
-    public UploadImageForm uploadFile(MultipartFile file) throws IOException {
-        if (file == null || file.getOriginalFilename() == null) {
-            throw new IllegalArgumentException("File or filename cannot be null");
+
+    // dung byte --> chậm
+    @Async
+    public CompletableFuture<UploadImageForm> uploadFile(MultipartFile file) throws IOException {
+        Logger log = (Logger) LoggerFactory.getLogger(ImageUtils.class);
+
+        if (file == null || file.getOriginalFilename() == null || file.getOriginalFilename().isEmpty()) {
+            log.error("Tệp hoặc tên tệp không hợp lệ: {}", file == null ? "null" : file.getOriginalFilename());
+            throw new IllegalArgumentException("Tệp hoặc tên tệp không được null hoặc rỗng");
+        }
+        if (file.getSize() == 0) {
+            log.error("Tệp rỗng: {}", file.getOriginalFilename());
+            throw new IllegalArgumentException("Tệp không được rỗng");
+        }
+        if (!file.getContentType().startsWith("image/")) {
+            log.error("Tệp không phải là ảnh: ContentType={}", file.getContentType());
+            throw new IllegalArgumentException("Tệp phải là ảnh");
         }
 
-        // Tạo public_id KHÔNG có đuôi file
-        String publicId = generatePublicValue(file.getOriginalFilename());
-        log.info("public_id is: {}", publicId);
+        String originalFilename = file.getOriginalFilename();
+        String contentType = file.getContentType();
+        log.debug("Tên tệp gốc: {}, ContentType: {}, Kích thước: {}",
+                originalFilename, contentType, file.getSize());
 
-        File fileUpload = convert(file);
-        log.info("Converted file: {}", fileUpload);
+        String publicId = generatePublicValue(originalFilename);
+        log.debug("public_id là: {}", publicId);
 
-        // Upload lên Cloudinary (ảnh hoặc video)
-        Map uploadResult = cloudinary.uploader().upload(
-                fileUpload,
-                ObjectUtils.asMap(
-                        "public_id", publicId,
-                        "resource_type", "auto" // Cho phép ảnh và video
-                )
-        );
-        cleanDisk(fileUpload);
-
-        // Lấy URL từ kết quả trả về
-        String url = (String) uploadResult.get("secure_url");
-
-        return new UploadImageForm(url, publicId);
-    }
-
-    private File convert(MultipartFile file) throws IOException {
-        String[] nameAndExt = getFileName(file.getOriginalFilename());
-        String fileName = nameAndExt[0];
-        String extension = nameAndExt[1];
-
-        File convFile = new File(fileName + extension);
+        // Tạo tệp tạm
+        File tempFile = File.createTempFile("upload_", originalFilename);
         try (InputStream is = file.getInputStream()) {
-            Files.copy(is, convFile.toPath());
+            Files.copy(is, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            log.debug("Tệp tạm được tạo: {}", tempFile.getAbsolutePath());
         }
-        return convFile;
+
+        // Tải lên từ tệp tạm
+        Map uploadResult;
+        try {
+            uploadResult = cloudinary.uploader().upload(
+                    tempFile,
+                    ObjectUtils.asMap(
+                            "public_id", publicId,
+                            "resource_type", "image",
+                            "quality", "auto:low",
+                            "fetch_format", "auto",
+                            "filename", originalFilename,
+                            "content_type", contentType,
+                            "overwrite", true
+                    )
+            );
+        } catch (IOException e) {
+            log.error("Lỗi khi tải lên Cloudinary cho tệp '{}': {}", originalFilename, e.getMessage(), e);
+            throw new IOException("Lỗi khi tải lên Cloudinary: " + e.getMessage(), e);
+        } finally {
+            // Xóa tệp tạm
+            try {
+                Files.deleteIfExists(tempFile.toPath());
+                log.debug("Tệp tạm đã xóa: {}", tempFile.getAbsolutePath());
+            } catch (IOException e) {
+                log.error("Lỗi khi xóa tệp tạm: {}", e.getMessage());
+            }
+        }
+
+        String url = (String) uploadResult.get("secure_url");
+        log.debug("Kết quả tải lên: URL={}", url);
+        return CompletableFuture.completedFuture(new UploadImageForm(url, publicId));
     }
 
-    private void cleanDisk(File file) {
-        try {
-            log.info("Deleting temporary file: {}", file.toPath());
-            Files.deleteIfExists(file.toPath());
-        } catch (IOException e) {
-            log.error("Error cleaning temporary file", e);
-        }
-    }
+// Dung data source
+//    @Async
+//    public CompletableFuture<UploadImageForm> uploadFile(MultipartFile file) throws IOException {
+//        if (file == null || file.getOriginalFilename() == null || file.getOriginalFilename().isEmpty()) {
+//            log.error("Tệp hoặc tên tệp không hợp lệ: {}", file == null ? "null" : file.getOriginalFilename());
+//            throw new IllegalArgumentException("Tệp hoặc tên tệp không được null hoặc rỗng");
+//        }
+//        if (file.getSize() == 0) {
+//            log.error("Tệp rỗng: {}", file.getOriginalFilename());
+//            throw new IllegalArgumentException("Tệp không được rỗng");
+//        }
+//        if (!file.getContentType().startsWith("image/")) {
+//            log.error("Tệp không phải là ảnh: ContentType={}", file.getContentType());
+//            throw new IllegalArgumentException("Tệp phải là ảnh");
+//        }
+//
+//        String originalFilename = file.getOriginalFilename();
+//        String contentType = file.getContentType();
+//        log.debug("Tên tệp gốc: {}, ContentType: {}, Kích thước: {}",
+//                originalFilename, contentType, file.getSize());
+//
+//        // Kiểm tra InputStream
+//        try (InputStream is = file.getInputStream()) {
+//            if (is.available() == 0) {
+//                log.error("InputStream rỗng cho tệp: {}", originalFilename);
+//                throw new IllegalArgumentException("InputStream rỗng cho tệp: " + originalFilename);
+//            }
+//        }
+//
+//        String publicId = generatePublicValue(originalFilename);
+//        log.debug("public_id là: {}", publicId);
+//
+//        Map uploadResult;
+//        try {
+//            uploadResult = cloudinary.uploader().upload(
+//                    file.getInputStream(),
+//                    ObjectUtils.asMap(
+//                            "public_id", publicId,
+//                            "resource_type", "image",
+//                            "quality", "auto:low",
+//                            "fetch_format", "auto",
+//                            "filename", originalFilename,
+//                            "content_type", contentType,
+//                            "overwrite", true // Thêm để ghi đè nếu cần
+//                    )
+//            );
+//        } catch (IOException e) {
+//            log.error("Lỗi khi tải lên Cloudinary cho tệp '{}': {}", originalFilename, e.getMessage(), e);
+//            throw new IOException("Lỗi khi tải lên Cloudinary: " + e.getMessage(), e);
+//        }
+//
+//        String url = (String) uploadResult.get("secure_url");
+//        log.debug("Kết quả tải lên: URL={}", url);
+//        return CompletableFuture.completedFuture(new UploadImageForm(url, publicId));
+//    }
+
 
     public String generatePublicValue(String originalName) {
         String[] nameAndExt = getFileName(originalName);

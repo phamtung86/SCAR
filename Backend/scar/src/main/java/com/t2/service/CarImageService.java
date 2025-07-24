@@ -29,9 +29,15 @@ public class CarImageService implements ICarImageService {
         try {
             List<CarImages> imageList = new ArrayList<>();
             for (MultipartFile f : carImages) {
-                UploadImageForm upload = imageUtils.uploadFile(f);
-                CarImages c = new CarImages(null, cars, upload.getUrl(), upload.getPublicId(), false,new Date());
-                imageList.add(c);
+                imageUtils.uploadFile(f).thenAccept(upload -> {
+                    if (upload != null) {
+                        CarImages c = new CarImages(null, cars, upload.getUrl(), upload.getPublicId(), false, new Date());
+                        imageList.add(c);
+                    }
+                }).exceptionally(throwable -> {
+                    System.err.println("Lỗi khi tải ảnh: " + throwable.getMessage());
+                    return null;
+                });
             }
             iCarImageRepository.saveAll(imageList);
 
