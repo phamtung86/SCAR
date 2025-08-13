@@ -7,30 +7,75 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import AuthAPI from "@/lib/api/auth"
-import { log } from "console"
-import { Car, Eye, EyeOff, Facebook, Mail } from "lucide-react"
+import { Eye, EyeOff, Mail } from "lucide-react"
+import Image from "next/image"
 import { useRouter } from 'next/navigation'
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 export default function Component() {
- const router = useRouter();
+  const router = useRouter();
   const [isLogin, setIsLogin] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [isChecked, setIsChecked] = useState(false);
+
   const [datalogin, setDatalogin] = useState({
     username: "",
     password: "",
   })
 
+  const [dataRegister, setDataRegister] = useState({
+    firstName: "",
+    lastName: "",
+    username: "",
+    password: "",
+    confirmPassword: "",
+    email: "",
+  })
+
+  const [error, setError] = useState({
+    notMatch: "",
+    passwordNotValid: "",
+    emailNotValid: "",
+    isEmpty: "",
+    termsNotAccepted: ""
+  })
+
+  const validatePassword = (password: string) => {
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return regex.test(password);
+  }
+
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    setDatalogin((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
+    isLogin ?
+      setDatalogin((prev) => ({
+        ...prev,
+        [name]: value,
+      }))
+      :
+      setDataRegister((prev) => ({
+        ...prev,
+        [name]: value,
+      }))
   }
 
   const handleLogin = async () => {
+    setError({}); // Reset lỗi
+    const messages = {
+      isEmpty: "Vui lòng điền đầy đủ các trường",
+      passwordNotValid: "Mật khẩu phải ít nhất 8 ký tự, có chữ hoa, chữ thường, số và ký tự đặc biệt",
+    };
+
+    const newErrors: Partial<RegisterError> = {};
+    if (Object.values(datalogin).some(value => !value)) {
+      newErrors.isEmpty = messages.isEmpty;
+    }
+    if (Object.keys(newErrors).length > 0) {
+      setError(newErrors);
+      return;
+    }
     try {
       const response = await AuthAPI.login(datalogin.username, datalogin.password);
       if (response.status === 200) {
@@ -43,15 +88,116 @@ export default function Component() {
 
     }
   }
+
+  // Google Login bằng Google Identity Services
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+
+    script.onload = () => {
+      // Khởi tạo Google Sign-In
+      window.google.accounts.id.initialize({
+        client_id: "255407059918-ebn1pgvo5tknitp9r01m9gn9pu40m716.apps.googleusercontent.com",
+        callback: handleGoogleResponse,
+      });
+
+      // Render nút Google
+      window.google.accounts.id.renderButton(
+        document.getElementById("googleSignInDiv"),
+        { theme: "outline", size: "large" }
+      );
+    };
+  }, []);
+
+  const handleGoogleResponse = async (response: any) => {
+    try {
+      const res = await AuthAPI.loginWithGoogle(
+        response.credential
+      );
+      localStorage.setItem("accessToken", res.data.accessToken);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+
+      router.push("/");
+    } catch (err) {
+      console.error("Google login error:", err);
+    }
+  };
+  const validateEmail = (email: string) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  }
+
+  const handleRegisterAccount = async () => {
+    setError({}); // Reset lỗi
+    const messages = {
+      isEmpty: "Vui lòng điền đầy đủ các trường",
+      notMatch: "Mật khẩu không trùng khớp",
+      passwordNotValid: "Mật khẩu phải ít nhất 8 ký tự, có chữ hoa, chữ thường, số và ký tự đặc biệt",
+      emailNotValid: "Email chưa đúng định dạng"
+    };
+
+    const newErrors: Partial<RegisterError> = {};
+
+    // 1. Kiểm tra bỏ trống
+    if (Object.values(dataRegister).some(value => !value)) {
+      newErrors.isEmpty = messages.isEmpty;
+    }
+
+    // 2. Kiểm tra mật khẩu khớp
+    if (dataRegister.password !== dataRegister.confirmPassword) {
+      newErrors.notMatch = messages.notMatch;
+    }
+
+    // 3. Kiểm tra độ mạnh mật khẩu
+    if (!validatePassword(dataRegister.password)) {
+      newErrors.passwordNotValid = messages.passwordNotValid;
+    }
+
+    // 4. Kiểm tra email hợp lệ
+    if (!validateEmail(dataRegister.email)) {
+      newErrors.emailNotValid = messages.emailNotValid;
+    }
+
+    // Nếu có lỗi thì setError và dừng
+    if (Object.keys(newErrors).length > 0) {
+      setError(newErrors);
+      return;
+    }
+    if (!isLogin && !isChecked) {
+      setError({ termsNotAccepted: "Bạn cần đồng ý điều khoản trước khi đăng ký" });
+      return;
+    }
+
+
+    // 5. Gọi API nếu không có lỗi
+    try {
+      const res = await AuthAPI.register(dataRegister);
+      if (res.status === 200) {
+        alert("Đăng kí thành công")
+        setIsLogin(true);
+      }
+    } catch (err) {
+      console.error("Đăng ký thất bại:", err);
+    }
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo and Brand */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
-            <Car className="w-8 h-8 text-white" />
+            <Image
+              src="/SCAR.gif"
+              alt="Logo"
+              width={400}
+              height={400}
+              className="rounded-full max-w-full h-auto"
+            />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">CarConnect</h1>
+          <h1 className="text-3xl font-bold text-gray-900">SCarConnect</h1>
           <p className="text-gray-600 mt-2">Cộng đồng đam mê xe hơi</p>
         </div>
 
@@ -78,11 +224,11 @@ export default function Component() {
           <CardContent className="space-y-4">
             {/* Social Login */}
             <div className="grid grid-cols-2 gap-4">
-              <Button variant="outline" className="w-full">
+              {/* <Button variant="outline" className="w-full">
                 <Facebook className="mr-2 h-4 w-4 text-blue-600" />
                 Facebook
-              </Button>
-              <Button variant="outline" className="w-full">
+              </Button> */}
+              <Button variant="outline" className="w-full" id="googleSignInDiv">
                 <Mail className="mr-2 h-4 w-4 text-red-500" />
                 Google
               </Button>
@@ -103,20 +249,30 @@ export default function Component() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="firstName">Họ</Label>
-                    <Input id="firstName" placeholder="Nguyễn" />
+                    <Input
+                      id="firstName"
+                      placeholder="Nguyễn"
+                      name="firstName"
+                      onChange={handleChange}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="lastName">Tên</Label>
-                    <Input id="lastName" placeholder="Văn A" />
+                    <Input
+                      id="lastName"
+                      placeholder="Văn A"
+                      name="lastName"
+                      onChange={handleChange}
+                    />
                   </div>
                 </div>
               </>
             )}
 
-            {/* Email */}
+            {/* Username */}
             <div className="space-y-2">
               <Label htmlFor="username">Tên đăng nhập</Label>
-              <Input id="username" type="text" placeholder="scar@gmail.com" className="w-full" name="username" onChange={handleChange} />
+              <Input id="username" type="text" className="w-full" name="username" onChange={handleChange} />
             </div>
 
             {/* Password */}
@@ -157,6 +313,8 @@ export default function Component() {
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="••••••••"
                     className="pr-10"
+                    name="confirmPassword"
+                    onChange={handleChange}
                   />
                   <Button
                     type="button"
@@ -172,16 +330,49 @@ export default function Component() {
                     )}
                   </Button>
                 </div>
+                {error && <div style={{ color: "red", padding: "0.25rem", fontSize: "13px" }}>
+                  <div>{error.notMatch}</div>
+                  <div>{error.passwordNotValid}</div>
+                </div>
+                }
               </div>
             )}
 
-            {/* Remember Me / Terms */}
+            {
+              !isLogin && (
+                <>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input id="email" type="text" placeholder="scar@gmail.com" className="w-full" name="email" onChange={handleChange} />
+                  </div>
+                  {error.emailNotValid && <div style={{ color: "red", padding: "0.25rem", fontSize: "13px" }}>
+                    <div>{error.emailNotValid}</div>
+                  </div>
+                  }
+                </>
+              )
+            }
+            {error.isEmpty && <div style={{ color: "red", padding: "0.25rem", fontSize: "13px" }}>
+              <div>{error.isEmpty}</div>
+            </div>
+            }
             <div className="flex items-center space-x-2">
-              <Checkbox id="terms" />
+              <Checkbox
+                id="terms"
+                checked={isChecked}
+                onCheckedChange={(value) => setIsChecked(Boolean(value))}
+              />
               <Label htmlFor="terms" className="text-sm text-gray-600">
-                {isLogin ? "Ghi nhớ đăng nhập" : "Tôi đồng ý với điều khoản sử dụng và chính sách bảo mật"}
+                {isLogin
+                  ? "Ghi nhớ đăng nhập"
+                  : "Tôi đồng ý với điều khoản sử dụng và chính sách bảo mật"}
               </Label>
             </div>
+            {error.termsNotAccepted && <div style={{ color: "red", padding: "0.25rem", fontSize: "13px" }}>
+              <div>{error.termsNotAccepted}</div>
+            </div>
+            }
 
             {/* Forgot Password for Login */}
             {isLogin && (
@@ -199,13 +390,10 @@ export default function Component() {
                   Đăng nhập
                 </Button>
                 :
-                <Button className="w-full bg-blue-600 hover:bg-blue-700" size="lg" >
-                  Tạo tài khoản"
+                <Button className="w-full bg-blue-600 hover:bg-blue-700" size="lg" onClick={handleRegisterAccount}>
+                  Tạo tài khoản
                 </Button>
             }
-
-
-
             {/* Additional Info */}
             <div className="text-center text-sm text-gray-600">
               {isLogin ? (

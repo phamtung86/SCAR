@@ -166,4 +166,14 @@ public class UserService implements IUserService {
         return result;
     }
 
+    @Override
+    public User findByEmail(String email) {
+        return repository.findByEmail(email).orElse(null);
+    }
+
+    @Override
+    public User createUserWithSocial(User user) {
+        return repository.save(user);
+    }
+
 }
