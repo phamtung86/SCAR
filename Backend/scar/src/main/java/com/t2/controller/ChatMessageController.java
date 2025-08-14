@@ -50,7 +50,6 @@ public class ChatMessageController {
     @MessageMapping("/chat")
     public void processMessage(@Payload ChatMessageForm chatMessageForm) {
         try {
-            System.out.println(chatMessageForm.getParentChatId());
             ChatMessage baseMessage = modelMapper.map(chatMessageForm, ChatMessage.class);
             UserDTO sender = userService.findUserDTOById(baseMessage.getSender().getId());
             UserDTO recipient = userService.findUserDTOById(baseMessage.getRecipient().getId());

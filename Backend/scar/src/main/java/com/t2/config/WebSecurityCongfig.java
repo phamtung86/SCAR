@@ -28,6 +28,8 @@ public class WebSecurityCongfig {
     private JwtAuthenticationEntryPoint authenticationEntryPoint;
     @Autowired
     private JwtFilter filter;
+    @Autowired
+    private CustomOAuth2SuccessHandler successHandler;
 
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -37,9 +39,13 @@ public class WebSecurityCongfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/api/v1/appointments/**").permitAll()
                         .requestMatchers("/api/v1/cars/page").permitAll()
                         .requestMatchers("/ws/**").permitAll() 
                         .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .defaultSuccessUrl("http://localhost:3000/oauth2/success", true)
                 )
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(authenticationEntryPoint)) // Xử lý 401 Unauthorized
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless session

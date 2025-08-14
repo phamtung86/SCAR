@@ -58,6 +58,9 @@ public class User {
     @Column(name = "`rank`")
     private Rank rank;
 
+    @Enumerated(EnumType.STRING)
+    private Provider provider;
+
     // ONLINE - OFFLINE - LOCK
     private String status;
 
@@ -105,4 +108,9 @@ public class User {
     public enum Rank{
         NORMAL, PRO, PREMIUM
     }
+
+    public enum Provider{
+        FORM, GOOGLE, FACEBOOK
+    }
+
 }

@@ -12,6 +12,9 @@ export const metadata = {
   title: "Scar - Mạng xã hội xe hơi",
   description: "Cộng đồng và chợ xe hàng đầu Việt Nam",
   generator: "TungPV",
+  icons: {
+    icon: "/SCAR_Icon.png",
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

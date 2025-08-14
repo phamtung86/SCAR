@@ -4,25 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0e5023a0-69d0-4743-9f57-9e088a85e3c6" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/config/WebSocketConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/config/WebSocketConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/ChatMessageController.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/ChatMessageController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/ImageProcessController.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/ImageProcessController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/dto/ChatMessageDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/dto/ChatMessageDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/ChatMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/ChatMessage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/form/ChatMessage/ChatMessageForm.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/form/ChatMessage/ChatMessageForm.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/ChatMessageRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/ChatMessageRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/CarImageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/CarImageService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ChatMessageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ChatMessageService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/IChatMessageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/IChatMessageService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/PostImageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/PostImageService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/util/ImageUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/util/ImageUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/components/messages/message-forward.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/messages/message-forward.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/components/messages/messages-content.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/messages/messages-content.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/hooks/use-chat.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/hooks/use-chat.ts" afterDir="false" />
-    </list>
+    <list default="true" id="0e5023a0-69d0-4743-9f57-9e088a85e3c6" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -49,9 +31,11 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
+<<<<<<< Updated upstream
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;Application.ScarApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.rabbitmq/Dockerfile.executor&quot;: &quot;Run&quot;,
     &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
     &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
     &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
@@ -63,7 +47,7 @@
     &quot;git-widget-placeholder&quot;: &quot;PT&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;M:/Source Code/VS Code/SCAR_DETAIL/SCAR/Backend&quot;,
+    &quot;last_opened_file_path&quot;: &quot;M:/Source Code/VS Code/SCAR_DETAIL/SCAR/Backend/plugins&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -74,6 +58,34 @@
     &quot;project.structure.side.proportion&quot;: &quot;0.22988506&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;reference.projectsettings.compiler.annotationProcessors&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+=======
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.ScarApplication.executor": "Run",
+    "Docker.rabbitmq/Dockerfile.executor": "Run",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Spring Boot.ScarApplication.executor": "Run",
+    "git-widget-placeholder": "Rebasing PT",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "M:/Source Code/VS Code/SCAR_DETAIL/SCAR/Backend/plugins",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.22988506",
+    "settings.editor.selected.configurable": "reference.projectsettings.compiler.annotationProcessors",
+    "vue.rearranger.settings.migration": "true"
+>>>>>>> Stashed changes
   }
 }</component>
   <component name="RecentsManager">
@@ -82,11 +94,15 @@
       <recent name="com.t2.exception" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="M:\Source Code\VS Code\SCAR_DETAIL\SCAR\Backend\plugins" />
       <recent name="M:\Source Code\VS Code\SCAR_DETAIL\SCAR\Backend\scar\src\main\java\com\t2\util" />
       <recent name="M:\Source Code\VS Code\SCAR_DETAIL\SCAR\Backend\scar\src\main\java\com\t2\config\exception" />
       <recent name="M:\Source Code\VS Code\SCAR_DETAIL\SCAR\Backend\scar\src\main\java\com\t2\config" />
       <recent name="M:\Source Code\VS Code\SCAR_DETAIL\SCAR\Backend\scar\src\main\java\com\t2\controller" />
-      <recent name="M:\Source Code\VS Code\SCAR_DETAIL\SCAR\Backend\scar\src\main\java\com\t2\dto" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="M:\Source Code\VS Code\SCAR_DETAIL\SCAR\Backend\rabbitmq" />
+      <recent name="M:\Source Code\VS Code\SCAR_DETAIL\SCAR\Backend" />
     </key>
     <key name="ExtractSuperBase.RECENT_KEYS">
       <recent name="com.t2.config.exception" />
@@ -113,9 +129,24 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="docker-deploy" factoryName="dockerfile" temporary="true">
+      <deployment type="dockerfile">
+        <settings />
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="rabbitmq/Dockerfile" type="docker-deploy" factoryName="dockerfile" temporary="true" server-name="Docker">
+      <deployment type="dockerfile">
+        <settings>
+          <option name="sourceFilePath" value="rabbitmq/Dockerfile" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Application.ScarApplication" />
+        <item itemvalue="Docker.rabbitmq/Dockerfile" />
       </list>
     </recent_temporary>
   </component>
@@ -246,9 +277,14 @@
           <option name="timeStamp" value="21" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/scar/src/main/java/com/t2/controller/ChatMessageController.java</url>
-          <line>52</line>
-          <option name="timeStamp" value="22" />
+          <url>file://$PROJECT_DIR$/scar/src/main/java/com/t2/controller/AuthController.java</url>
+          <line>100</line>
+          <option name="timeStamp" value="23" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/scar/src/main/java/com/t2/jwtutils/TokenManager.java</url>
+          <line>20</line>
+          <option name="timeStamp" value="24" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

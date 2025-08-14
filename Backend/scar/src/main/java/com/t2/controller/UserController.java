@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -75,6 +77,11 @@ public class UserController {
     public List<Map<String, Object>> findUserChatted(
             @PathVariable(name = "userId") Integer userId) {
         return userService.findUserChatted(userId);
+    }
+
+    @GetMapping("/me")
+    public Map<String, Object> getCurrentUser(@AuthenticationPrincipal OAuth2User principal) {
+        return principal.getAttributes();
     }
 
 }

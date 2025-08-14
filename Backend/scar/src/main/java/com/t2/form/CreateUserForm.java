@@ -4,16 +4,18 @@ import com.t2.validation.User.EmailExists;
 import com.t2.validation.User.UsernameExists;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class CreateUserForm {
 
     @NotBlank(message = "filed username is not bank")
     @UsernameExists(message = "username existed, please check again ")
-    private String userName;
+    private String username;
 
     @NotBlank(message = "password is not blank")
     private String password;

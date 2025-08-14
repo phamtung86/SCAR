@@ -8,9 +8,20 @@ const login = async (username: string, password: string) => {
 };
 
 const register = async (formData: any) => {
-  const res = await axios.post("/api/auth/register", formData);
+  console.log(formData);
+  
+  const res = await axios.post(URL + "/auth/register", formData);
   return res;
 };
 
-const AuthAPI = {login, register};
+const loginWithGoogle = async (idToken: string) => {
+  console.log(idToken);
+  
+  const res = await axios.post(`${URL}/auth/google`, {
+    idToken: idToken,
+  });
+  return res
+}
+
+const AuthAPI = { login, register, loginWithGoogle };
 export default AuthAPI;

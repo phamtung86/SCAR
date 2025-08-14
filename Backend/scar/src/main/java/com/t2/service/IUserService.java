@@ -30,4 +30,8 @@ public interface IUserService {
     List<UserDTO> findUserByStaus(String status);
 
     List<Map<String, Object>> findUserChatted(Integer receiver);
+
+    User findByEmail(String email);
+
+    User createUserWithSocial(User user);
 }
