@@ -2,7 +2,9 @@ package com.t2.service;
 
 import com.t2.dto.ChatMessageDTO;
 import com.t2.entity.ChatMessage;
+import com.t2.form.Appointment.CreateAppointmentForm;
 import com.t2.repository.ChatMessageRepository;
+import com.t2.util.AppointmentParser;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,8 @@ public class ChatMessageService implements IChatMessageService {
     private IChatRoomService chatRoomService;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private IAppointmentService appointmentService;
 
     @Override
     public ChatMessage saveChatMessage(ChatMessage chatMessage) {
@@ -30,6 +34,12 @@ public class ChatMessageService implements IChatMessageService {
         chatMessage.setChatId(chatId);
         chatMessage.setCreatedAt(new Date());
         chatMessage.setRead(false);
+        if (chatMessage.getType().equals(ChatMessage.MessageType.APPOINTMENT)) {
+            AppointmentParser.AppointmentData appointmentData = AppointmentParser.parseMessage(chatMessage.getContent());
+            CreateAppointmentForm createAppointmentForm = new CreateAppointmentForm(chatMessage.getSender().getId(), chatMessage.getRecipient().getId(), appointmentData.getAppointmentTime(), appointmentData.getContent());
+            appointmentService.createAppointment(createAppointmentForm);
+
+        }
         chatMessageRepository.save(chatMessage);
         return chatMessage;
     }
@@ -73,7 +83,7 @@ public class ChatMessageService implements IChatMessageService {
     @Override
     public ChatMessage editMessage(Long id, String message) {
         ChatMessage chatMessage = chatMessageRepository.findById(id).orElse(null);
-        if (chatMessage != null){
+        if (chatMessage != null) {
             chatMessage.setContent(message);
             chatMessage.setIsEdited(true);
             return chatMessageRepository.save(chatMessage);
@@ -84,7 +94,7 @@ public class ChatMessageService implements IChatMessageService {
     @Override
     public ChatMessage deleteMessage(Long id) {
         ChatMessage chatMessage = chatMessageRepository.findById(id).orElse(null);
-        if(chatMessage != null){
+        if (chatMessage != null) {
             chatMessageRepository.deleteById(id);
             return chatMessage;
         }

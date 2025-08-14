@@ -39,6 +39,7 @@ public class WebSecurityCongfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/api/v1/appointments/**").permitAll()
                         .requestMatchers("/api/v1/cars/page").permitAll()
                         .requestMatchers("/ws/**").permitAll() 
                         .anyRequest().authenticated()

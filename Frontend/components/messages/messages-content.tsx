@@ -142,7 +142,6 @@ export default function FullCarChatApp() {
 
   useEffect(() => {
     if (!isConnected || !stompClient || !message) return;
-    console.log("Tin nhan den ",message);
     if (message?.sender?.id === sellerId && message?.recipient?.id === user?.id && message?.car?.id === carId) {
       setMessages((prev) => [...prev, message]);
     }
@@ -191,7 +190,7 @@ export default function FullCarChatApp() {
     stompClient.subscribe(`/user/${currentUserId}/queue/seen`, (message) => {
       const readMessages: ChatMessage[] = JSON.parse(message.body);
       console.log("seen ", readMessages);
-      
+
       if (!readMessages || readMessages.length === 0) return;
       setMessages((prev) =>
         prev.map((msg) =>

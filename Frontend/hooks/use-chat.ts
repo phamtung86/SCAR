@@ -311,8 +311,6 @@ export function useChat(stompClient: Client | null) {
           car: item.car,
           isRead : item.isRead
         }));
-        console.log(chatUsers);
-        
         setUsers(chatUsers);
       }
     } catch (error) {
