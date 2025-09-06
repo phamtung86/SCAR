@@ -8,7 +8,7 @@ import { useCallback, useMemo, useState } from "react";
 
 type UserDTO = {
   id: number
-  usename: string
+  username: string
   email: string
   firstName: string
   lastName: string
@@ -67,7 +67,7 @@ type CarDTO = {
   highLight: boolean
   user: {
     id: number
-    usename: string
+    username: string
     email: string
     firstName: string
     lastName: string

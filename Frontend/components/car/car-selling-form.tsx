@@ -305,13 +305,8 @@ export default function CarSellingForm({ onCancel }: { onCancel?: () => void }) 
     const files = Array.from(e.dataTransfer.files).filter((file) => file.type.startsWith("image/"))
     if (files.length > 0) {
       const newImages = [...images, ...files].slice(0, 10)
-
-      // Clean up old preview URLs
       imagePreviews.forEach((url) => URL.revokeObjectURL(url))
-
-      // Create new preview URLs
       const newPreviews = newImages.map((file) => URL.createObjectURL(file))
-
       setImages(newImages)
       setImagePreviews(newPreviews)
     }
@@ -326,7 +321,6 @@ export default function CarSellingForm({ onCancel }: { onCancel?: () => void }) 
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Basic Information */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

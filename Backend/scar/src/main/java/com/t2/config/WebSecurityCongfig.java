@@ -41,8 +41,10 @@ public class WebSecurityCongfig {
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/appointments/**").permitAll()
                         .requestMatchers("/api/v1/cars/page").permitAll()
+                        .requestMatchers("/api/v1/payment/vnpay/return").permitAll()
                         .requestMatchers("/ws/**").permitAll() 
                         .anyRequest().authenticated()
+
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .defaultSuccessUrl("http://localhost:3000/oauth2/success", true)

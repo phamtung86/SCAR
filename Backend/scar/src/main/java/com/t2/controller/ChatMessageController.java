@@ -6,10 +6,7 @@ import com.t2.dto.ChatRoomDTO;
 import com.t2.dto.UserDTO;
 import com.t2.entity.ChatMessage;
 import com.t2.entity.ChatNotification;
-import com.t2.form.ChatMessage.ChatMessageCRUDForm;
-import com.t2.form.ChatMessage.ChatMessageForm;
-import com.t2.form.ChatMessage.DeleteChatMessageForm;
-import com.t2.form.ChatMessage.EditChatMessageForm;
+import com.t2.form.ChatMessage.*;
 import com.t2.form.UploadImageForm;
 import com.t2.service.ICarService;
 import com.t2.service.IChatMessageService;
@@ -54,7 +51,7 @@ public class ChatMessageController {
             UserDTO sender = userService.findUserDTOById(baseMessage.getSender().getId());
             UserDTO recipient = userService.findUserDTOById(baseMessage.getRecipient().getId());
             CarDTO carDTO = modelMapper.map(iCarService.getCarById(baseMessage.getCar().getId()), CarDTO.class);
-            if (chatMessageForm.getParentChatId() != null){
+            if (chatMessageForm.getParentChatId() != null) {
                 ChatMessage chatMessage = chatMessageService.findById(Long.valueOf(chatMessageForm.getParentChatId()));
                 baseMessage.setParentChat(chatMessage);
             }
@@ -106,8 +103,6 @@ public class ChatMessageController {
     @PostMapping("/chat")
     public ResponseEntity<?> saveMessage(@RequestBody ChatMessageForm chatMessageForm) {
         ChatMessage chatMessage = modelMapper.map(chatMessageForm, ChatMessage.class);
-
-        // Lưu tin nhắn vào cơ sở dữ liệu
         ChatMessage saveMsg = chatMessageService.saveChatMessage(chatMessage);
         return ResponseEntity.ok().build();
     }
@@ -152,7 +147,7 @@ public class ChatMessageController {
         simpMessagingTemplate.convertAndSendToUser(
                 recipient.getId().toString(),
                 "/queue/seen",
-                notifications // Gửi list
+                notifications
         );
     }
 
@@ -177,25 +172,31 @@ public class ChatMessageController {
     @Transactional
     @MessageMapping("/edit")
     public void editChatMessage(@Payload EditChatMessageForm editChatMessageForm) {
-
         UserDTO sender = userService.findUserDTOById(editChatMessageForm.getSenderId());
         UserDTO recipient = userService.findUserDTOById(editChatMessageForm.getRecipientId());
         CarDTO carDTO = modelMapper.map(iCarService.getCarById(editChatMessageForm.getCarId()), CarDTO.class);
         ChatMessage chatMessage = chatMessageService.editMessage(editChatMessageForm.getId(), editChatMessageForm.getMessage());
-        sendMessageToRecipient(chatMessage, sender, recipient, carDTO,"/queue/edit");
+        sendMessageToRecipient(chatMessage, sender, recipient, carDTO, "/queue/edit");
     }
 
     @Transactional
     @MessageMapping("/delete")
     public void delete(@Payload DeleteChatMessageForm deleteChatMessageForm) {
-
         UserDTO sender = userService.findUserDTOById(deleteChatMessageForm.getSenderId());
         UserDTO recipient = userService.findUserDTOById(deleteChatMessageForm.getRecipientId());
         CarDTO carDTO = modelMapper.map(iCarService.getCarById(deleteChatMessageForm.getCarId()), CarDTO.class);
         ChatMessage chatMessage = chatMessageService.deleteMessage(deleteChatMessageForm.getId());
-        sendMessageToRecipient(chatMessage, sender, recipient, carDTO,"/queue/delete");
+        sendMessageToRecipient(chatMessage, sender, recipient, carDTO, "/queue/delete");
     }
 
+    @MessageMapping("/typing")
+    public void typingMessage(@Payload ChatMessageCRUDForm chatMessageCRUDForm) {
+        UserDTO sender = userService.findUserDTOById(chatMessageCRUDForm.getSenderId());
+        UserDTO receiver = userService.findUserDTOById(chatMessageCRUDForm.getRecipientId());
+        CarDTO carDTO = modelMapper.map(iCarService.getCarById(chatMessageCRUDForm.getCarId()), CarDTO.class);
+//        sendMessageToRecipient();
+
+    }
 }
 
 
