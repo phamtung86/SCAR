@@ -1,23 +1,133 @@
 "use client"
 
-import { useState } from "react"
-import { User, Bell, Shield, Palette, Globe, HelpCircle, LogOut } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Textarea } from "@/components/ui/textarea"
+import ProvinceAPI from "@/lib/api/province"
+import userAPI from "@/lib/api/user"
+import { getCurrentUser } from "@/lib/utils/get-current-user"
+import { UserDTO, Location } from "@/types/user"
+import { Bell, CheckCircle, CircleArrowUp, Globe, HelpCircle, LogOut, Palette, Shield, User, XCircle } from "lucide-react"
+import { useEffect, useState } from "react"
+import { UpgradeModal } from "../upgrade-rank-user"
+
 
 export function SettingsContent() {
   const [activeTab, setActiveTab] = useState("profile")
+  const [user, setUser] = useState<UserDTO>({
+    id: 0,
+    username: "",
+    email: "",
+    firstName: "",
+    lastName: "",
+    profilePicture: "",
+    createdAt: "",
+    updatedAt: "",
+    role: "",
+    status: "",
+    verified: false,
+    bio: "",
+    location: "",
+    phone: "",
+    fullName: "",
+    rating: 0,
+    rank: "",
+  });
+  const [address, setAddress] = useState<Location[]>([]);
+  const [provinceIndex, setProvinceIndex] = useState<number>(0)
+  const currentUser = getCurrentUser();
+  const [ward, setWard] = useState<string>();
+  const [province, setProvince] = useState<string>();
+  const [file, setFile] = useState<File | null>(null)
+  const [preview, setPreview] = useState<string | null>(null)
+  const [displayUpgrandeRank, setDisplayUpgrandeRank] = useState(false)
+
+  // Xử lý chọn ảnh
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0] || null
+    setFile(selectedFile)
+
+    // preview ảnh cho user
+    if (selectedFile) {
+      setPreview(URL.createObjectURL(selectedFile))
+    }
+  }
+  const fetchDataUser = async (id: number) => {
+    const res = await userAPI.findById(id);
+    if (res.status === 200) {
+      setUser(res.data)
+      const addressSplit = user.location.split("-")
+      setWard(addressSplit[0])
+      setProvince(addressSplit[1])
+    }
+  }
+
+  const fetchDataLocation = async () => {
+    const res = await ProvinceAPI.getListProvinces();
+    if (res.status === 200) {
+      setAddress(res.data)
+    }
+  }
+
+
+  useEffect(() => {
+    fetchDataUser(currentUser?.id)
+    fetchDataLocation()
+  }, [])
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setUser((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+  const handleUpdateUser = async () => {
+    let updatedUser = { ...user }
+    if (ward || province) {
+      updatedUser.location = `${ward || ""} - ${province || ""}`
+    }
+
+    const formData = new FormData()
+    formData.append("firstName", updatedUser.firstName)
+    formData.append("lastName", updatedUser.lastName)
+    formData.append("email", updatedUser.email)
+    formData.append("verified", updatedUser.verified ? "true" : "false")
+    formData.append("rank", updatedUser.rank)
+    formData.append("bio", updatedUser.bio)
+    formData.append("location", updatedUser.location)
+    if (file) formData.append("profilePicture", file)
+
+    const res = await userAPI.updateUser(formData, updatedUser.id)
+    if (res.status === 200) {
+      alert("Cập nhật tài khoản thành công")
+      fetchDataUser(currentUser?.id)
+      setPreview(null)
+    } else {
+      alert("Cập nhật tài khoản không thành công")
+    }
+  }
+
+  const handleCloseUpgradeRank = () => {
+    setDisplayUpgrandeRank(false)
+  }
+
+  const handleUpgradeRank = (value: string) => {
+    console.log(value);
+    
+  }
+
+
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header */}
+
       <div>
         <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
           Cài đặt
@@ -26,6 +136,12 @@ export function SettingsContent() {
       </div>
 
       <Card className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm">
+        {displayUpgrandeRank && <UpgradeModal
+          isOpen={displayUpgrandeRank}
+          onClose={handleCloseUpgradeRank}
+          currentRank={user.rank}
+          currentUser={currentUser}
+        />}
         <CardContent className="p-0">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-6 rounded-none border-b">
@@ -60,32 +176,62 @@ export function SettingsContent() {
                 {/* Profile Picture */}
                 <div className="flex items-center space-x-4">
                   <Avatar className="h-20 w-20">
-                    <AvatarImage src="/placeholder.svg" />
-                    <AvatarFallback>U</AvatarFallback>
+                    <AvatarImage src={user?.profilePicture || "/placeholder.svg"} />
+                    <AvatarFallback>{user?.firstName?.substring(0, 1)}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <Button variant="outline">Thay đổi ảnh</Button>
+                    <Input type="file" accept="image/*" onChange={handleFileChange} />
                     <p className="text-sm text-gray-500 mt-1">JPG, PNG tối đa 5MB</p>
                   </div>
+                  {preview &&
+                    <Avatar className="h-20 w-20">
+                      <AvatarImage src={preview} />
+                    </Avatar>
+                  }
                 </div>
 
                 {/* Basic Info */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <Label htmlFor="fullName">Họ và tên</Label>
-                    <Input id="fullName" defaultValue="Nguyễn Văn A" />
+                    <Label htmlFor="lastName">Họ</Label>
+                    <Input id="lastName" name="lastName" value={user?.lastName} onChange={handleChange} />
+                  </div>
+                  <div>
+                    <Label htmlFor="firstName">Tên</Label>
+                    <Input id="firstName" name="firstName" value={user?.firstName} onChange={handleChange} />
                   </div>
                   <div>
                     <Label htmlFor="username">Tên người dùng</Label>
-                    <Input id="username" defaultValue="@nguyenvana" />
+                    <Input id="username" name="username" value={user?.username} disabled />
                   </div>
                   <div>
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" defaultValue="nguyenvana@example.com" />
+                    <Input id="email" type="email" name="email" value={user?.email} onChange={handleChange} />
                   </div>
                   <div>
                     <Label htmlFor="phone">Số điện thoại</Label>
-                    <Input id="phone" defaultValue="0123456789" />
+                    <Input id="phone" name="phone" value={user?.phone} onChange={handleChange} />
+                  </div>
+                  <div>
+                    <Label htmlFor="phone">Xác thực</Label>
+                    {user?.verified ? (
+                      <div className="flex items-center gap-1 text-green-600">
+                        <CheckCircle className="w-5 h-5" />
+                        <span>Đã xác thực</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1 text-red-600">
+                        <XCircle className="w-5 h-5" />
+                        <span>Chưa xác thực</span>
+                      </div>
+                    )}
+                  </div>
+                  <div >
+                    <Label htmlFor="rank">Hạng tài khoản</Label>
+                    <div className="flex">
+                      <Input id="rank" name="rank" value={user?.rank} onChange={handleChange} />
+                      <Button className="bg-green-800" onClick={() => setDisplayUpgrandeRank(true)}><CircleArrowUp /> Nâng cấp</Button>
+                    </div>
                   </div>
                 </div>
 
@@ -94,16 +240,61 @@ export function SettingsContent() {
                   <Textarea
                     id="bio"
                     placeholder="Viết vài dòng về bản thân..."
-                    defaultValue="Đam mê xe hơi từ nhỏ. Chuyên gia tư vấn BMW và Mercedes."
+                    value={user?.bio}
+                    name="bio"
+                    onChange={handleChange}
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="location">Địa điểm</Label>
-                  <Input id="location" defaultValue="Hà Nội, Việt Nam" />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="location">Địa điểm</Label>
+                    <Input id="location" name="location" value={user?.location} onChange={handleChange} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="carModel">Tỉnh/Thành phố *</Label>
+                    <Select onValueChange={(value) => {
+                      const index = address.findIndex(a => a?.code.toString() === value);
+                      setProvinceIndex(index);
+                      setProvince(address[index].name)
+                    }}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn tỉnh" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {address?.map((a) => (
+                          <SelectItem key={a?.code} value={a?.code.toString()}>
+                            {a?.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="carModel">Xã/Phường *</Label>
+                    <Select onValueChange={(value) => {
+                      const ward = address[provinceIndex].wards.find(
+                        (a) => a.code === Number(value)
+                      );
+                      setWard(ward.name);
+                    }
+                    }>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn huyện" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {address[provinceIndex]?.wards?.map((a) => (
+                          <SelectItem key={a?.code} value={a?.code.toString()}>
+                            {a?.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
-                <Button>Lưu thay đổi</Button>
+                <Button onClick={handleUpdateUser}>Lưu thay đổi</Button>
               </div>
             </TabsContent>
 

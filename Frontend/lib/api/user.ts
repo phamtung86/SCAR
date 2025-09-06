@@ -7,13 +7,30 @@ const findUserChatted = async (recipientId: number) => {
   return res;
 }
 
-const findById = async (id: number)=> {
+const findById = async (id: number) => {
   const res = await axiosClient.get(`${URL}/${id}`)
+  return res;
+}
+
+const updateUser = async (form: FormData, id: number) => {
+  const res = await axiosClient.put(`${URL}/${id}`, form, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  })
+  return res
+}
+
+
+const upgradeRankUser = async (userId: number, rank: string) => {
+  const res = await axiosClient.put(`${URL}/${userId}/upgrade-rank`, rank)
   return res;
 }
 
 const userAPI = {
   findUserChatted,
-  findById
+  findById,
+  updateUser,
+  upgradeRankUser
 };
 export default userAPI;

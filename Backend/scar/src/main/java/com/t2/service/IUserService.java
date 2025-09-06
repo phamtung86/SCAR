@@ -3,8 +3,7 @@ package com.t2.service;
 import com.t2.dto.UserDTO;
 import com.t2.entity.User;
 import com.t2.form.CreateUserForm;
-import com.t2.form.UpdateProfileForm;
-import com.t2.models.UserResponse;
+import com.t2.form.User.UpdateProfileForm;
 
 import java.io.IOException;
 import java.util.List;
@@ -34,4 +33,6 @@ public interface IUserService {
     User findByEmail(String email);
 
     User createUserWithSocial(User user);
+
+    void upgradeRankUser(Integer userId, String rank);
 }

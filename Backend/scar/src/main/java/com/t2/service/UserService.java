@@ -5,7 +5,7 @@ import com.t2.dto.ChatMessageDTO;
 import com.t2.dto.UserDTO;
 import com.t2.entity.User;
 import com.t2.form.CreateUserForm;
-import com.t2.form.UpdateProfileForm;
+import com.t2.form.User.UpdateProfileForm;
 import com.t2.models.CarResponse;
 import com.t2.models.UserResponse;
 import com.t2.repository.UserRepository;
@@ -82,24 +82,19 @@ public class UserService implements IUserService {
     public boolean updateUser(UpdateProfileForm updateProfileForm) throws IOException {
         User user = findUserById(updateProfileForm.getId());
         try {
-            // Nếu có ảnh mới
             if (updateProfileForm.getProfilePicture() != null) {
-
-                // Nếu user đã có ảnh cũ thì xóa trước
                 if (user.getProfilePicture() != null && !user.getProfilePicture().isEmpty()) {
                     String oldPublicId = user.getPicturePublicId();
                     if (oldPublicId != null) {
                         imageUtils.deleteFile(oldPublicId);
                     }
                 }
-                // Upload ảnh mới
                 imageUtils.uploadFile(updateProfileForm.getProfilePicture()).thenAccept(upload -> {
                     if (upload != null) {
                         user.setProfilePicture(upload.getUrl());
                         user.setPicturePublicId(upload.getPublicId());
                     }
                 }).exceptionally(throwable -> {
-                    // Xử lý lỗi
                     System.err.println("Lỗi khi tải ảnh: " + throwable.getMessage());
                     return null;
                 });
@@ -107,7 +102,8 @@ public class UserService implements IUserService {
             user.setFirstName(updateProfileForm.getFirstName());
             user.setLastName(updateProfileForm.getLastName());
             user.setEmail(updateProfileForm.getEmail());
-
+            user.setBio(updateProfileForm.getBio());
+            user.setLocation(updateProfileForm.getLocation());
             repository.save(user);
             return true;
 
@@ -174,6 +170,19 @@ public class UserService implements IUserService {
     @Override
     public User createUserWithSocial(User user) {
         return repository.save(user);
+    }
+
+    @Override
+    public void upgradeRankUser(Integer userId, String rank) {
+        String rankStr = rank;
+        rankStr = rankStr.replace("\"", "").trim();
+        User.Rank targetRank = User.Rank.valueOf(rankStr);
+
+        User user = findUserById(userId);
+        if (user != null) {
+            user.setRank(targetRank);
+            repository.save(user);
+        }
     }
 
 }

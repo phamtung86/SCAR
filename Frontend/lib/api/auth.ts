@@ -15,8 +15,6 @@ const register = async (formData: any) => {
 };
 
 const loginWithGoogle = async (idToken: string) => {
-  console.log(idToken);
-  
   const res = await axios.post(`${URL}/auth/google`, {
     idToken: idToken,
   });

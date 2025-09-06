@@ -1,9 +1,7 @@
 package com.t2.controller;
 
-import com.t2.dto.ChatMessageDTO;
 import com.t2.dto.UserDTO;
-import com.t2.entity.User;
-import com.t2.form.UpdateProfileForm;
+import com.t2.form.User.UpdateProfileForm;
 import com.t2.models.UserResponse;
 import com.t2.service.IUserReviewService;
 import com.t2.service.IUserService;
@@ -44,8 +42,8 @@ public class UserController {
         return ResponseEntity.ok(userResponse);
     }
 
-    @PutMapping
-    public ResponseEntity<?> updateUser(@ModelAttribute UpdateProfileForm updateProfileForm, @RequestParam(name = "id") Integer id) throws IOException {
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateUser(@ModelAttribute UpdateProfileForm updateProfileForm, @PathVariable(name = "id") Integer id) throws IOException {
         updateProfileForm.setId(id);
         boolean isUpdate = userService.updateUser(updateProfileForm);
         return isUpdate ? ResponseEntity.ok().build() : ResponseEntity.status(500).body("Edit profile failed");
@@ -82,6 +80,13 @@ public class UserController {
     @GetMapping("/me")
     public Map<String, Object> getCurrentUser(@AuthenticationPrincipal OAuth2User principal) {
         return principal.getAttributes();
+    }
+
+    @PutMapping("/{id}/upgrade-rank")
+    public void upgradeRankUser(@PathVariable(name = "id") Integer id, @RequestBody String rank) {
+        System.out.println(rank);
+        System.out.println(id);
+        userService.upgradeRankUser(id, rank);
     }
 
 }

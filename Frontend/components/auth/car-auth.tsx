@@ -197,7 +197,7 @@ export default function Component() {
               className="rounded-full max-w-full h-auto"
             />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">SCarConnect</h1>
+          <h1 className="text-3xl font-bold text-gray-900">SCar Connect</h1>
           <p className="text-gray-600 mt-2">Cộng đồng đam mê xe hơi</p>
         </div>
 

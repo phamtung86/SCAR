@@ -100,9 +100,7 @@ public class CarService implements ICarService {
         Cars savedCar = carRepository.save(car);
 
         if (carImages != null && !carImages.isEmpty()) {
-
             iCarImageService.createNewCarImages(carImages, savedCar);
-
         }
 
         if (carHistories != null && !carHistories.isEmpty()) {

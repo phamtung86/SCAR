@@ -14,7 +14,7 @@ import java.util.Map;
 
 @Component
 public class TokenManager {
-    private static final long TOKEN_VALIDITY = 24 * 60 * 60 ;
+    private static final long TOKEN_VALIDITY = 1000 * 60 * 15;
 
     // Generate JWT Token
     public String generateToken(CustomUserDetails customUserDetails) {

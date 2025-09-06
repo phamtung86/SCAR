@@ -5,6 +5,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
+import com.t2.entity.RefreshToken;
 import com.t2.entity.User;
 import com.t2.form.CreateUserForm;
 import com.t2.jwtutils.CustomUserDetails;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("api/v1/auth")
@@ -54,9 +56,10 @@ public class AuthController {
 
         // Tạo access token
         String accessToken = tokenManager.generateToken(userDetails);
-
+        User user = userService.findUserByUsername(userDetails.getUsername());
         // Tạo refresh token
-        String refreshToken = tokenManager.generateRefreshToken(userDetails);
+        String refreshToken = UUID.randomUUID().toString();
+//        RefreshToken token = new RefreshToken(null,refreshToken, user);
 
         // Lưu refresh token vào cookie HTTP-Only
         ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
@@ -109,7 +112,6 @@ public class AuthController {
 
         if (idToken != null) {
             GoogleIdToken.Payload payload = idToken.getPayload();
-            System.out.println(payload);
             String email = payload.getEmail();
             String name = (String) payload.get("name");
             User user = userService.findByEmail(payload.getEmail());
@@ -125,12 +127,13 @@ public class AuthController {
                 tempUser.setVerified((boolean) payload.get("email_verified"));
                 tempUser.setRole(User.Role.USER);
                 tempUser.setCreatedAt(new Date());
+                tempUser.setUsername((String) payload.get("email"));
                 newUser = userService.createUserWithSocial(tempUser);
             } else {
                 newUser = user;
             }
 
-            CustomUserDetails userDetails = new CustomUserDetails(newUser.getFirstName()+newUser.getLastName() + "@google.com", " ", newUser.getId(), newUser.getFirstName(), newUser.getLastName(), newUser.getProfilePicture(), newUser.getRole().toString(), AuthorityUtils.createAuthorityList(newUser.getRole().toString()));
+            CustomUserDetails userDetails = new CustomUserDetails(newUser.getUsername(), "", newUser.getId(), newUser.getFirstName(), newUser.getLastName(), newUser.getProfilePicture(), newUser.getRole().toString(), AuthorityUtils.createAuthorityList(newUser.getRole().toString()));
 
             Authentication authentication =
                     new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
