@@ -47,7 +47,6 @@ export function formatDateToDate(date: Date | string | null | undefined): string
       month: '2-digit',
       day: '2-digit',
     };
-
     return parsedDate.toLocaleString('vi-VN', options);
   } catch (err) {
     console.error("Lỗi formatDateToDate:", err);

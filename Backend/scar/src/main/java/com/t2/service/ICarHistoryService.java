@@ -6,4 +6,6 @@ import com.t2.entity.Cars;
 public interface ICarHistoryService {
 
     void createNewCarHistory(CarHistoryDTO carHistoryDTO, Cars cars);
+
+    void deleteCarHistoryById(Integer id);
 }

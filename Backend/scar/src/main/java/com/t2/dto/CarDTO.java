@@ -5,6 +5,7 @@ import com.t2.models.UserResponse;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -69,6 +70,8 @@ public class CarDTO {
     private UserResponse user;
 
     private boolean isHighLight;
+
+    private boolean isDisplay;
 
     private List<CarImagesDTO> carImages;
 

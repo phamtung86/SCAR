@@ -9,6 +9,7 @@ import com.t2.form.User.UpdateProfileForm;
 import com.t2.models.CarResponse;
 import com.t2.models.UserResponse;
 import com.t2.repository.UserRepository;
+import com.t2.util.CalculatorTime;
 import com.t2.util.ImageUtils;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
@@ -17,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -104,6 +106,7 @@ public class UserService implements IUserService {
             user.setEmail(updateProfileForm.getEmail());
             user.setBio(updateProfileForm.getBio());
             user.setLocation(updateProfileForm.getLocation());
+            user.setPhone(updateProfileForm.getPhone());
             repository.save(user);
             return true;
 
@@ -177,11 +180,14 @@ public class UserService implements IUserService {
         String rankStr = rank;
         rankStr = rankStr.replace("\"", "").trim();
         User.Rank targetRank = User.Rank.valueOf(rankStr);
-
+        System.out.println("user rank "+ targetRank);
         User user = findUserById(userId);
         if (user != null) {
+            user.setRegisterRankAt(LocalDate.now());
+            user.setExpiryRankAt(CalculatorTime.addCycle(LocalDate.now(), "MONTH"));
             user.setRank(targetRank);
-            repository.save(user);
+            User u = repository.save(user);
+            System.out.println("After update: " + u.getRank());
         }
     }
 

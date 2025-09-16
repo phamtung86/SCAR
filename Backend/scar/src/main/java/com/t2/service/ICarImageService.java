@@ -8,4 +8,6 @@ import java.util.List;
 public interface ICarImageService {
 
     void createNewCarImages(List<MultipartFile> carImages, Cars cars);
+
+    void deleteImageById(Integer id);
 }

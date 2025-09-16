@@ -22,4 +22,5 @@ public interface ICarRepository extends JpaRepository<Cars, Integer>, JpaSpecifi
 
     Page<Cars> findAll(Specification<Cars> spec, Pageable pageable);
 
+    List<Cars> findByUserId(Integer userId);
 }

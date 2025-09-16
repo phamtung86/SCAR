@@ -28,4 +28,9 @@ public class CarFeatureService implements ICarFeatureService {
 
         }
     }
+
+    @Override
+    public void deleteFeatureById(Integer id) {
+        iCarFeatureRepository.deleteById(id);
+    }
 }

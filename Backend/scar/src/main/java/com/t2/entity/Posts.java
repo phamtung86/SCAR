@@ -38,6 +38,7 @@ public class Posts {
     @UpdateTimestamp
     private Date updatedDate;
 
+    // lên lịch đăng bài
     @Temporal(TemporalType.TIMESTAMP)
     private Date scheduledPostTime;
 

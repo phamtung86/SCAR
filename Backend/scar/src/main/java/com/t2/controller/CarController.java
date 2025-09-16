@@ -19,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -74,9 +73,11 @@ public class CarController {
         try {
             CreateCarForm createCarForm = mapper.readValue(carDataJson, CreateCarForm.class);
             List<CarFeaturesDTO> carFeatures = carFeaturesJson != null ?
-                    mapper.readValue(carFeaturesJson, new TypeReference<>() {}) : null;
+                    mapper.readValue(carFeaturesJson, new TypeReference<>() {
+                    }) : null;
             List<CarHistoryDTO> carHistories = carHistoriesJson != null ?
-                    mapper.readValue(carHistoriesJson, new TypeReference<>() {}) : null;
+                    mapper.readValue(carHistoriesJson, new TypeReference<>() {
+                    }) : null;
 
             if (carImages != null && !carImages.isEmpty()) {
                 boolean allValid = clarifaiService.areAllImagesValid(carImages);
@@ -130,6 +131,49 @@ public class CarController {
                 .orElse(value);
     }
 
+    @GetMapping("/user/{id}")
+    private ResponseEntity<List<CarDTO>> findByUserId(@PathVariable(name = "id") Integer userId) {
+        List<CarDTO> carDTOS = carService.findByUserId(userId);
+        return ResponseEntity.status(200).body(carDTOS);
+    }
 
+    @PutMapping("/{carId}/user/{userId}")
+    public ResponseEntity<?> updateCar(@RequestPart("carData") String carDataJson,
+                                       @RequestPart(value = "carImages", required = false) List<MultipartFile> carImages,
+                                       @RequestPart(value = "carFeatures", required = false) String carFeaturesJson,
+                                       @RequestPart(value = "carHistories", required = false) String carHistoriesJson,
+                                       @PathVariable("userId") Integer userId,
+                                       @PathVariable("carId") Integer carId
+    ) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            CreateCarForm createCarForm = mapper.readValue(carDataJson, CreateCarForm.class);
+            List<CarFeaturesDTO> carFeatures = carFeaturesJson != null ?
+                    mapper.readValue(carFeaturesJson, new TypeReference<>() {
+                    }) : null;
+            List<CarHistoryDTO> carHistories = carHistoriesJson != null ?
+                    mapper.readValue(carHistoriesJson, new TypeReference<>() {
+                    }) : null;
+
+            if (carImages != null && !carImages.isEmpty()) {
+                boolean allValid = clarifaiService.areAllImagesValid(carImages);
+                if (!allValid) {
+                    return ResponseEntity.badRequest().body("Hình ảnh xe không hợp lệ");
+                }
+            }
+
+            carService.updateCar(createCarForm, carImages, carFeatures, carHistories, userId,carId);
+            return ResponseEntity.ok("Tạo tin bán thành công");
+
+        } catch (Exception e) {
+            log.error("Lỗi khi tạo tin đăng xe: ", e);
+            return ResponseEntity.status(500).body("Đã xảy ra lỗi trong quá trình xử lý");
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteCarById(@PathVariable(name = "id") Integer id){
+        carService.deleteCarById(id);
+    }
 }
 

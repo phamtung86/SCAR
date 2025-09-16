@@ -28,4 +28,9 @@ public class CarHistoryService implements ICarHistoryService {
 
         }
     }
+
+    @Override
+    public void deleteCarHistoryById(Integer id) {
+        iCarHistoryRepository.deleteById(id);
+    }
 }

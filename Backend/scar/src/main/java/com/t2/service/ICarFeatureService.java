@@ -6,4 +6,6 @@ import com.t2.entity.Cars;
 public interface ICarFeatureService {
 
     void createCarFeature(CarFeaturesDTO carFeaturesDTO, Cars cars);
+
+    void deleteFeatureById(Integer id);
 }

@@ -1,13 +1,13 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { CheckCircle, XCircle, CreditCard, Hash, Building2, Clock, FileText } from "lucide-react"
-import Payment from "@/lib/api/payment"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import PaymentAPI from "@/lib/api/payment"
 import userAPI from "@/lib/api/user"
 import { getCurrentUser } from "@/lib/utils/get-current-user"
+import { Building2, CheckCircle, Clock, CreditCard, FileText, Hash, XCircle } from "lucide-react"
+import { useEffect, useState } from "react"
 
 interface PaymentResult {
     status: "success" | "failed" | "error"
@@ -26,16 +26,10 @@ interface PaymentResult {
 export default function PaymentResultPage() {
     const [loading, setLoading] = useState(true)
     const [result, setResult] = useState<PaymentResult | null>(null)
-    const currentUser = getCurrentUser();
-    const targetRank = localStorage.getItem("scar_targetRank");
     const fetchResult = async () => {
         try {
-            const res = await Payment.vnpayGetResult();
+            const res = await PaymentAPI.vnpayGetResult();
             if (res.status === 200) {
-                const re = await userAPI.upgradeRankUser(currentUser?.id, targetRank);
-                console.log(re);
-                
-                localStorage.removeItem("scar_targetRank");
                 setResult(res.data)
             }
         } catch (error) {
@@ -64,7 +58,7 @@ export default function PaymentResultPage() {
 
     if (!result) return null
 
-    const isSuccess = result.status === "success"
+    const isSuccess = result.status.toLowerCase() === "success"
 
     // Format tiền
     const formatAmount = (amount?: string) => {
@@ -85,7 +79,6 @@ export default function PaymentResultPage() {
         const hour = dateStr.substring(8, 10)
         const minute = dateStr.substring(10, 12)
         const second = dateStr.substring(12, 14)
-
         const date = new Date(`${year}-${month}-${day}T${hour}:${minute}:${second}`)
         return date.toLocaleString("vi-VN")
     }
@@ -198,7 +191,7 @@ export default function PaymentResultPage() {
                     {/* Action Buttons */}
                     <div className="flex flex-col sm:flex-row gap-3 pt-4">
                         <Button className="flex-1" onClick={() => (window.location.href = "/")}>
-                            Về trang chủ
+                            Quay lại
                         </Button>
                         <Button variant="outline" className="flex-1 bg-transparent" onClick={() => window.print()}>
                             Xuất PDF

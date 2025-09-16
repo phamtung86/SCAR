@@ -32,77 +32,9 @@ import { useUserOnline } from "../contexts/UserOnlineContext"
 import { getCurrentUser } from "@/lib/utils/get-current-user"
 import { useWebSocket } from "../contexts/WebsocketContext"
 import { useChat } from "@/hooks/use-chat"
+import { CarDTO } from "@/types/car"
 
 
-interface car {
-  id: number
-  title: string
-  price: number
-  originalPrice?: number
-  color: string
-  location: string
-  year: number
-  odo: string
-  fuelType: string
-  transmission: string
-  carModelsCarTypeId: number
-  carModelsCarTypeName: string
-  carModelsId: number
-  carModelsName: string
-  view: number
-  carImages?: [
-    {
-      id: number
-      carId: number
-      carTitle: string
-      imageUrl: string
-      createdAt: string
-      updatedAt: string
-    }
-  ]
-  carModelsBrandName?: string
-  carModelsBrandId?: number
-  featured?: boolean
-  discount?: number
-  condition: string
-  description: string
-  user: {
-    id: number
-    usename: string
-    email: string
-    firstName: string
-    lastName: string
-    profilePicture?: string
-    createdAt: string
-    updatedAt: string
-    role: string
-    status: string
-    isVerified: boolean
-    bio: string
-    location: string
-    phone: string
-    fullName: string
-    rating: number
-  }
-  carFeatures?: [
-    {
-      id: number
-      name: string
-      carId: number
-      carTitle: string
-    }
-  ]
-  carHistories?: [
-    {
-      id: number
-      eventDate: string
-      description: string
-      carId: number
-      carTitle: string
-    }
-  ]
-  [key: string]: any
-}
 interface CarDetailsProps {
   carId: number;
 }
@@ -110,7 +42,7 @@ interface CarDetailsProps {
 export function CarDetails({ carId }: CarDetailsProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [liked, setLiked] = useState(false)
-  const [car, setCar] = useState<car | null>(null)
+  const [car, setCar] = useState<CarDTO | null>(null)
   const { usersOnline } = useUserOnline();
   const route = useRouter();
   const user = getCurrentUser()

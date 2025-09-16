@@ -8,12 +8,21 @@ const vnpayCreatePayment = async (
     bankCode: string,
     language: string,
     userId: number,
-    postId?: number | null
+    carId: number | null = null,
+    paymentId: number | null = null,
+    feeId: number | null = null
 ) => {
     const res = await axiosClient.post(
-        `${URL}/vnpay/create?amount=${amount}&bankCode=${bankCode}&language=${language}&userId=${userId}${postId ? `&postId=${postId}` : ''}`
+        `${URL}/vnpay/create?amount=${amount}
+        &bankCode=${bankCode}
+        &language=${language}
+        &userId=${userId}
+        ${carId ? `&carId=${carId}` : ''}
+        ${paymentId ? `&paymentId=${paymentId}` : ''}
+        ${feeId ? `&fee=${feeId}` : ''}`
     );
-    return res
+    return res;
+
 };
 
 const vnpayGetResult = async () => {
@@ -21,10 +30,21 @@ const vnpayGetResult = async () => {
     return res;
 }
 
-
-const Payment = {
-    vnpayCreatePayment,
-    vnpayGetResult
+const getPaymentByUserId = async (userId: number) => {
+    const res = await axiosClient.get(`${URL}/user/${userId}`)
+    return res;
 }
 
-export default Payment;
+const updateStatusPaymentById = async (id: number, status: string) => {
+    const res = await axiosClient.put(`${URL}/${id}/${status}`)
+    return res;
+}
+
+const PaymentAPI = {
+    vnpayCreatePayment,
+    vnpayGetResult,
+    getPaymentByUserId,
+    updateStatusPaymentById
+}
+
+export default PaymentAPI;
