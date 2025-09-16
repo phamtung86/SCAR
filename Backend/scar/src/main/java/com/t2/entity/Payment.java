@@ -1,12 +1,11 @@
-package com.t2.controller;
+package com.t2.entity;
 
-import com.t2.entity.Posts;
-import com.t2.entity.User;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -39,8 +38,8 @@ public class Payment {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "post_id")
-    private Posts post;
+    @JoinColumn(name = "car_id")
+    private Cars car;
 
     // Mã giao dịch trong hệ thống
     @Column(name = "merchant_txn_ref", unique = true)
@@ -58,12 +57,19 @@ public class Payment {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
+    @Column(name = "expiry_date")
+    private LocalDate expiryDate;
+
+    @ManyToOne
+    @JoinColumn(name = "fee_id")
+    private Fees fee;
+
     public enum PaymentType {
         VNPAY, MOMO, BANKING
     }
 
     public enum Status {
-        PROCESSING, ERROR, SUCCESS, CANCELLED
+        PENDING, ERROR, SUCCESS, CANCELED,OVERDUE
     }
 
     public enum OrderType {

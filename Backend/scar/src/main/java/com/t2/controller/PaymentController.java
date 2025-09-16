@@ -1,5 +1,6 @@
 package com.t2.controller;
 
+import com.t2.dto.PaymentDTO;
 import com.t2.service.IPaymentService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -17,20 +19,25 @@ public class PaymentController {
     private IPaymentService paymentService;
 
     @PostMapping("/vnpay/create")
-    public ResponseEntity<String> createPayment(@RequestParam("amount") long amount,
-                                                @RequestParam(value = "bankCode", required = false) String bankCode,
-                                                @RequestParam(value = "language", defaultValue = "vn") String language,
-                                                @RequestParam(value = "userId") Integer userId,
-                                                @RequestParam(value = "postId", required = false) Integer postId,
-                                                HttpServletRequest request) {
+    public ResponseEntity<String> createPayment(
+            @RequestParam("amount") long amount,
+            @RequestParam(value = "bankCode", required = false) String bankCode,
+            @RequestParam(value = "language", defaultValue = "vn") String language,
+            @RequestParam(value = "userId") Integer userId,
+            @RequestParam(value = "carId", required = false) Integer carId,
+            @RequestParam(value = "paymentId", required = false) Integer paymentId,
+            @RequestParam(value = "fee") Integer feeId,
+            HttpServletRequest request) {
         try {
-            String paymentUrl = paymentService.createPaymentUrl(userId, postId, amount, bankCode, language, request);
+            String paymentUrl = paymentService.createPaymentUrl(
+                    userId, carId, amount, bankCode, language, request, paymentId, feeId);
             return ResponseEntity.ok(paymentUrl);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error creating payment: " + e.getMessage());
         }
     }
+
 
     /**
      * Truy vấn giao dịch
@@ -57,6 +64,7 @@ public class PaymentController {
                                                     @RequestParam("amount") String amount,
                                                     @RequestParam("trans_date") String transDate,
                                                     @RequestParam("user") String user,
+
                                                     HttpServletRequest request) {
         try {
             String result = paymentService.refundTransaction(tranType, orderId, amount, transDate, user, request);
@@ -70,5 +78,16 @@ public class PaymentController {
     @GetMapping("/vnpay/return")
     public Map<String, Object> handleReturn(HttpServletRequest request) {
         return paymentService.processReturn(request);
+    }
+
+    @GetMapping("/user/{id}")
+    public ResponseEntity<List<PaymentDTO>> getListPaymentByUserId(@PathVariable(name = "id") Integer userId) {
+        List<PaymentDTO> paymentDTOS = paymentService.getListPaymentByUserId(userId);
+        return ResponseEntity.status(200).body(paymentDTOS);
+    }
+
+    @PutMapping("/{id}/{status}")
+    public void updateStatusPaymentById(@PathVariable(name = "id") Integer id, @PathVariable(name = "status") String status) {
+        paymentService.updateStatusPaymentById(id, status);
     }
 }

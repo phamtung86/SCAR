@@ -10,13 +10,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import CarAPI from "@/lib/api/car"
 import { CarFilterParams } from "@/lib/CarFilterParams"
 import { useDebounce } from "@/lib/use-debounce"
+import { CarDTO } from "@/types/car"
 import { ChevronLeft, ChevronRight, Grid, List, Search, SlidersHorizontal } from "lucide-react"
 import { useEffect, useState } from "react"
 
 export function MarketplaceContent() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [showFilters, setShowFilters] = useState(false)
-  const [cars, setCars] = useState([])
+  const [cars, setCars] = useState<CarDTO[]>([])
   const [loading, setLoading] = useState(false)
 
   // Pagination states
@@ -33,6 +34,7 @@ export function MarketplaceContent() {
     try {
       const response = await CarAPI.getCarsPage(filters);
       if (response.status === 200) {
+      
         setCars(response.data.content);
         setTotalItems(response.data.totalElements);
         setTotalPages(response.data.totalPages);
@@ -235,6 +237,7 @@ export function MarketplaceContent() {
           ) : (
             <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" : "space-y-4"}>
               {cars.map((car, index) => (
+                car?.display === true &&
                 <CarCard key={index} car={car} viewMode={viewMode} />
               ))}
             </div>

@@ -6,9 +6,12 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import PaymentAPI from "@/lib/api/payment"
 import { formatMoney } from "@/lib/utils/money-format"
-import Payment from "@/lib/api/payment"
 import { Check, Crown, Star, Zap } from "lucide-react"
+import { useEffect, useState } from "react"
+import { FeeDTO } from "@/types/fee"
+import FeeAPI from "@/lib/api/fee"
 
 interface UpgradeTier {
   id: string
@@ -29,56 +32,62 @@ interface UpgradeModalProps {
   currentUser: object
 }
 
-const upgradeTiers: UpgradeTier[] = [
-  {
-    id: "PRO",
-    name: "Pro",
-    price: "299000",
-    originalPrice: "399000",
-    duration: "1 tháng",
-    icon: <Star className="h-6 w-6" />,
-    color: "from-blue-400 to-blue-500",
-    benefits: [
-      "Giảm 15% phí đăng bài",
-      "Hỗ trợ ưu tiên",
-      "Truy cập tính năng nâng cao",
-      "Báo cáo chi tiết",
-      "Ưu tiên bài đăng"
-    ],
-    popular: true,
-  },
-  {
-    id: "PREMIUM",
-    name: "Premium",
-    price: "699000",
-    originalPrice: "899000",
-    duration: "1 tháng",
-    icon: <Crown className="h-6 w-6" />,
-    color: "from-purple-400 to-purple-500",
-    benefits: [
-      "Miễn phí đăng bài",
-      "Hỗ trợ 24/7",
-      "Tính năng AI Premium",
-      "Quản lý đa tài khoản",
-      "Phân tích nâng cao",
-      "Tư vấn 1-1",
-      "Ưu tiên bài đăng"
-    ],
-  },
-]
-
 export function UpgradeModal({ isOpen, onClose, currentRank, currentUser }: UpgradeModalProps) {
 
-  const handleSelectPlan = (tierId: string) => {
-    localStorage.setItem("scar_targetRank", tierId);
+  const [upgradeTiers, setUpgradeTiers] = useState<FeeDTO[]>([]);
+
+
+  const fetchRankByType = async (type: string) => {
+    try {
+      const res = await FeeAPI.findAllByType(type);
+      if (res.status === 200) {
+        console.log(res.data);
+        
+        setUpgradeTiers(res.data)
+      }
+    } catch (error) {
+      console.log("Lỗi khi lấy danh sách hạng tài khoản ", error);
+
+    }
   }
 
-  const upgradeRank = async (amount: number, bankCode: string, language: string, userId: number) => {
-    const res = await Payment.vnpayCreatePayment(amount, bankCode, language, userId, null);
+  useEffect(() => {
+    fetchRankByType("UPGRADE_ACCOUNT")
+  }, [])
+
+
+  const handleSelectPlan = (tierId: string) => {
+    // localStorage.setItem("scar_targetRank", tierId);
+  }
+
+  const upgradeRank = async (amount: number, bankCode: string, language: string, userId: number, feeId: number) => {
+    const res = await PaymentAPI.vnpayCreatePayment(amount, bankCode, language, userId, null, null,feeId);
     if (res.status === 200) {
       window.location.href = res.data
     }
+  }
 
+  const handleUpgradeRank = (rankCode: string, rankPrice: string, rankName: string, rankId : number) => {
+    if (rankCode === currentRank) {
+      alert(`Gói ${rankName} của bạn vẫn còn hạn sử dụng`);
+      return;
+    }
+
+    const doUpgrade = () => {
+      upgradeRank(Number(rankPrice), "NCB", "vn", currentUser?.id, Number(rankId));
+      handleSelectPlan(rankCode);
+    };
+
+    if (currentRank === "NORMAL") {
+      doUpgrade();
+    } else {
+      const confirmMsg = `Bạn vẫn còn thời gian sử dụng gói ${currentRank}. 
+      Nếu chọn gói ${rankName} thì quyền lợi sử dụng gói ${currentRank} của bạn sẽ bị mất`;
+
+      if (window.confirm(confirmMsg)) {
+        doUpgrade();
+      }
+    }
   }
 
   return (
@@ -94,51 +103,51 @@ export function UpgradeModal({ isOpen, onClose, currentRank, currentUser }: Upgr
 
         <div className="grid md:grid-cols-3 gap-6 mt-6">
           {upgradeTiers.map((tier) => (
-            <Card key={tier.id} className={`relative ${tier.popular ? "ring-2 ring-blue-500 shadow-lg" : ""}`}>
-              {tier.popular && (
-                <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-500">Phổ biến nhất</Badge>
+            <Card key={tier?.id} className={`relative ${tier?.code === currentRank ? "ring-2 ring-blue-500 shadow-lg" : ""}`}>
+              {tier?.code === currentRank && (
+                <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-500">Bạn đang dùng</Badge>
               )}
 
               <CardHeader className="text-center">
                 <div
-                  className={`inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r ${tier.color} text-white mx-auto mb-2`}
+                  className={`inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r ${tier?.code === "PRO" ? `from-blue-400 to-blue-500` : `from-purple-400 to-purple-500`} text-white mx-auto mb-2`}
                 >
-                  {tier.icon}
+                  <i className={`fas fa-${tier?.icon}`}></i>
                 </div>
-                <CardTitle className="text-xl">{tier.name}</CardTitle>
+                <CardTitle className="text-xl">{tier?.name}</CardTitle>
                 <div className="space-y-1">
                   <div className="flex items-center justify-center gap-2">
-                    <span className="text-1xl font-bold">{formatMoney(tier.price, false)}</span>
-                    {tier.originalPrice && (
-                      <span className="text-sm text-muted-foreground line-through">{formatMoney(tier.originalPrice, false)}</span>
+                    <span className="text-1xl font-bold">{formatMoney((tier?.price - (tier?.price * tier?.sale / 100)), false)}</span>
+                    {tier?.sale > 0 && (
+                      <span className="text-sm text-muted-foreground line-through">{formatMoney(tier?.price, false)}</span>
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground">/{tier.duration}</p>
+                  <p className="text-sm text-muted-foreground">/Tháng</p>
                 </div>
               </CardHeader>
 
               <CardContent className="space-y-4">
                 <ul className="space-y-2">
-                  {tier.benefits.map((benefit, index) => (
-                    <li key={index} className="flex items-start gap-2 text-sm">
+                  {tier?.feeServiceDetails?.map((item) => (
+                    <li key={item.id} className="flex items-start gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span>{benefit}</span>
+                      <span>{item?.name}</span>
                     </li>
                   ))}
                 </ul>
 
                 <Button
-                  onClick={() => { 
-                    upgradeRank(Number(tier.price), "NCB", "vn", currentUser?.id); 
-                    handleSelectPlan(tier.id) 
+                  onClick={() => {
+                    const price = tier?.sale ? (tier?.price - (tier?.price * tier?.sale / 100)) : tier?.price
+                    handleUpgradeRank(tier?.code, price, tier?.name, tier?.id)
                   }}
-                  className={`w-full ${tier.popular
+                  className={`w-full ${tier?.code !== currentRank
                     ? "bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
                     : ""
                     }`}
-                  variant={tier.popular ? "default" : "outline"}
+                  variant={tier?.code !== currentRank ? "default" : "outline"}
                 >
-                  Chọn gói {tier.name}
+                  {tier?.code === currentRank ? "Đang sử dụng" : `Chọn gói ${tier?.code}`}
                 </Button>
               </CardContent>
             </Card>
@@ -151,7 +160,7 @@ export function UpgradeModal({ isOpen, onClose, currentRank, currentUser }: Upgr
             <span className="font-medium">Cam kết của chúng tôi</span>
           </div>
           <ul className="text-sm text-muted-foreground space-y-1 ml-6">
-            <li>• Hoàn tiền 100% trong 7 ngày đầu</li>
+            <li>• Hoàn tiền 100% trong 3 ngày đầu</li>
             <li>• Nâng cấp/hạ cấp linh hoạt bất cứ lúc nào</li>
             <li>• Hỗ trợ kỹ thuật 24/7</li>
             <li>• Bảo mật dữ liệu tuyệt đối</li>

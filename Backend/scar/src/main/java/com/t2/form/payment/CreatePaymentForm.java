@@ -25,7 +25,9 @@ public class CreatePaymentForm {
 
     private Integer userId;
 
-    private Integer postId;
+    private Integer carId;
+
+    private Integer feeId;
 
     private String merchantTxnRef;
 

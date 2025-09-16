@@ -84,8 +84,6 @@ public class UserController {
 
     @PutMapping("/{id}/upgrade-rank")
     public void upgradeRankUser(@PathVariable(name = "id") Integer id, @RequestBody String rank) {
-        System.out.println(rank);
-        System.out.println(id);
         userService.upgradeRankUser(id, rank);
     }
 

@@ -57,26 +57,8 @@ import { LocationModal } from "../modals/location-modal"
 import { PriceOfferModal } from "../modals/price-offer-modal"
 import { UserProfileModal } from "../modals/user-profile-modal"
 import MessageForward from "./message-forward"
+import { UserDTO } from "@/types/user"
 
-type UserDTO = {
-  id: number
-  username: string
-  email: string
-  firstName: string
-  lastName: string
-  profilePicture?: string
-  createdAt: string
-  updatedAt: string
-  role: string
-  status: string
-  verified: boolean
-  bio: string
-  location: string
-  phone: string
-  fullName: string
-  rating: number
-  rank: string
-}
 
 type ChatMessage = {
   id?: number

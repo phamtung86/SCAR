@@ -2,21 +2,29 @@ package com.t2.service;
 
 import com.google.gson.JsonObject;
 import com.t2.config.VnPayConfig;
-import com.t2.controller.Payment;
-import com.t2.entity.Posts;
+import com.t2.dto.PaymentDTO;
+import com.t2.entity.Cars;
+import com.t2.entity.Fees;
+import com.t2.entity.Payment;
 import com.t2.entity.User;
 import com.t2.form.payment.CreatePaymentForm;
 import com.t2.repository.IPaymentRepository;
+import com.t2.util.CalculatorTime;
 import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -30,18 +38,29 @@ public class PaymentService implements IPaymentService {
     @Autowired
     private IPaymentRepository paymentRepository;
     @Autowired
-    private IPostService iPostService;
+    private ICarService iCarService;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private IFeesService iFeesService;
 
     @Override
-    public String createPaymentUrl(Integer userId, Integer postId, long amount, String bankCode, String language, HttpServletRequest request) {
-
+    public String createPaymentUrl(Integer userId, Integer carId, long amount, String bankCode, String language, HttpServletRequest request, Integer paymentId, Integer feeId) {
+        Payment payment;
+        String vnp_TxnRef = "";
+        if (paymentId != null) {
+            payment = paymentRepository.findById(paymentId).orElse(null);
+            if (payment != null) {
+                vnp_TxnRef = payment.getMerchantTxnRef();
+            }
+        } else {
+            vnp_TxnRef = VnPayConfig.getRandomNumber(8);
+        }
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
         String orderType = "other";
         long vnp_Amount = amount * 100;
-        String vnp_TxnRef = VnPayConfig.getRandomNumber(8);
+
         String vnp_IpAddr = VnPayConfig.getIpAddress(request);
 
         Map<String, String> vnp_Params = new HashMap<>();
@@ -50,11 +69,11 @@ public class PaymentService implements IPaymentService {
         vnp_Params.put("vnp_TmnCode", vnPayConfig.getTmnCode());
         vnp_Params.put("vnp_Amount", String.valueOf(vnp_Amount));
         vnp_Params.put("vnp_CurrCode", "VND");
-        if (bankCode != null && !bankCode.isEmpty()) vnp_Params.put("vnp_BankCode", bankCode);
+        if (bankCode != null && !bankCode.isEmpty()) vnp_Params.put("vnp_BankCode", bankCode.trim());
         vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
         vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang:" + vnp_TxnRef);
         vnp_Params.put("vnp_OrderType", orderType);
-        vnp_Params.put("vnp_Locale", (language != null && !language.isEmpty()) ? language : "vn");
+        vnp_Params.put("vnp_Locale", (language != null && !language.isEmpty()) ? language.trim() : "vn");
         vnp_Params.put("vnp_ReturnUrl", vnPayConfig.getReturnUrl());
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
 
@@ -88,19 +107,23 @@ public class PaymentService implements IPaymentService {
         }
         String vnp_SecureHash = VnPayConfig.hmacSHA512(vnPayConfig.getSecretKey(), hashData.toString());
         String queryUrl = query.toString() + "&vnp_SecureHash=" + vnp_SecureHash;
-        CreatePaymentForm createPaymentForm = new CreatePaymentForm();
-        createPaymentForm.setDescription("Thanh toan don hang:" + vnp_TxnRef);
-        createPaymentForm.setAmount(amount);
-        createPaymentForm.setPaymentType(Payment.PaymentType.VNPAY.toString());
-        createPaymentForm.setStatus(Payment.Status.PROCESSING.toString());
-        createPaymentForm.setUserId(userId);
-        createPaymentForm.setPostId(postId);
-        createPaymentForm.setMerchantTxnRef(vnp_TxnRef);
-        createPaymentForm.setGatewayTransactionId("");
-        createPayment(createPaymentForm);
+        if (paymentId == null) {
+            CreatePaymentForm createPaymentForm = new CreatePaymentForm();
+            createPaymentForm.setDescription("Thanh toan don hang:" + vnp_TxnRef);
+            createPaymentForm.setAmount(amount);
+            createPaymentForm.setPaymentType(Payment.PaymentType.VNPAY.toString());
+            createPaymentForm.setStatus(Payment.Status.PENDING.toString());
+            createPaymentForm.setUserId(userId);
+            createPaymentForm.setCarId(carId);
+            createPaymentForm.setFeeId(feeId);
+            createPaymentForm.setMerchantTxnRef(vnp_TxnRef);
+            createPaymentForm.setGatewayTransactionId("");
+            createPayment(createPaymentForm);
+        }
         return vnPayConfig.getPayUrl() + "?" + queryUrl;
     }
 
+    @Transactional
     @Override
     public Map<String, Object> processReturn(HttpServletRequest request) {
         Map<String, String> fields = new TreeMap<>();
@@ -112,7 +135,7 @@ public class PaymentService implements IPaymentService {
 
         // Build data string để verify
         StringBuilder hashData = new StringBuilder();
-        for (Iterator<Map.Entry<String, String>> itr = fields.entrySet().iterator(); itr.hasNext();) {
+        for (Iterator<Map.Entry<String, String>> itr = fields.entrySet().iterator(); itr.hasNext(); ) {
             Map.Entry<String, String> entry = itr.next();
             hashData.append(URLEncoder.encode(entry.getKey(), StandardCharsets.US_ASCII));
             hashData.append('=');
@@ -142,7 +165,12 @@ public class PaymentService implements IPaymentService {
             // Thanh toán thành công
             result.put("status", "success");
             result.put("message", "Thanh toán thành công!");
-            updatePayment(String.valueOf(Payment.Status.SUCCESS), bankTranNo, txnRef);
+            Payment p = updatePayment(String.valueOf(Payment.Status.SUCCESS), bankTranNo, txnRef);
+            if (p.getCar() == null) {
+                userService.upgradeRankUser(p.getUser().getId(), String.valueOf(p.getFee().getCode()));
+            } else {
+                iCarService.changeStatusDisplay(true, p.getCar().getId());
+            }
         } else {
             // Thanh toán thất bại
             result.put("status", "failed");
@@ -168,34 +196,63 @@ public class PaymentService implements IPaymentService {
     @Override
     public void createPayment(CreatePaymentForm createPaymentForm) {
         User user = userService.findUserById(createPaymentForm.getUserId());
+        Fees fee = iFeesService.findById(createPaymentForm.getFeeId());
         Payment payment = new Payment();
         payment.setUser(user);
+        payment.setFee(fee);
 
-        if (createPaymentForm.getPostId() != null) {
-            Posts posts = iPostService.findPostById(createPaymentForm.getPostId());
-            payment.setPost(posts);
+        if (createPaymentForm.getCarId() != null) {
+            Cars car = iCarService.findById(createPaymentForm.getCarId());
+            payment.setCar(car);
             payment.setOrderType(Payment.OrderType.POST_FEE);
+            payment.setExpiryDate(CalculatorTime.addDays(LocalDate.now(), 15));
         } else {
             payment.setOrderType(Payment.OrderType.UPGRADE_ACCOUNT);
+            payment.setExpiryDate(CalculatorTime.addDays(LocalDate.now(), 2));
         }
 
         payment.setMerchantTxnRef(createPaymentForm.getMerchantTxnRef());
         payment.setDescription(createPaymentForm.getDescription());
         payment.setAmount(createPaymentForm.getAmount());
         payment.setPaymentType(Payment.PaymentType.valueOf(createPaymentForm.getPaymentType()));
-        payment.setStatus(Payment.Status.PROCESSING);
+        payment.setStatus(Payment.Status.PENDING);
         payment.setCreatedAt(LocalDateTime.now());
-
         paymentRepository.save(payment);
-
     }
 
     @Override
-    public void updatePayment(String status, String gatewayTransactionId, String merchantTxnRef) {
+    public Payment updatePayment(String status, String gatewayTransactionId, String merchantTxnRef) {
         Payment payment = paymentRepository.findByMerchantTxnRef(merchantTxnRef);
-        if (payment != null){
+        if (payment != null) {
             payment.setStatus(Payment.Status.valueOf(status));
             payment.setGatewayTransactionId(gatewayTransactionId);
+            return paymentRepository.save(payment);
+        }
+        return null;
+    }
+
+    @Override
+    public List<PaymentDTO> getListPaymentByUserId(Integer userId) {
+        List<Payment> payments = paymentRepository.findByUserId(userId);
+        return modelMapper.map(payments, new TypeToken<List<PaymentDTO>>() {
+        }.getType());
+    }
+
+    @Override
+    public List<Payment> findByExpiryDateBetweenAndStatus(LocalDate start, LocalDate end, String status) {
+        return paymentRepository.findByExpiryDateBetweenAndStatus(start, end, Payment.Status.valueOf(status));
+    }
+
+    @Override
+    public List<Payment> findByStatus(String status) {
+        return paymentRepository.findByStatus(Payment.Status.valueOf(status));
+    }
+
+    @Override
+    public void updateStatusPaymentById(Integer id, String status) {
+        Payment payment = paymentRepository.findById(id).orElse(null);
+        if(payment != null){
+            payment.setStatus(Payment.Status.valueOf(status));
             paymentRepository.save(payment);
         }
     }

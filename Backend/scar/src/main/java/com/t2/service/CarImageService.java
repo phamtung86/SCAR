@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -43,6 +44,19 @@ public class CarImageService implements ICarImageService {
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void deleteImageById(Integer id) {
+        CarImages carImage = iCarImageRepository.findById(id).orElse(null);
+        if (carImage != null) {
+            try {
+                imageUtils.deleteFile(carImage.getPublicId());
+                iCarImageRepository.deleteById(id);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }

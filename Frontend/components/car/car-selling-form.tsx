@@ -267,7 +267,6 @@ export default function CarSellingForm({ onCancel }: { onCancel?: () => void }) 
   }
 
   const removeImage = (index: number) => {
-    // Clean up the URL for the removed image
     URL.revokeObjectURL(imagePreviews[index])
 
     const newImages = images.filter((_, i) => i !== index)
@@ -280,12 +279,10 @@ export default function CarSellingForm({ onCancel }: { onCancel?: () => void }) 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files)
-      const newImages = [...images, ...files].slice(0, 10) // Limit to 10 images
+      const newImages = [...images, ...files].slice(0, 10) 
 
-      // Clean up old preview URLs
       imagePreviews.forEach((url) => URL.revokeObjectURL(url))
 
-      // Create new preview URLs
       const newPreviews = newImages.map((file) => URL.createObjectURL(file))
 
       setImages(newImages)

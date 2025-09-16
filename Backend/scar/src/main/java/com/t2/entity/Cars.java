@@ -3,6 +3,7 @@ package com.t2.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -42,7 +43,7 @@ public class Cars {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "drive_train")
-    private Drivetrain drivetrain;
+    private Drivetrain driveTrain;
 
     @Column(name = "seat_number")
     private int seatNumber;
@@ -69,6 +70,9 @@ public class Cars {
 
     @Column(name = "is_high_light")
     private boolean isHighLight;
+
+    @Column(name = "is_display")
+    private boolean isDisplay;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "car_model_id", referencedColumnName = "id")

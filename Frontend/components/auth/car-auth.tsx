@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import AuthAPI from "@/lib/api/auth"
+import { validateEmail } from "@/lib/utils/validate"
 import { Eye, EyeOff, Mail } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from 'next/navigation'
@@ -125,11 +126,6 @@ export default function Component() {
       console.error("Google login error:", err);
     }
   };
-  const validateEmail = (email: string) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-  }
-
   const handleRegisterAccount = async () => {
     setError({}); // Reset lỗi
     const messages = {
@@ -142,7 +138,7 @@ export default function Component() {
     const newErrors: Partial<RegisterError> = {};
 
     // 1. Kiểm tra bỏ trống
-    if (Object.values(dataRegister).some(value => !value)) {
+    if (Object.values(dataRegister).some(value => value === "" || value === null || value === undefined)) {
       newErrors.isEmpty = messages.isEmpty;
     }
 

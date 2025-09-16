@@ -3,7 +3,7 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Calendar, Home, MessageSquare, Settings, ShoppingCart, Star, TrendingUp, Users } from "lucide-react"
+import { Calendar, Home, MessageSquare, Settings, ShoppingCart, Star, TrendingUp, Users, Wallet } from "lucide-react"
 import { usePathname, useRouter } from "next/navigation"
 
 export function Sidebar() {
@@ -17,6 +17,7 @@ export function Sidebar() {
     { icon: Calendar, label: "Sự kiện", href: "/events", active: pathname === "/events" },
     { icon: TrendingUp, label: "Xu hướng", href: "/trending", active: pathname === "/trending" },
     { icon: Star, label: "Yêu thích", href: "/favorites", active: pathname === "/favorites" },
+    { icon: Wallet, label: "Thanh toán", href: "/payment", active: pathname === "/payment" },
     { icon: Settings, label: "Cài đặt", href: "/settings", active: pathname === "/settings" },
   ]
 

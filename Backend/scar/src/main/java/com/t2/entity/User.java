@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -46,6 +47,12 @@ public class User {
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
+
+    @Column(name = "register_rank_at")
+    private LocalDate registerRankAt;
+
+    @Column(name = "expiry_rank_at")
+    private LocalDate expiryRankAt;
 
     @Column(name = "update_at")
     private Date updateAt;

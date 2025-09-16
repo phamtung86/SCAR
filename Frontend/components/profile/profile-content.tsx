@@ -1,79 +1,72 @@
 "use client"
 
-import { useState } from "react"
-import { Camera, MapPin, Calendar, Star, Car, Users, Heart, MessageCircle, Settings } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { PostCard } from "@/components/home/post-card"
-import { CarCard } from "@/components/marketplace/car-card"
+import CarAPI from "@/lib/api/car"
+import userAPI from "@/lib/api/user"
+import { getCurrentUser } from "@/lib/utils/get-current-user"
+import { formatDateToDate } from "@/lib/utils/time-format"
+import type { CarDTO } from "@/types/car"
+import type { UserDTO } from "@/types/user"
+import { Calendar, Camera, Car, Heart, MapPin, MessageCircle, Settings, Star, Trash2, Users } from "lucide-react"
+import { useEffect, useState } from "react"
+import CarEditDialog from "../car/car-edit-dialog"
+import DeleteConfirmDialog from "../car/delete-confirm-dialog"
+import { CarCard } from "../marketplace/car-card"
+import { EditProfileDialog } from "./edit-profile-dialog"
+
 
 export function ProfileContent() {
   const [activeTab, setActiveTab] = useState("posts")
+  const [userProfile, setUserProfile] = useState<UserDTO>()
+  const [userCars, setUserCars] = useState<CarDTO[]>([])
+  const currentUser = getCurrentUser()
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [selectedCar, setSelectedCar] = useState<CarDTO>()
 
-  const userProfile = {
-    name: "Nguyễn Văn A",
-    username: "@nguyenvana",
-    avatar: "/placeholder.svg",
-    coverImage: "/placeholder.svg?height=300&width=1200",
-    bio: "Đam mê xe hơi từ nhỏ. Chuyên gia tư vấn BMW và Mercedes. Chia sẻ kinh nghiệm mua bán xe.",
-    location: "Hà Nội, Việt Nam",
-    joinDate: "Tham gia từ tháng 3 năm 2020",
-    verified: true,
-    stats: {
-      posts: 156,
-      followers: 2847,
-      following: 892,
-      carsOwned: 5,
-      carsSold: 12,
-    },
-    interests: ["BMW", "Mercedes", "Luxury Cars", "Car Modification", "Racing"],
+  const fetchUserProfile = async (id: number) => {
+    try {
+      const res = await userAPI.findById(id)
+      if (res.status === 200) {
+        setUserProfile(res.data)
+      }
+    } catch (error) {
+      console.log("Lỗi khi lấy dữ liệu người dùng")
+    }
   }
 
-  const userPosts = [
-    {
-      id: 1,
-      user: {
-        name: userProfile.name,
-        avatar: userProfile.avatar,
-        verified: true,
-        role: "BMW Expert",
-      },
-      content: "Vừa hoàn thành việc độ lại chiếc BMW M3 của mình! Cảm giác lái thật tuyệt vời 🔥",
-      images: ["/placeholder.svg?height=400&width=600"],
-      likes: 124,
-      comments: 23,
-      shares: 5,
-      timestamp: "2 giờ trước",
-      location: "Hà Nội",
-      tags: ["#BMW", "#M3", "#CarMod"],
-    },
-  ]
+  const fetchUserCars = async (userId: number) => {
+    try {
+      const res = await CarAPI.getByUserId(userId)
+      console.log(res)
+      if (res.status === 200) {
+        setUserCars(res.data)
+      }
+    } catch (error) {
+      console.log("Lỗi khi lấy dữ liệu người dùng")
+    }
+  }
 
-  const userCars = [
-    {
-      id: 1,
-      title: "BMW X5 2020 - Như mới",
-      price: "2,500,000,000",
-      image: "/placeholder.svg?height=300&width=400",
-      location: "Hà Nội",
-      year: 2020,
-      mileage: "15,000 km",
-      fuel: "Xăng",
-      transmission: "Tự động",
-      rating: 4.8,
-      seller: {
-        name: userProfile.name,
-        verified: true,
-        rating: 4.9,
-      },
-      featured: true,
-      condition: "Như mới",
-      description: "BMW X5 2020 màu đen, nội thất kem, full option",
-    },
-  ]
+  useEffect(() => {
+    fetchUserProfile(Number(currentUser?.id))
+    fetchUserCars(Number(currentUser?.id))
+  }, [])
+
+  const handleDelete = async (id: number) => {
+    const res = await CarAPI.deleteCarById(id)
+    if (res.status === 200) {
+      fetchUserCars(Number(currentUser?.id))
+      setIsDeleteDialogOpen(false)
+    }
+  }
+
+  const handleProfileUpdate = () => {
+    fetchUserProfile(Number(currentUser?.id))
+  }
 
   return (
     <div className="space-y-6">
@@ -83,7 +76,11 @@ export function ProfileContent() {
           {/* Cover Image */}
           <div className="h-48 md:h-64 bg-gradient-to-r from-blue-500 to-purple-600 relative">
             <div className="absolute inset-0 bg-black/20"></div>
-            <Button variant="secondary" size="sm" className="absolute bottom-4 right-4 bg-white/80 hover:bg-white">
+            <Button
+              variant="secondary"
+              size="sm"
+              className="absolute bottom-4 right-4 bg-white text-gray-900 hover:bg-gray-100 border shadow-sm"
+            >
               <Camera className="h-4 w-4 mr-2" />
               Đổi ảnh bìa
             </Button>
@@ -93,13 +90,13 @@ export function ProfileContent() {
           <div className="absolute -bottom-16 left-6">
             <div className="relative">
               <Avatar className="h-32 w-32 border-4 border-white shadow-lg">
-                <AvatarImage src={userProfile.avatar || "/placeholder.svg"} />
-                <AvatarFallback className="text-2xl">{userProfile.name[0]}</AvatarFallback>
+                <AvatarImage src={userProfile?.profilePicture || "/placeholder.svg"} />
+                <AvatarFallback className="text-2xl">{userProfile?.firstName[0]}</AvatarFallback>
               </Avatar>
               <Button
                 variant="secondary"
                 size="icon"
-                className="absolute bottom-2 right-2 h-8 w-8 rounded-full bg-white shadow-lg"
+                className="absolute bottom-2 right-2 h-8 w-8 rounded-full bg-white text-gray-900 hover:bg-gray-100 shadow-lg border"
               >
                 <Camera className="h-4 w-4" />
               </Button>
@@ -111,50 +108,50 @@ export function ProfileContent() {
           <div className="flex flex-col md:flex-row md:items-start md:justify-between">
             <div className="flex-1">
               <div className="flex items-center space-x-2 mb-2">
-                <h1 className="text-2xl font-bold">{userProfile.name}</h1>
-                {userProfile.verified && <Badge className="bg-blue-100 text-blue-700">✓ Đã xác thực</Badge>}
+                <h1 className="text-2xl font-bold">{userProfile?.fullName}</h1>
+                {userProfile?.verified && <Badge className="bg-blue-100 text-blue-700">✓ Đã xác thực</Badge>}
               </div>
-              <p className="text-gray-600 dark:text-gray-400 mb-2">{userProfile.username}</p>
-              <p className="text-gray-700 dark:text-gray-300 mb-4 max-w-2xl">{userProfile.bio}</p>
+              <p className="text-gray-600 dark:text-gray-400 mb-2">@{userProfile?.username}</p>
+              <p className="text-gray-700 dark:text-gray-300 mb-4 max-w-2xl">{userProfile?.bio}</p>
 
               <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-4">
                 <div className="flex items-center">
                   <MapPin className="h-4 w-4 mr-1" />
-                  {userProfile.location}
+                  {userProfile?.location}
                 </div>
                 <div className="flex items-center">
                   <Calendar className="h-4 w-4 mr-1" />
-                  {userProfile.joinDate}
+                  {formatDateToDate(userProfile?.createdAt)}
                 </div>
               </div>
 
               {/* Stats */}
-              <div className="flex flex-wrap gap-6 mb-4">
+              {/* <div className="flex flex-wrap gap-6 mb-4">
                 <div className="text-center">
-                  <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{userProfile.stats.posts}</p>
+                  <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{userProfile?.stats.posts}</p>
                   <p className="text-sm text-gray-500">Bài viết</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{userProfile.stats.followers}</p>
+                  <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{userProfile?.stats.followers}</p>
                   <p className="text-sm text-gray-500">Người theo dõi</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{userProfile.stats.following}</p>
+                  <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{userProfile?.stats.following}</p>
                   <p className="text-sm text-gray-500">Đang theo dõi</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{userProfile.stats.carsOwned}</p>
+                  <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{userProfile?.stats.carsOwned}</p>
                   <p className="text-sm text-gray-500">Xe sở hữu</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{userProfile.stats.carsSold}</p>
+                  <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{userProfile?.stats.carsSold}</p>
                   <p className="text-sm text-gray-500">Xe đã bán</p>
                 </div>
-              </div>
+              </div> */}
 
               {/* Interests */}
-              <div className="flex flex-wrap gap-2">
-                {userProfile.interests.map((interest, index) => (
+              {/* <div className="flex flex-wrap gap-2">
+                {userProfile?.interests.map((interest, index) => (
                   <Badge
                     key={index}
                     variant="secondary"
@@ -163,19 +160,27 @@ export function ProfileContent() {
                     {interest}
                   </Badge>
                 ))}
-              </div>
+              </div> */}
             </div>
 
-            <div className="flex space-x-2 mt-4 md:mt-0">
-              <Button variant="outline">
+            <div className="flex flex-wrap gap-2 mt-4 md:mt-0">
+              {/* {userProfile && <EditProfileDialog user={userProfile} onProfileUpdate={handleProfileUpdate} />} */}
+              <Button
+                variant="outline"
+                className="bg-background text-foreground border-border hover:bg-accent hover:text-accent-foreground"
+              >
                 <MessageCircle className="h-4 w-4 mr-2" />
                 Nhắn tin
               </Button>
-              <Button>
+              <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
                 <Users className="h-4 w-4 mr-2" />
                 Theo dõi
               </Button>
-              <Button variant="outline" size="icon">
+              <Button
+                variant="outline"
+                size="icon"
+                className="bg-background text-foreground border-border hover:bg-accent hover:text-accent-foreground"
+              >
                 <Settings className="h-4 w-4" />
               </Button>
             </div>
@@ -206,20 +211,55 @@ export function ProfileContent() {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="posts" className="p-6">
+            {/* <TabsContent value="posts" className="p-6">
               <div className="space-y-6">
                 {userPosts.map((post) => (
                   <PostCard key={post.id} post={post} />
                 ))}
               </div>
-            </TabsContent>
+            </TabsContent> */}
 
             <TabsContent value="cars" className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {userCars.map((car) => (
-                  <CarCard key={car.id} car={car} viewMode="grid" />
+                  <Card className="bg-card border-border" key={car?.id}>
+                    <CarCard
+                      key={car.id}
+                      car={car}
+                      viewMode="grid"
+                    />
+                    <Card className="bg-card border-border">
+                      <CardContent className="p-4">
+                        {/* <h4 className="font-semibold text-card-foreground mb-3">Quản lý tin đăng</h4> */}
+                        <div className="flex gap-2">
+                          <CarEditDialog
+                            car={car}
+                            triggerText="Chỉnh sửa"
+                            triggerVariant="outline"
+                            onRefresh={fetchUserCars}
+                          />
+                          <Button onClick={() => {
+                            setIsDeleteDialogOpen(true);
+                            setSelectedCar(car)
+                          }} variant="destructive" className="flex-1">
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Xóa tin
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Card>
                 ))}
               </div>
+
+              {/* đặt ngoài map để chỉ render 1 lần */}
+              <DeleteConfirmDialog
+                isOpen={isDeleteDialogOpen}
+                onClose={() => setIsDeleteDialogOpen(false)}
+                onConfirm={() => handleDelete(Number(selectedCar?.id))}
+                carId={selectedCar?.id}
+                carName={selectedCar?.title}
+              />
             </TabsContent>
 
             <TabsContent value="reviews" className="p-6">

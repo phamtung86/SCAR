@@ -5,15 +5,18 @@ import com.t2.dto.CarFeaturesDTO;
 import com.t2.dto.CarHistoryDTO;
 import com.t2.entity.CarModels;
 import com.t2.entity.Cars;
+import com.t2.entity.Fees;
 import com.t2.entity.User;
 import com.t2.form.Car.CarFilterForm;
 import com.t2.form.Car.CreateCarForm;
 import com.t2.models.CarResponse;
 import com.t2.repository.ICarRepository;
 import com.t2.specification.CarSpecification;
+import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -47,7 +50,13 @@ public class CarService implements ICarService {
     private IUserService userService;
     @Autowired
     private IUserReviewService iUserReviewService;
-
+    @Lazy
+    @Autowired
+    private IPaymentService iPaymentService;
+    @Autowired
+    private HttpServletRequest request;
+    @Autowired
+    private IFeesService iFeesService;
 
     @Override
     public List<CarDTO> getAllCars() {
@@ -92,12 +101,22 @@ public class CarService implements ICarService {
         Cars car = modelMapper.map(createCarForm, Cars.class);
         car.setCreatedAt(new Date());
         car.setSold(false);
-
+        car.setDisplay(false);
         CarModels model = iCarModelService.findById(createCarForm.getCarModelsId());
         car.setCarModels(model);
         car.setUser(user);
 
         Cars savedCar = carRepository.save(car);
+
+        Fees fee = iFeesService.findByCode("POST_FEE");
+
+        if (createCarForm.isHighLight()) {
+            Fees feeHighLight = iFeesService.findByCode("POST_HIGHLIGHT_FEE");
+            iPaymentService.createPaymentUrl(userId, car.getId(), (long) (fee.getPrice() + feeHighLight.getPrice()), "NCB", "vn", request, null, feeHighLight.getId());
+        } else {
+            iPaymentService.createPaymentUrl(userId, car.getId(), (long) fee.getPrice(), "NCB", "vn", request, null, fee.getId());
+        }
+
 
         if (carImages != null && !carImages.isEmpty()) {
             iCarImageService.createNewCarImages(carImages, savedCar);
@@ -184,6 +203,81 @@ public class CarService implements ICarService {
             c.getUser().setRating(userRatingScore.getOrDefault(c.getUser().getId(), 0.0));
         }
         return new PageImpl<>(carDTOS, pageable, cars.getTotalElements());
+    }
+
+    @Override
+    public Cars findById(Integer id) {
+        return carRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public void changeStatusDisplay(boolean isDisplay, Integer carId) {
+        Optional<Cars> car = carRepository.findById(carId);
+        if (car.isPresent()) {
+            Cars carUpdate = car.get();
+            carUpdate.setDisplay(isDisplay);
+            carRepository.save(carUpdate);
+        }
+    }
+
+    @Override
+    public List<CarDTO> findByUserId(Integer userId) {
+        List<Cars> cars = carRepository.findByUserId(userId);
+        return modelMapper.map(cars, new TypeToken<List<CarDTO>>() {
+        }.getType());
+    }
+
+    @Override
+    public void updateCar(CreateCarForm createCarForm, List<MultipartFile> carImages, List<CarFeaturesDTO> carFeatures, List<CarHistoryDTO> carHistories, Integer userId, Integer carId) {
+        Cars car = findById(carId);
+        if (car != null) {
+            if (!Objects.equals(car.getCarModels().getId(), createCarForm.getCarModelsId())) {
+                CarModels model = iCarModelService.findById(createCarForm.getCarModelsId());
+                car.setCarModels(model);
+            }
+            car.setTitle(createCarForm.getTitle());
+            car.setDescription(createCarForm.getDescription());
+            car.setYear(createCarForm.getYear());
+            car.setPrice(createCarForm.getPrice());
+            car.setOriginalPrice(createCarForm.getOriginalPrice());
+            car.setOdo(createCarForm.getOdo());
+            car.setColor(createCarForm.getColor());
+            car.setLocation(createCarForm.getLocation());
+            car.setSeatNumber(createCarForm.getSeatNumber());
+            car.setEngine(createCarForm.getEngine());
+            car.setDoorNumber(createCarForm.getDoorNumber());
+            car.setFuelType(Cars.FuelType.valueOf(createCarForm.getFuelType()));
+            car.setTransmission(Cars.Transmission.valueOf(createCarForm.getTransmission()));
+            car.setCondition(Cars.Condition.valueOf(createCarForm.getCondition()));
+            car.setDriveTrain(Cars.Drivetrain.valueOf(createCarForm.getDriveTrain()));
+            Cars savedCar = carRepository.save(car);
+            if (createCarForm.isHighLight()) {
+                Fees fee = iFeesService.findByCode("POST_FEE");
+                Fees feeHighLight = iFeesService.findByCode("POST_HIGHLIGHT_FEE");
+                iPaymentService.createPaymentUrl(userId, car.getId(), (long) (fee.getPrice() + feeHighLight.getPrice()), "NCB", "vn", request, null, feeHighLight.getId());
+            }
+
+            if (carImages != null && !carImages.isEmpty()) {
+                iCarImageService.createNewCarImages(carImages, savedCar);
+            }
+
+            if (carHistories != null && !carHistories.isEmpty()) {
+                for (CarHistoryDTO dto : carHistories) {
+                    iCarHistoryService.createNewCarHistory(dto, savedCar);
+                }
+            }
+
+            if (carFeatures != null && !carFeatures.isEmpty()) {
+                for (CarFeaturesDTO dto : carFeatures) {
+                    iCarFeatureService.createCarFeature(dto, savedCar);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void deleteCarById(Integer id) {
+        carRepository.deleteById(id);
     }
 
 }

@@ -16,6 +16,8 @@ export type UserDTO = {
   fullName: string
   rating: number
   rank: string
+  registerRankAt: string
+  expiryRankAt: string
 }
 
 export type Location = {

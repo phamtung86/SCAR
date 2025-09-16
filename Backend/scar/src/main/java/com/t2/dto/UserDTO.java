@@ -1,7 +1,10 @@
 package com.t2.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.Column;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -38,4 +41,10 @@ public class UserDTO {
     private String fullName;
 
     private String rank;
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate registerRankAt;
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate expiryRankAt;
 }

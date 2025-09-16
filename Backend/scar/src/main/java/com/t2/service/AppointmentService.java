@@ -53,7 +53,6 @@ public class AppointmentService implements IAppointmentService {
                     return m;
                 }
         );
-
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.t2.service;
 import com.t2.dto.CarDTO;
 import com.t2.dto.CarFeaturesDTO;
 import com.t2.dto.CarHistoryDTO;
+import com.t2.entity.Cars;
 import com.t2.form.Car.CarFilterForm;
 import com.t2.form.Car.CreateCarForm;
 import com.t2.models.CarResponse;
@@ -23,4 +24,14 @@ public interface ICarService {
     void createNewCar(CreateCarForm createCarForm, List<MultipartFile> carImages, List<CarFeaturesDTO> carFeatures, List<CarHistoryDTO> carHistories, Integer userId);
 
     Page<CarDTO> getAllCarsPages(Pageable pageable, String search, CarFilterForm carFilterForm);
+
+    Cars findById(Integer id);
+
+    void changeStatusDisplay(boolean isDisplay, Integer carId);
+
+    List<CarDTO> findByUserId(Integer userId);
+
+    void updateCar(CreateCarForm createCarForm, List<MultipartFile> carImages, List<CarFeaturesDTO> carFeatures, List<CarHistoryDTO> carHistories, Integer userId, Integer carId);
+
+    void deleteCarById(Integer id);
 }

@@ -16,6 +16,7 @@ import { UserDTO, Location } from "@/types/user"
 import { Bell, CheckCircle, CircleArrowUp, Globe, HelpCircle, LogOut, Palette, Shield, User, XCircle } from "lucide-react"
 import { useEffect, useState } from "react"
 import { UpgradeModal } from "../upgrade-rank-user"
+import { validateEmail, validatePhoneVN } from "@/lib/utils/validate"
 
 
 export function SettingsContent() {
@@ -38,6 +39,8 @@ export function SettingsContent() {
     fullName: "",
     rating: 0,
     rank: "",
+    registerRankAt: "",
+    expiryRankAt: ""
   });
   const [address, setAddress] = useState<Location[]>([]);
   const [provinceIndex, setProvinceIndex] = useState<number>(0)
@@ -92,8 +95,24 @@ export function SettingsContent() {
     let updatedUser = { ...user }
     if (ward || province) {
       updatedUser.location = `${ward || ""} - ${province || ""}`
-    }
 
+      if (Object.values(updatedUser).some(value => value === "" || value === null || value === undefined)) {
+        alert("Vui lòng điền đầy đủ các trường");
+        return;
+      }
+
+
+      if (!validateEmail(updatedUser.email)) {
+        alert("Email chưa đúng định dạng")
+        return;
+      }
+
+      if (!validatePhoneVN(updatedUser.phone)) {
+        alert("Số điện thoại chưa đúng")
+        return;
+      }
+    }
+    console.log(updatedUser.email);
     const formData = new FormData()
     formData.append("firstName", updatedUser.firstName)
     formData.append("lastName", updatedUser.lastName)
@@ -102,6 +121,7 @@ export function SettingsContent() {
     formData.append("rank", updatedUser.rank)
     formData.append("bio", updatedUser.bio)
     formData.append("location", updatedUser.location)
+    formData.append("phone", updatedUser.phone)
     if (file) formData.append("profilePicture", file)
 
     const res = await userAPI.updateUser(formData, updatedUser.id)
@@ -117,12 +137,6 @@ export function SettingsContent() {
   const handleCloseUpgradeRank = () => {
     setDisplayUpgrandeRank(false)
   }
-
-  const handleUpgradeRank = (value: string) => {
-    console.log(value);
-    
-  }
-
 
 
   return (
@@ -229,7 +243,7 @@ export function SettingsContent() {
                   <div >
                     <Label htmlFor="rank">Hạng tài khoản</Label>
                     <div className="flex">
-                      <Input id="rank" name="rank" value={user?.rank} onChange={handleChange} />
+                      <Input id="rank" name="rank" value={user?.rank} onChange={handleChange} disabled />
                       <Button className="bg-green-800" onClick={() => setDisplayUpgrandeRank(true)}><CircleArrowUp /> Nâng cấp</Button>
                     </div>
                   </div>
@@ -281,7 +295,7 @@ export function SettingsContent() {
                     }
                     }>
                       <SelectTrigger>
-                        <SelectValue placeholder="Chọn huyện" />
+                        <SelectValue placeholder="Chọn xã/ phường" />
                       </SelectTrigger>
                       <SelectContent>
                         {address[provinceIndex]?.wards?.map((a) => (
