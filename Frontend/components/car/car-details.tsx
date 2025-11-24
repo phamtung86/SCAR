@@ -6,11 +6,18 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useChat } from "@/hooks/use-chat"
 import CarAPI from "@/lib/api/car"
+import userAPI from "@/lib/api/user"
 import { CarUtils } from "@/lib/utils/car-ultils"
 import { formatDateToVietnamTime } from "@/lib/utils/format-date"
+import { getCurrentUser } from "@/lib/utils/get-current-user"
 import { formatMoney } from "@/lib/utils/money-format"
 import { formatDateToDate } from "@/lib/utils/time-format"
+import { CarDTO } from "@/types/car"
+import { TransactionsCRUDForm } from "@/types/transactions"
+import { UserDTO } from "@/types/user"
+import { Dialog, DialogTitle } from "@radix-ui/react-dialog"
 import {
   Calendar,
   Flag,
@@ -23,16 +30,20 @@ import {
   Settings,
   Share,
   Shield,
+  ShoppingCart,
   Star
 } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { useUserOnline } from "../contexts/UserOnlineContext"
-import { getCurrentUser } from "@/lib/utils/get-current-user"
 import { useWebSocket } from "../contexts/WebsocketContext"
-import { useChat } from "@/hooks/use-chat"
-import { CarDTO } from "@/types/car"
+import { DialogContent, DialogHeader } from "../ui/dialog"
+import { Input } from "../ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
+import { Textarea } from "../ui/textarea"
+import TransactionAPI from "@/lib/api/transaction"
 
 
 interface CarDetailsProps {
@@ -43,22 +54,123 @@ export function CarDetails({ carId }: CarDetailsProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [liked, setLiked] = useState(false)
   const [car, setCar] = useState<CarDTO | null>(null)
+  const [relatedCars, setRelatedCars] = useState<CarDTO[]>([])
+  const [selectedCar, setSelectedCar] = useState<CarDTO>()
+  const [showTransactionModal, setShowTransactionModal] = useState(false)
   const { usersOnline } = useUserOnline();
   const route = useRouter();
   const user = getCurrentUser()
+  const [useAccountInfo, setUseAccountInfo] = useState(true)
+  const [currentUser, setCurrentUser] = useState<UserDTO>()
+  const [transactionForm, setTransactionForm] = useState<Partial<TransactionsCRUDForm>>({
+    carId: carId,
+    sellerId: 0,
+    priceAgreed: 0,
+    buyerId: currentUser?.id || 0,
+    buyerCode: "",
+    buyerName: "",
+    buyerPhone: "",
+    buyerAddress: "",
+    paymentMethod: "",
+    notes: "",
+    contractNumber: 0,
+    contractDate: ""
+  });
+
+
+  const fetchCurrentUser = async (id: number) => {
+    try {
+      const res = await userAPI.findById(id);
+      if (res.status === 200) {
+        setCurrentUser(res.data)
+      }
+    } catch (error) {
+      console.log("Lỗi khi lấy dữ liệu người dùng ", error);
+
+    }
+  }
+
+  const createTransactions = async (transactionData: TransactionsCRUDForm) => {
+    try {
+      const res = await TransactionAPI.createTransaction(transactionData)
+      if (res.status === 201) {
+        alert("Giao dịch đã được tạo thành công! Người bán sẽ liên hệ với bạn sớm.")
+      }
+    } catch (error) {
+      console.log("Lỗi khi tạo giao dịch: ", error);
+    }
+  }
+
+  const handleCreateTransaction = (car: CarDTO) => {
+    setSelectedCar(car)
+    console.log(car);
+    console.log(useAccountInfo);
+    
+    if (useAccountInfo === true) {
+      setTransactionForm({
+        carId: car?.id,
+        sellerId: car?.user?.id,
+        priceAgreed: car?.price,
+        buyerCode: "",
+        buyerName: "",
+        buyerPhone: "",
+        buyerAddress: "",
+        paymentMethod: "",
+        notes: "",
+        buyerId: currentUser?.id
+      })
+    }
+    setShowTransactionModal(true)
+  }
+
+  const generateRandomContractNumbers = (): string => {
+    return Math.floor(Math.random() * 100000)
+      .toString()
+      .padStart(5, '0'); // "00001" đến "99999"
+  };
+  const submitTransaction = async () => {
+    const formToSubmit = {
+      ...transactionForm,
+      contractNumber: generateRandomContractNumbers(),
+      contractDate: new Date().toISOString(),
+    };
+
+    try {
+      console.log(formToSubmit);
+      
+      await createTransactions(formToSubmit as TransactionsCRUDForm);
+    } catch (error) {
+      console.error("Lỗi:", error);
+    }
+
+    return formToSubmit;
+  };
+
+  const handleSubmitTransaction = async () => {
+    const updatedForm = await submitTransaction();
+
+    setTransactionForm(updatedForm); 
+
+    setShowTransactionModal(false);
+    setTransactionForm({
+      buyerName: "",
+      buyerPhone: "",
+      buyerEmail: "",
+      paymentMethod: "",
+      notes: "",
+    });
+  };
 
   const isOnline = usersOnline.some((u) => u.id === car?.user.id);
   const fetchCarDetails = async (id: number) => {
     try {
       const response = await CarAPI.getCarById(id);
-      if (response.status !== 200) {
-        throw new Error("Failed to fetch car details")
+      if (response.status === 200) {
+        setCar(response.data);
+        fetchRelatedCars(carId, response.data.carModelsCarTypeId)
       }
-      setCar(response.data);
-      console.log(car);
-
     } catch (error) {
-      console.error("Error fetching car details:", error)
+      console.error("Lỗi khi lấy thông tin chi tiết của xe:", error)
       setCar(null)
     }
   }
@@ -77,47 +189,61 @@ export function CarDetails({ carId }: CarDetailsProps) {
     sendMessage,
   } = useChat(stompClient)
 
-  const handleSendMessage = (carId : number, sellerId: number) => {
+  const handleSendMessage = (carId: number, sellerId: number) => {
     if (!user) {
       route.push(`/auth`);
       return;
     }
     if (user?.id === sellerId) return;
     const message = "Xin chào, bạn cần chúng tôi tư vấn gì không.";
-    sendMessage(user.id, sellerId, "", carId, "TEXT");
-    sendMessage(sellerId, user.id, message, carId, "TEXT");
+    sendMessage(user.id, sellerId, "", carId, "TEXT", [], null);
+    sendMessage(sellerId, user.id, message, carId, "TEXT", [], null);
     route.push(`/messages?carId=${carId}&sellerId=${sellerId}`);
   };
 
+  const fetchRelatedCars = async (carId: number, carTypeId: number) => {
+    try {
+      const res = await CarAPI.getRelatedCars(carId, carTypeId);
+      if (res.status === 200) {
+        setRelatedCars(res.data)
+      }
+    } catch (error) {
+      console.log("Lỗi trong quá trình lấy xe tương tự: ", error);
+
+    }
+  }
+  const handleToggleAccountInfo = (checked: boolean) => {
+    setUseAccountInfo(checked)
+    if (checked) {
+      setTransactionForm({
+        ...transactionForm,
+        buyerCode: "",
+        buyerName: currentUser?.fullName,
+        buyerPhone: currentUser?.phone,
+        buyerAddress: currentUser?.location,
+      })
+    } else {
+      setTransactionForm({
+        ...transactionForm,
+        buyerName: "",
+        buyerPhone: "",
+        buyerAddress: "",
+      })
+    }
+  }
   useEffect(() => {
     fetchCarDetails(carId)
+    fetchCurrentUser(Number(user?.id))
   }, [carId])
-
-  const relatedCars = [
-    {
-      id: 2,
-      title: "BMW X3 2021",
-      price: "2,200,000,000",
-      image: "/placeholder.svg?height=200&width=300",
-      year: 2021,
-      mileage: "8,000 km",
-    },
-    {
-      id: 3,
-      title: "BMW X7 2019",
-      price: "3,800,000,000",
-      image: "/placeholder.svg?height=200&width=300",
-      year: 2019,
-      mileage: "25,000 km",
-    },
-  ]
 
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
       <div className="text-sm text-gray-500 dark:text-gray-400">
-        <span>Trang chủ</span> / <span>Chợ xe</span> / <span>{car?.carModelsBrandName}</span> /{" "}
-        <span className="text-gray-900 dark:text-gray-100">{car?.title}</span>
+        <Link href={"/"}>Trang chủ</Link> /
+        <Link href={"/marketplace"}>Chợ xe</Link> /
+        <Link href={`/car/brand/${car?.carModelsBrandName}`}>{car?.carModelsBrandName}</Link> /{" "}
+        <Link href={"#"} className="text-gray-900 dark:text-gray-100">{car?.title}</Link>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -134,6 +260,7 @@ export function CarDetails({ carId }: CarDetailsProps) {
                       alt={car?.title}
                       fill
                       className="object-contain transition-opacity duration-300 ease-in-out"
+                      key={image?.id}
                     />
                   ))
                 }
@@ -338,7 +465,7 @@ export function CarDetails({ carId }: CarDetailsProps) {
                 <div className="flex-1">
                   <div className="flex items-center space-x-2">
                     <h3 className="font-semibold">{car?.user?.fullName}</h3>
-                    {car?.user?.isVerified && (
+                    {car?.user?.verified && (
                       <Badge className="bg-blue-100 text-blue-700">
                         <Shield className="h-3 w-3 mr-1" />
                         Đã xác thực
@@ -348,8 +475,8 @@ export function CarDetails({ carId }: CarDetailsProps) {
                   <div className="flex items-center space-x-4 text-sm text-gray-500">
                     <div className="flex items-center">
                       <Star className="h-3 w-3 text-yellow-400 fill-current mr-1" />
-                      {car?.user?.rating > 0
-                        ? Math.round(car?.user?.rating * 10) / 10
+                      {Number(car?.user?.rating) > 0
+                        ? Math.round(Number(car?.user?.rating) * 10) / 10
                         : "Chưa có đánh giá"}
 
                     </div>
@@ -377,15 +504,20 @@ export function CarDetails({ carId }: CarDetailsProps) {
                   {car?.user?.phone}
                 </Button>
                 <Button variant="outline" className="w-full" onClick={
-                  () => {handleSendMessage(car?.id, car?.user?.id);}}
-                  >
+                  () => { handleSendMessage(Number(car?.id), Number(car?.user?.id)); }}
+                >
                   <MessageCircle className="h-4 w-4 mr-2" />
                   Nhắn tin
                 </Button>
               </div>
+              {currentUser?.id !== car?.user?.id &&
+                <Button className="flex-1 w-full" size="sm" onClick={() => handleCreateTransaction(car)}>
+                  <ShoppingCart className="h-4 w-4 mr-1" />
+                  Mua ngay
+                </Button>
+              }
             </CardContent>
           </Card>
-
           {/* Related Cars */}
           <Card>
             <CardHeader>
@@ -396,9 +528,11 @@ export function CarDetails({ carId }: CarDetailsProps) {
                 <div
                   key={relatedCar.id}
                   className="flex space-x-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                  onClick={() => route.push(`/car/${relatedCar?.id}`)}
+                  title={relatedCar?.title}
                 >
                   <Image
-                    src={relatedCar.image || "/placeholder.svg"}
+                    src={relatedCar?.carImages[0].imageUrl || "/placeholder.svg"}
                     alt={relatedCar.title}
                     width={80}
                     height={60}
@@ -406,9 +540,9 @@ export function CarDetails({ carId }: CarDetailsProps) {
                   />
                   <div className="flex-1">
                     <h4 className="font-medium text-sm line-clamp-1">{relatedCar.title}</h4>
-                    <p className="text-green-600 font-semibold text-sm">{relatedCar.price} VNĐ</p>
+                    <p className="text-green-600 font-semibold text-sm">{formatMoney(relatedCar.price)}</p>
                     <p className="text-xs text-gray-500">
-                      {relatedCar.year} • {relatedCar.mileage}
+                      {relatedCar.year} • {relatedCar.odo} km
                     </p>
                   </div>
                 </div>
@@ -432,6 +566,119 @@ export function CarDetails({ carId }: CarDetailsProps) {
             </CardContent>
           </Card>
         </div>
+        {/* Transaction Creation Modal */}
+        <Dialog open={showTransactionModal} onOpenChange={setShowTransactionModal}>
+          <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Tạo giao dịch mua xe</DialogTitle>
+            </DialogHeader>
+            {selectedCar && (
+              <div className="space-y-4">
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <h4 className="font-semibold">{selectedCar?.title}</h4>
+                  <p className="text-blue-600 font-bold">{formatMoney(selectedCar?.price)}</p>
+                  <p className="text-sm text-muted-foreground">Người bán: {selectedCar?.user?.fullName}</p>
+                </div>
+
+                <div className="flex items-center space-x-2 p-3 bg-blue-50 rounded-lg">
+                  <input
+                    type="checkbox"
+                    id="useAccountInfo"
+                    checked={useAccountInfo}
+                    onChange={(e) => handleToggleAccountInfo(e.target.checked)}
+                    className="rounded"
+                  />
+                  <label htmlFor="useAccountInfo" className="text-sm font-medium">
+                    Sử dụng thông tin tài khoản của tôi
+                  </label>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-sm font-medium">Họ tên người mua *</label>
+                    <Input
+                      value={transactionForm?.buyerName ?? currentUser?.fullName ?? ""}
+                      onChange={(e) =>
+                        setTransactionForm({ ...(transactionForm ?? {}), buyerName: e.target.value })
+                      }
+                      placeholder="Nhập họ tên đầy đủ"
+                      className={useAccountInfo ? "bg-blue-50 border-blue-200" : ""}
+                    />
+                    {useAccountInfo && <p className="text-xs text-blue-600 mt-1">Từ thông tin tài khoản</p>}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium">Số điện thoại *</label>
+                    <Input
+                      value={transactionForm?.buyerPhone ?? currentUser?.phone ?? ""}
+                      onChange={(e) =>
+                        setTransactionForm({ ...(transactionForm ?? {}), buyerPhone: e.target.value })
+                      }
+                      placeholder="Nhập số điện thoại"
+                      className={useAccountInfo ? "bg-blue-50 border-blue-200" : ""}
+                    />
+                    {useAccountInfo && <p className="text-xs text-blue-600 mt-1">Từ thông tin tài khoản</p>}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium">Địa chỉ</label>
+                    <Input
+                      value={transactionForm?.buyerAddress ?? currentUser?.location ?? ""}
+                      onChange={(e) =>
+                        setTransactionForm({ ...(transactionForm ?? {}), buyerAddress: e.target.value })
+                      }
+                      placeholder="Nhập địa chỉ (tùy chọn)"
+                      className={useAccountInfo ? "bg-blue-50 border-blue-200" : ""}
+                    />
+                    {useAccountInfo && <p className="text-xs text-blue-600 mt-1">Từ thông tin tài khoản</p>}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium">Phương thức thanh toán *</label>
+                    <Select
+                      value={transactionForm?.paymentMethod}
+                      onValueChange={(value) => setTransactionForm({ ...transactionForm, paymentMethod: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn phương thức" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="CASH">Tiền mặt</SelectItem>
+                        <SelectItem value="BANKING">Chuyển khoản</SelectItem>
+                        <SelectItem value="INSTALLMENT">Trả góp</SelectItem>
+                        <SelectItem value="TRADE_IN">Đổi xe cũ</SelectItem>
+                        <SelectItem value="OTHER">Khác</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium">Ghi chú</label>
+                    <Textarea
+                      value={transactionForm.notes}
+                      onChange={(e) => setTransactionForm({ ...transactionForm, notes: e.target.value })}
+                      placeholder="Ghi chú thêm về giao dịch..."
+                      rows={3}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-2 pt-4">
+                  <Button variant="outline" onClick={() => setShowTransactionModal(false)} className="flex-1">
+                    Hủy
+                  </Button>
+                  <Button
+                    onClick={handleSubmitTransaction}
+                    className="flex-1"
+                  // disabled={!transactionForm.buyerName || !transactionForm.buyerPhone || !transactionForm.paymentMethod}
+                  >
+                    Tạo giao dịch
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   )

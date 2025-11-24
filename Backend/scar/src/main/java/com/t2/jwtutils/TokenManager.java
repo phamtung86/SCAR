@@ -24,9 +24,10 @@ public class TokenManager {
         return Jwts
                 .builder()
                 .setClaims(claims)
+                .claim("role", "ROLE_" + customUserDetails.getRole())
                 .setSubject(customUserDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + TOKEN_VALIDITY * 1000))
+                .setExpiration(new Date(System.currentTimeMillis() + TOKEN_VALIDITY *10))
                 .signWith(key(), SignatureAlgorithm.HS256)  // Use HS256 for HMAC
                 .compact();
     }

@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -31,4 +32,10 @@ public interface IPaymentService {
     List<Payment> findByStatus(String status);
 
     void updateStatusPaymentById(Integer id, String status);
+
+    List<Map<String, Object>> getMonthlyRevenueChart(int year);
+
+    Map<String, Map<String, Long>> getRevenueComparisonByType(String type);
+
+    List<PaymentDTO> getPaymentsByUserIdAndStatus(Integer userId, String status);
 }

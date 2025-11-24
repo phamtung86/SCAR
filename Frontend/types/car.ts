@@ -15,7 +15,13 @@ export type CarDTO = {
   carModelsCarTypeName: string
   carModelsId: number
   carModelsName: string
+  deleted: boolean
   view: number
+  createdAt: string
+  status: string
+  approvedDate?: string
+  rejectedDate?: string
+  rejectionReason?: string
   carImages?: [
     CarImages
   ]

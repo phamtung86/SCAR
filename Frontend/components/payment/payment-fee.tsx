@@ -425,49 +425,51 @@ export function PaymentFeesPage() {
                             <div className="flex items-center justify-between">
                                 <h2 className="text-xl font-semibold">Danh sách phí ({filteredFees?.length} khoản)</h2>
                             </div>
-
                             {/* Fee Cards */}
                             <div className="grid gap-4">
-                                {filteredFees?.map((payment) => (
-                                    <Card key={payment.id} className="hover:shadow-md transition-shadow duration-200">
-                                        <CardContent className="p-6">
-                                            <div className="flex items-start justify-between">
-                                                <div className="flex-1">
-                                                    <div className="flex items-center gap-3 mb-2">
-                                                        {getStatusIcon(payment.status)}
-                                                        <h3 className="font-semibold text-lg">{payment?.fee?.name}</h3>
-                                                        {getStatusBadge(payment.status)}
+                                {filteredFees
+                                    ?.filter(payment => payment.car.status === "APPROVED")
+                                    .map(payment => (
+                                        <Card key={payment.id} className="hover:shadow-md transition-shadow duration-200">
+                                            <CardContent className="p-6">
+                                                <div className="flex items-start justify-between">
+                                                    <div className="flex-1">
+                                                        <div className="flex items-center gap-3 mb-2">
+                                                            {getStatusIcon(payment.status)}
+                                                            <h3 className="font-semibold text-lg">{payment?.fee?.name}</h3>
+                                                            {getStatusBadge(payment.status)}
+                                                        </div>
+                                                        <p className="text-muted-foreground mb-3">{payment.description}</p>
+                                                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                                            <div className="flex items-center gap-1">
+                                                                <Calendar className="h-4 w-4" />
+                                                                <span>Hạn: {formatDate(payment.expiryDate)}</span>
+                                                            </div>
+                                                        </div>
                                                     </div>
-
-                                                    <p className="text-muted-foreground mb-3">{payment.description}</p>
-
-                                                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                                        <div className="flex items-center gap-1">
-                                                            <Calendar className="h-4 w-4" />
-                                                            <span>Hạn: {formatDate(payment.expiryDate)}</span>
+                                                    <div className="text-right">
+                                                        <div className="text-2xl font-bold text-foreground mb-3">
+                                                            {formatCurrency(payment.amount)}
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            {payment.status === "PENDING" && (
+                                                                <Button
+                                                                    className="bg-blue-500 hover:bg-blue-900"
+                                                                    onClick={() => handlePayment(payment)}
+                                                                >
+                                                                    <CreditCard className="h-4 w-4 mr-2" />
+                                                                    Thanh toán
+                                                                </Button>
+                                                            )}
+                                                            <Button variant="outline" size="sm" onClick={() => handleViewDetail(payment)}>
+                                                                Chi tiết
+                                                            </Button>
                                                         </div>
                                                     </div>
                                                 </div>
-
-                                                <div className="text-right">
-                                                    <div className="text-2xl font-bold text-foreground mb-3">{formatCurrency(payment.amount)}</div>
-
-                                                    <div className="flex gap-2">
-                                                        {payment.status === "PENDING" && (
-                                                            <Button className="bg-blue-500 hover:bg-blue-900" onClick={() => handlePayment(payment)}>
-                                                                <CreditCard className="h-4 w-4 mr-2" />
-                                                                Thanh toán
-                                                            </Button>
-                                                        )}
-                                                        <Button variant="outline" size="sm" onClick={() => handleViewDetail(payment)}>
-                                                            Chi tiết
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                ))}
+                                            </CardContent>
+                                        </Card>
+                                    ))}
                             </div>
 
                             {filteredFees?.length === 0 && (

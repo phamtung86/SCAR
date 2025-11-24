@@ -74,6 +74,10 @@ public class User {
     // ONLINE - OFFLINE - LOCK
     private String status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "account_status")
+    private AccountStatus accountStatus = AccountStatus.ACTIVE;
+
     @Column(name = "is_verifiled")
     private boolean isVerified;
 
@@ -121,6 +125,12 @@ public class User {
 
     public enum Provider{
         FORM, GOOGLE, FACEBOOK
+    }
+
+    public enum AccountStatus {
+        ACTIVE,
+        INACTIVE,
+        LOCKED
     }
 
 }

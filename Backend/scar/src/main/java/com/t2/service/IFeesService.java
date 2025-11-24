@@ -1,6 +1,7 @@
 package com.t2.service;
 
 import com.t2.dto.FeeDTO;
+import com.t2.dto.FeeTypeNameDTO;
 import com.t2.entity.Fees;
 import com.t2.form.Fees.FeeCRUDForm;
 
@@ -16,4 +17,11 @@ public interface IFeesService {
 
     List<FeeDTO> findAllByType(String type);
 
+    List<FeeDTO> getAllFees();
+
+    List<FeeTypeNameDTO> findTypeAndTypeName();
+
+    List<String> getAllCodes ();
+
+    void deleteFeeById (Integer id);
 }

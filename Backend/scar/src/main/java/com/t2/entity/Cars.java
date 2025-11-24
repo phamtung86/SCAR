@@ -74,6 +74,18 @@ public class Cars {
     @Column(name = "is_display")
     private boolean isDisplay;
 
+    @Column(name = "rejection_reason")
+    private String rejectionReason;
+
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
+    @Column(name = "approved_date")
+    private Date approvedDate;
+
+    @Column(name = "rejectedDate")
+    private Date rejectedDate;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "car_model_id", referencedColumnName = "id")
     private CarModels carModels;
@@ -115,6 +127,9 @@ public class Cars {
     @OneToMany(mappedBy = "car", fetch = FetchType.LAZY)
     private List<ChatMessage> chatMessages;
 
+    @Column(name = "is_deleted")
+    private boolean deleted = false;
+
     public enum FuelType {
         GASOLINE, DIESEL, ELECTRIC, HYBRID, OTHER
     }
@@ -131,4 +146,7 @@ public class Cars {
         FWD, RWD, AWD, FOUR_WD, OTHER
     }
 
+    public enum Status{
+        PENDING, APPROVED, REJECTED
+    }
 }

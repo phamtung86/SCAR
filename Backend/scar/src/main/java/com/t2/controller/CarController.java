@@ -7,6 +7,7 @@ import com.t2.dto.CarFeaturesDTO;
 import com.t2.dto.CarHistoryDTO;
 import com.t2.entity.Cars;
 import com.t2.form.Car.CarFilterForm;
+import com.t2.form.Car.ChangeStatusCarForm;
 import com.t2.form.Car.CreateCarForm;
 import com.t2.images.ClarifaiService;
 import com.t2.models.EnumResponse;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -132,7 +134,7 @@ public class CarController {
     }
 
     @GetMapping("/user/{id}")
-    private ResponseEntity<List<CarDTO>> findByUserId(@PathVariable(name = "id") Integer userId) {
+    public ResponseEntity<List<CarDTO>> findByUserId(@PathVariable(name = "id") Integer userId) {
         List<CarDTO> carDTOS = carService.findByUserId(userId);
         return ResponseEntity.status(200).body(carDTOS);
     }
@@ -162,7 +164,7 @@ public class CarController {
                 }
             }
 
-            carService.updateCar(createCarForm, carImages, carFeatures, carHistories, userId,carId);
+            carService.updateCar(createCarForm, carImages, carFeatures, carHistories, userId, carId);
             return ResponseEntity.ok("Tạo tin bán thành công");
 
         } catch (Exception e) {
@@ -171,9 +173,41 @@ public class CarController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteCarById(@PathVariable(name = "id") Integer id){
+    @PutMapping("/{id}")
+    public void deleteCarById(@PathVariable(name = "id") Integer id) {
         carService.deleteCarById(id);
+    }
+
+    @GetMapping("/{carId}/related/type/{carTypeId}")
+    public ResponseEntity<List<CarDTO>> findRelatedCars(@PathVariable(name = "carId") Integer carId, @PathVariable(name = "carTypeId") Integer carTypeId) {
+        List<CarDTO> carDTOS = carService.findRelatedCars(carTypeId, carId);
+        return ResponseEntity.status(200).body(carDTOS);
+    }
+
+    @GetMapping("/brand/{brandName}")
+    public ResponseEntity<List<CarDTO>> findCarsByBrandName(@PathVariable(name = "brandName") String brandName) {
+        List<CarDTO> carDTOS = carService.findByBrandId(brandName);
+        return ResponseEntity.status(200).body(carDTOS);
+    }
+
+    @GetMapping("/top/{limit}")
+    public ResponseEntity<List<CarDTO>> findTopCarsOrderByView(@PathVariable("limit") Integer limit) {
+        List<CarDTO> carDTOS = carService.getTopCarsOrderByView(limit);
+        return ResponseEntity.status(200).body(carDTOS);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<CarDTO>> findByStatus(@PathVariable(name = "status") String status) {
+        List<CarDTO> carDTOS = carService.findCarsByStatus(status);
+        return ResponseEntity.status(200).body(carDTOS);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{carId}/change-status")
+    public ResponseEntity<?> changeStatusCar( @PathVariable(name = "carId") Integer carId ,@RequestBody ChangeStatusCarForm changeStatusCarForm) {
+        carService.changeStatusCar(carId, changeStatusCarForm.getStatus(), changeStatusCarForm.getRejectReason());
+        return ResponseEntity.status(200).body("update status success");
     }
 }
 

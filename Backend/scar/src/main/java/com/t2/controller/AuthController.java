@@ -76,7 +76,8 @@ public class AuthController {
                         "username", userDetails.getUsername(),
                         "fullName", userDetails.getFullName(),
                         "role", userDetails.getRole(),
-                        "profilePicture", userDetails.getProfilePicture()
+                        "profilePicture", userDetails.getProfilePicture(),
+                        "accountStatus", userDetails.getAccountStatus()
                 )
         ));
     }
@@ -133,7 +134,7 @@ public class AuthController {
                 newUser = user;
             }
 
-            CustomUserDetails userDetails = new CustomUserDetails(newUser.getUsername(), "", newUser.getId(), newUser.getFirstName(), newUser.getLastName(), newUser.getProfilePicture(), newUser.getRole().toString(), AuthorityUtils.createAuthorityList(newUser.getRole().toString()));
+            CustomUserDetails userDetails = new CustomUserDetails(newUser.getUsername(), "", newUser.getId(), newUser.getFirstName(), newUser.getLastName(), newUser.getProfilePicture(), newUser.getRole().toString(),newUser.getAccountStatus().toString(), AuthorityUtils.createAuthorityList(newUser.getRole().toString()));
 
             Authentication authentication =
                     new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

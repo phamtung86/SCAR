@@ -35,4 +35,11 @@ public interface IUserService {
     User createUserWithSocial(User user);
 
     void upgradeRankUser(Integer userId, String rank);
+
+    List<UserDTO> findByAccountStatus(String status);
+
+    List<UserDTO> findByRole(String role);
+
+    void changeAccountStatusUser(Integer id, String status);
+
 }

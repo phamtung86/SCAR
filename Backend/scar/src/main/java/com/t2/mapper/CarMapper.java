@@ -1,39 +1,33 @@
 package com.t2.mapper;
 
 import com.t2.dto.CarDTO;
-import com.t2.entity.CarModels;
 import com.t2.entity.Cars;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Component
-public class CarMapper {
+@Mapper(
+        componentModel = "spring",
+        uses = {
+                UserMapper.class
+        }
+)
+public interface CarMapper {
 
-    @Autowired
-    private ModelMapper modelMapper;
+    // Mapping từ Entity sang DTO
+    @Mapping(source = "carModels.id", target = "carModelsId")
+    @Mapping(source = "carModels.name", target = "carModelsName")
+    @Mapping(source = "carModels.brand.id", target = "carModelsBrandId")
+    @Mapping(source = "carModels.brand.name", target = "carModelsBrandName")
+    @Mapping(source = "carModels.carType.id", target = "carModelsCarTypeId")
+    @Mapping(source = "carModels.carType.name", target = "carModelsCarTypeName")
+    CarDTO toDTO(Cars car);
 
-    public Cars toEntity(CarDTO form) {
-        Cars cars = new Cars();
-//        cars.setId(form.getId());
-//        cars.setTitle(form.getTitle());
-//        cars.setDescription(form.getDescription());
-//        cars.setYear(form.getYear());
-//        cars.setPrice(form.getPrice());
-//        cars.setOriginalPrice(form.getOriginalPrice());
-//        cars.setOdo(form.getOdo());
-//        cars.setColor(form.getColor());
-//        cars.setLocation(form.getLocation());
-//        cars.setFeature(form.isFeature());
-//        cars.setSold(form.isSold());
-//        cars.setView(form.getView());
-//        cars.setEngine(form.getEngine());
-//        cars.setDrivetrain(form.getDriveTrain());
-//        CarModels carModel = new CarModels();
-//        carModel.setId(form.getCarModelsId());
-//        cars.setCarModels(carModel);
-
-        return cars;
-    }
+    // Mapping ngược lại từ DTO sang Entity
+    @Mapping(source = "carModelsId", target = "carModels.id")
+    @Mapping(source = "carModelsName", target = "carModels.name")
+    @Mapping(source = "carModelsBrandId", target = "carModels.brand.id")
+    @Mapping(source = "carModelsBrandName", target = "carModels.brand.name")
+    @Mapping(source = "carModelsCarTypeId", target = "carModels.carType.id")
+    @Mapping(source = "carModelsCarTypeName", target = "carModels.carType.name")
+    Cars toEntity(CarDTO dto);
 }
-

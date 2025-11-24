@@ -1,6 +1,7 @@
 package com.t2.service;
 
 import com.t2.dto.FeeDTO;
+import com.t2.dto.FeeTypeNameDTO;
 import com.t2.entity.Fees;
 import com.t2.entity.User;
 import com.t2.form.Fees.FeeCRUDForm;
@@ -13,6 +14,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -59,5 +61,29 @@ public class FeesService implements IFeesService {
     public List<FeeDTO> findAllByType(String type) {
         List<Fees> fees = iFeesRepository.findByType(Fees.Type.valueOf(type));
         return modelMapper.map(fees, new TypeToken<List<FeeDTO>>(){}.getType());
+    }
+
+    @Override
+    public List<FeeDTO> getAllFees() {
+        List<Fees> fees = iFeesRepository.findAll();
+        List<FeeDTO> feeDTOS = modelMapper.map(fees, new TypeToken<List<FeeDTO>>(){}.getType());
+        return feeDTOS;
+    }
+
+    @Override
+    public List<FeeTypeNameDTO> findTypeAndTypeName() {
+        return iFeesRepository.findTypeAndTypeName();
+    }
+
+    @Override
+    public List<String> getAllCodes() {
+        return Arrays.stream(Fees.Code.values())
+                .map(Enum::name)
+                .toList();
+    }
+
+    @Override
+    public void deleteFeeById(Integer id) {
+        iFeesRepository.deleteById(id);
     }
 }

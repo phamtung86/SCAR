@@ -63,7 +63,7 @@ export default function Component() {
   }
 
   const handleLogin = async () => {
-    setError({}); // Reset lỗi
+    setError({}); 
     const messages = {
       isEmpty: "Vui lòng điền đầy đủ các trường",
       passwordNotValid: "Mật khẩu phải ít nhất 8 ký tự, có chữ hoa, chữ thường, số và ký tự đặc biệt",
@@ -82,6 +82,14 @@ export default function Component() {
       if (response.status === 200) {
         localStorage.setItem("accessToken", response.data.accessToken);
         localStorage.setItem("user", JSON.stringify(response.data.user));
+        if (response.data.user.accountStatus === "LOCKED" || response.data.user.accountStatus === "INACTIVE") {
+          alert("Tài khoản của bạn đã bị khoá hoặc vô hiệu hoá. Vui lòng liên hệ quản trị viên để biết thêm chi tiết.")
+          return;
+        }
+        if (response.data.user.role === "ADMIN") {
+          router.push("/management/admin")
+          return;
+        }
         router.push("/")
       }
     } catch (error) {

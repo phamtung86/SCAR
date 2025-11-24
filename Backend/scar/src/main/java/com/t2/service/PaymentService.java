@@ -251,10 +251,41 @@ public class PaymentService implements IPaymentService {
     @Override
     public void updateStatusPaymentById(Integer id, String status) {
         Payment payment = paymentRepository.findById(id).orElse(null);
-        if(payment != null){
+        if (payment != null) {
             payment.setStatus(Payment.Status.valueOf(status));
             paymentRepository.save(payment);
         }
+    }
+
+    @Override
+    public List<Map<String, Object>> getMonthlyRevenueChart(int year) {
+        List<Object[]> results = paymentRepository.getMonthlyRevenueByYear(year);
+        List<Map<String, Object>> chartData = new ArrayList<>();
+
+        // Khởi tạo danh sách 12 tháng (mặc định 0)
+        for (int i = 1; i <= 12; i++) {
+            Map<String, Object> monthData = new HashMap<>();
+            monthData.put("month", "T" + i);
+            monthData.put("postingFees", 0L);
+            monthData.put("transactionFees", 0L);
+            monthData.put("total", 0L);
+            chartData.add(monthData);
+        }
+
+        // Ghi đè các tháng có dữ liệu thật
+        for (Object[] row : results) {
+            int month = ((Number) row[0]).intValue();
+            long postingFees = ((Number) row[1]).longValue();
+            long transactionFees = ((Number) row[2]).longValue();
+            long total = postingFees + transactionFees;
+
+            Map<String, Object> monthData = chartData.get(month - 1);
+            monthData.put("postingFees", postingFees);
+            monthData.put("transactionFees", transactionFees);
+            monthData.put("total", total);
+        }
+
+        return chartData;
     }
 
 
@@ -455,4 +486,86 @@ public class PaymentService implements IPaymentService {
 
     }
 
+    @Override
+    public Map<String, Map<String, Long>> getRevenueComparisonByType(String type) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startCurrent;
+        LocalDateTime endCurrent = now;
+        LocalDateTime startPrevious;
+        LocalDateTime endPrevious;
+
+        switch (type.toUpperCase()) {
+            case "DAY":
+                startCurrent = now.minusDays(1);
+                startPrevious = now.minusDays(2);
+                endPrevious = now.minusDays(1);
+                break;
+            case "WEEK":
+                startCurrent = now.minusWeeks(1);
+                startPrevious = now.minusWeeks(2);
+                endPrevious = now.minusWeeks(1);
+                break;
+            case "MONTH":
+                startCurrent = now.minusMonths(1);
+                startPrevious = now.minusMonths(2);
+                endPrevious = now.minusMonths(1);
+                break;
+            case "3MONTHS":
+                startCurrent = now.minusMonths(3);
+                startPrevious = now.minusMonths(6);
+                endPrevious = now.minusMonths(3);
+                break;
+            case "6MONTHS":
+                startCurrent = now.minusMonths(6);
+                startPrevious = now.minusMonths(12);
+                endPrevious = now.minusMonths(6);
+                break;
+            case "YEAR":
+                startCurrent = now.minusYears(1);
+                startPrevious = now.minusYears(2);
+                endPrevious = now.minusYears(1);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid type: " + type);
+        }
+
+        // Lấy dữ liệu cho giai đoạn hiện tại
+        List<Object[]> currentResults = paymentRepository.getRevenueBetween(startCurrent, endCurrent);
+        Map<String, Long> current = calculateRevenue(currentResults);
+
+        // Lấy dữ liệu cho giai đoạn trước
+        List<Object[]> previousResults = paymentRepository.getRevenueBetween(startPrevious, endPrevious);
+        Map<String, Long> previous = calculateRevenue(previousResults);
+
+        // Trả về cả hai
+        Map<String, Map<String, Long>> response = new HashMap<>();
+        response.put("current", current);
+        response.put("previous", previous);
+
+        return response;
+    }
+
+    @Override
+    public List<PaymentDTO> getPaymentsByUserIdAndStatus(Integer userId, String status) {
+        List<Payment> payments = paymentRepository.findByUserIdAndStatus(userId, Payment.Status.valueOf(status));
+        return modelMapper.map(payments,new TypeToken<List<PaymentDTO>>(){}.getType());
+    }
+
+    private Map<String, Long> calculateRevenue(List<Object[]> results) {
+        long posting = 0;
+        long upgrade = 0;
+
+        for (Object[] row : results) {
+            if (row != null && row.length >= 2) {
+                posting += row[0] != null ? ((Number) row[0]).longValue() : 0;
+                upgrade += row[1] != null ? ((Number) row[1]).longValue() : 0;
+            }
+        }
+
+        Map<String, Long> map = new HashMap<>();
+        map.put("postingFees", posting);
+        map.put("upgradeFees", upgrade);
+        map.put("total", posting + upgrade);
+        return map;
+    }
 }

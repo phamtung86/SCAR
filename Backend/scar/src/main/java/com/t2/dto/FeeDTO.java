@@ -29,6 +29,8 @@ public class FeeDTO {
 
     private LocalDate expirySale;
 
+    private String typeName;
+
     private UserDTO creator;
 
     private Date createdAt;

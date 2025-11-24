@@ -105,6 +105,7 @@ public class CarService implements ICarService {
         CarModels model = iCarModelService.findById(createCarForm.getCarModelsId());
         car.setCarModels(model);
         car.setUser(user);
+        car.setStatus(Cars.Status.PENDING);
 
         Cars savedCar = carRepository.save(car);
 
@@ -222,7 +223,7 @@ public class CarService implements ICarService {
 
     @Override
     public List<CarDTO> findByUserId(Integer userId) {
-        List<Cars> cars = carRepository.findByUserId(userId);
+        List<Cars> cars = carRepository.findByUserIdAndIsSoldAndIsDisplay(userId, false, true);
         return modelMapper.map(cars, new TypeToken<List<CarDTO>>() {
         }.getType());
     }
@@ -277,7 +278,72 @@ public class CarService implements ICarService {
 
     @Override
     public void deleteCarById(Integer id) {
-        carRepository.deleteById(id);
+        Cars car = findById(id);
+        if (car != null) {
+            car.setDeleted(true);
+            carRepository.save(car);
+        }
+    }
+
+    @Override
+    public List<CarDTO> findRelatedCars(Integer carTypeId, Integer carId) {
+        List<Cars> cars = carRepository.findRelatedCar(carTypeId, carId);
+
+        // Nếu có nhiều hơn 3 xe thì trộn ngẫu nhiên và lấy 3 phần tử
+        if (cars.size() > 3) {
+            Collections.shuffle(cars); // trộn ngẫu nhiên danh sách
+            cars = cars.subList(0, 3); // lấy 3 phần tử đầu tiên
+        }
+
+        return modelMapper.map(cars, new TypeToken<List<CarDTO>>() {
+        }.getType());
+    }
+
+
+    @Override
+    public List<CarDTO> findByBrandId(String Integer) {
+        List<Cars> cars = carRepository.findCarByBrandName(Integer);
+        return modelMapper.map(cars, new TypeToken<List<CarDTO>>() {
+        }.getType());
+    }
+
+    @Override
+    public List<CarDTO> getTopCarsOrderByView(int limit) {
+        List<Cars> cars = carRepository.findTopCarsOrderByView(limit);
+        return modelMapper.map(cars, new TypeToken<List<CarDTO>>() {
+        }.getType());
+    }
+
+    @Override
+    public List<CarDTO> findCarsByStatus(String status) {
+        List<Cars> cars = carRepository.findByStatus(Cars.Status.valueOf(status));
+        return modelMapper.map(cars, new TypeToken<List<CarDTO>>() {
+        }.getType());
+    }
+
+    @Override
+    public void changeStatusCar(Integer id, String status, String reasonReject) {
+        Cars car = carRepository.findById(id).orElse(null);
+        if (car != null) {
+            car.setStatus(Cars.Status.valueOf(status));
+            if (status.equals("APPROVED")) {
+                car.setApprovedDate(new Date());
+            } else {
+                car.setRejectedDate(new Date());
+                car.setRejectionReason(reasonReject);
+            }
+            car.setUpdatedAt(new Date());
+            carRepository.save(car);
+        }
+    }
+
+    @Override
+    public void changeSold(Integer id, boolean isSold) {
+        Cars car = carRepository.findById(id).orElse(null);
+        if (car != null){
+            car.setSold(isSold);
+            carRepository.save(car);
+        }
     }
 
 }

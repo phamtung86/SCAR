@@ -27,10 +27,24 @@ const upgradeRankUser = async (userId: number, rank: string) => {
   return res;
 }
 
+const findByRole = async (role: string) => {
+  const res = await axiosClient.get(`${URL}/role/${role}`);
+  return res;
+}
+
+const changeAccountStatus = async (userId: number, status: "INACTIVE" | "ACTIVE" | "LOCKED") => {
+  const res = await axiosClient.put(`${URL}/${userId}/change-account-status?accountStatus=${status}`);
+  return res;
+}
+
+
+
 const userAPI = {
   findUserChatted,
   findById,
   updateUser,
-  upgradeRankUser
+  upgradeRankUser,
+  findByRole,
+  changeAccountStatus
 };
 export default userAPI;
