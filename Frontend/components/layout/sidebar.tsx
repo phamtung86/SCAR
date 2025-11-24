@@ -3,12 +3,14 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Calendar, Home, MessageSquare, Settings, ShoppingCart, Star, TrendingUp, Users, Wallet } from "lucide-react"
+import { getCurrentUser } from "@/lib/utils/get-current-user"
+import { Book, Calendar, Home, MessageSquare, Settings, ShoppingCart, Star, TrendingUp, Users, Wallet } from "lucide-react"
 import { usePathname, useRouter } from "next/navigation"
 
 export function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
+  const currentUser = getCurrentUser();
   const menuItems = [
     { icon: Home, label: "Trang chủ", href: "/", active: pathname === "/" },
     { icon: Users, label: "Cộng đồng", href: "/community", active: pathname === "/community" },
@@ -18,8 +20,13 @@ export function Sidebar() {
     { icon: TrendingUp, label: "Xu hướng", href: "/trending", active: pathname === "/trending" },
     { icon: Star, label: "Yêu thích", href: "/favorites", active: pathname === "/favorites" },
     { icon: Wallet, label: "Thanh toán", href: "/payment", active: pathname === "/payment" },
+    { icon: Book, label: "Quản lý", href: "/management/user", active: pathname === "/management/user" },
+    currentUser?.role === "ADMIN"
+      ? { icon: Book, label: "Quản trị", href: "/management/admin", active: pathname === "/management/admin" }
+      : null, 
     { icon: Settings, label: "Cài đặt", href: "/settings", active: pathname === "/settings" },
-  ]
+  ].filter(Boolean); 
+
 
   const carBrands = [
     { name: "Ferrari Việt Nam", members: "12.5k", color: "bg-red-500", initial: "F" },
@@ -44,16 +51,16 @@ export function Sidebar() {
             {menuItems.map((item, index) => (
               <Button
                 key={index}
-                onClick={() => handleNavigation(item.href, item.active)}
-                variant={item.active ? "default" : "ghost"}
-                className={`w-full justify-start relative transition-all duration-200 ${item.active
-                    ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
-                    : "hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                onClick={() => handleNavigation(String(item?.href), Boolean(item?.active))}
+                variant={item?.active ? "default" : "ghost"}
+                className={`w-full justify-start relative transition-all duration-200 ${item?.active
+                  ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
+                  : "hover:bg-blue-50 dark:hover:bg-blue-900/20"
                   }`}
               >
                 <item.icon className="mr-3 h-4 w-4" />
-                {item.label}
-                {item.badge && <Badge className="ml-auto bg-red-500 text-white">{item.badge}</Badge>}
+                {item?.label}
+                {item?.badge && <Badge className="ml-auto bg-red-500 text-white">{item?.badge}</Badge>}
               </Button>
             ))}
           </nav>

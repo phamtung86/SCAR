@@ -84,10 +84,31 @@ const updateCar = async (form: FormData, carId: number) => {
 }
 
 const deleteCarById = async (id: number) => {
-    const res = axiosClient.delete(`${URL}/${id}`)
+    const res = axiosClient.put(`${URL}/${id}`)
+    return res;
+}
+const getRelatedCars = async (carId: number ,carTypeId: number ) => {
+    const res = axiosClient.get(`${URL}/${carId}/related/type/${carTypeId}`)
+    return res;
+}
+const getCarsByBrandId = async (brandName: string  ) => {
+    const res = axiosClient.get(`${URL}/brand/${brandName}`)
     return res;
 }
 
+const getTopCarsOrderByView = async (limit : number) => {
+  const res = axiosClient.get(`${URL}/top/${limit}`)
+  return res;
+}
+const getCarsByStatus = async (status : string) => {
+  const res = axiosClient.get(`${URL}/status/${status}`)
+  return res;
+}
+
+const changeStatusCar = async (carId: number, status: string, rejectReason?: string) => {
+  const res = await axiosClient.put(`${URL}/${carId}/change-status`, { status, rejectReason });
+  return res;
+}
 const CarAPI = {
   getCars,
   getCarById,
@@ -100,6 +121,11 @@ const CarAPI = {
   getDriveTrains,
   getByUserId,
   updateCar,
-  deleteCarById
+  deleteCarById,
+  getRelatedCars,
+  getCarsByBrandId,
+  getTopCarsOrderByView,
+  getCarsByStatus,
+  changeStatusCar
 };
 export default CarAPI;

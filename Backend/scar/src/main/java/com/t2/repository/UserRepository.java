@@ -18,4 +18,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     List<User> findByStatus(String status);
 
     Optional<User> findByEmail(String email);
+
+    List<User> findByAccountStatus(User.AccountStatus accountStatus);
+
+    List<User> findByRole(User.Role role);
 }

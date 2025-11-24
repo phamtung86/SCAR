@@ -27,7 +27,9 @@ public class CustomUserDetails extends User {
 
 	private String role;
 
-	public CustomUserDetails(String username, String password, Integer id,String firstName, String lastName,String profilePicture,String role, Collection<? extends GrantedAuthority> authorities) {
+	private String accountStatus;
+
+	public CustomUserDetails(String username, String password, Integer id,String firstName, String lastName,String profilePicture,String role, String accountStatus, Collection<? extends GrantedAuthority> authorities) {
 		super(username, password, authorities);
 		this.userId = id;
 		this.firstName = firstName;
@@ -35,6 +37,7 @@ public class CustomUserDetails extends User {
 		this.fullName = firstName +" "+ lastName;
 		this.profilePicture = profilePicture;
 		this.role = role;
+		this.accountStatus = accountStatus;
 	}
 
 

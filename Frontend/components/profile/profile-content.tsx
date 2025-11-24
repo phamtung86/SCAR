@@ -24,7 +24,6 @@ export function ProfileContent() {
   const [userProfile, setUserProfile] = useState<UserDTO>()
   const [userCars, setUserCars] = useState<CarDTO[]>([])
   const currentUser = getCurrentUser()
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [selectedCar, setSelectedCar] = useState<CarDTO>()
 
@@ -251,8 +250,6 @@ export function ProfileContent() {
                   </Card>
                 ))}
               </div>
-
-              {/* đặt ngoài map để chỉ render 1 lần */}
               <DeleteConfirmDialog
                 isOpen={isDeleteDialogOpen}
                 onClose={() => setIsDeleteDialogOpen(false)}

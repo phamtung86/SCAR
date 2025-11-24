@@ -5,74 +5,68 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="53c808c2-df58-4669-b87d-fc60738f5d7a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/Scheduler/ReminderAppointmentScheduler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/Scheduler/ReminderExpiryDateScheduler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/CarFeatureController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/CarHistoryController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/CarImageController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/FeeController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/dto/FeeDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/dto/FeeServiceDetailsDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/dto/PaymentDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/FeeServiceDetails.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Fees.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/form/Fees/FeeCRUDForm.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/form/Fees/FeeServiceDetailCRUDForm.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/IFeeServiceDetailRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/IFeesRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/FeeServiceDetailsService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/FeesService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/IFeeServiceDetailsService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/IFeesService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/util/CalculatorTime.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/util/DateRange.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/TransactionsController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/dto/FeeTypeNameDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/dto/TransactionsDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Transactions.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/form/Car/ChangeStatusCarForm.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/form/Transactions/TransactionsCRUDForm.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/mapper/TransactionsMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/ITransactionsRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ITransactionsService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/TransactionsService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/scar/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/Scheduler/ReminderScheduler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/config/WebSocketConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/config/WebSocketConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/config/WebSecurityCongfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/config/WebSecurityCongfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/AuthController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/CarController.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/CarController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/Payment.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Payment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/FeeController.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/FeeController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/PaymentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/PaymentController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/PostController.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/PostController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/UserController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/dto/CarDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/dto/CarDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/dto/FeeDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/dto/FeeDTO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/dto/UserDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/dto/UserDTO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Cars.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Cars.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Posts.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Posts.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Fees.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Fees.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/form/payment/CreatePaymentForm.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/form/payment/CreatePaymentForm.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/jwtutils/CustomUserDetails.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/jwtutils/CustomUserDetails.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/jwtutils/JwtFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/jwtutils/JwtFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/jwtutils/JwtUserDetailsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/jwtutils/JwtUserDetailsService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/jwtutils/TokenManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/jwtutils/TokenManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/mapper/CarMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/mapper/CarMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/mapper/UserMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/mapper/UserMapper.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/ICarRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/ICarRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/IFeesRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/IFeesRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/IPaymentRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/IPaymentRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/AppointmentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/AppointmentService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/CarFeatureService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/CarFeatureService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/CarHistoryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/CarHistoryService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/CarImageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/CarImageService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/UserRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/CarService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/CarService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ICarFeatureService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ICarFeatureService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ICarHistoryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ICarHistoryService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ICarImageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ICarImageService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/FeesService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/FeesService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ICarService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ICarService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/IFeesService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/IFeesService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/IPaymentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/IPaymentService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/IUserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/IUserService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/PaymentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/PaymentService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/app/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/app/globals.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/app/layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/app/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/app/car/[id]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/app/car/[id]/page.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Frontend/components/auth/car-auth.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/auth/car-auth.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Frontend/components/car/car-details.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/car/car-details.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/components/car/car-selling-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/car/car-selling-form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/components/car/car-edit-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/car/car-edit-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/components/home/marketplace-preview.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/home/marketplace-preview.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/components/layout/layout-client.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/layout/layout-client.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Frontend/components/layout/sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/layout/sidebar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/components/marketplace/car-card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/marketplace/car-card.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/components/marketplace/marketplace-content.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/marketplace/marketplace-content.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/components/messages/messages-content.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/messages/messages-content.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/components/payment/payment-action.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/components/payment/vnpay-return.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/payment/vnpay-return.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/components/payment/payment-fee.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/payment/payment-fee.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Frontend/components/profile/profile-content.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/profile/profile-content.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/components/settings/settings-content.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/settings/settings-content.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/components/upgrade-rank-user.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/upgrade-rank-user.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Frontend/lib/api/car.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/lib/api/car.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/lib/api/fee.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/lib/api/fee.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Frontend/lib/api/payment.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/lib/api/payment.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/lib/utils/time-format.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/lib/utils/time-format.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/lib/api/user.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/lib/api/user.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/lib/axios-client.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/lib/axios-client.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/lib/utils/get-current-user.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/lib/utils/get-current-user.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/types/car.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/types/car.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/types/fee.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/types/fee.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/types/payment.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/types/payment.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Frontend/types/user.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/types/user.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -100,15 +94,15 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.ScarApplication.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "PT",
-    "last_opened_file_path": "M:/Source Code/VS Code/SCAR_DETAIL/SCAR/Backend/scar/src/main/java/com/t2/vnpay"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.ScarApplication.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;PT&quot;,
+    &quot;last_opened_file_path&quot;: &quot;M:/Source Code/VS Code/SCAR_DETAIL/SCAR/Backend/scar/src/main/java/com/t2/vnpay&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="M:\Source Code\VS Code\SCAR_DETAIL\SCAR\Backend\scar\src\main\java\com\t2\vnpay" />
@@ -165,31 +159,6 @@
           <url>file://$PROJECT_DIR$/scar/src/main/java/com/t2/service/UserService.java</url>
           <line>84</line>
           <option name="timeStamp" value="7" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/scar/src/main/java/com/t2/service/UserService.java</url>
-          <line>179</line>
-          <option name="timeStamp" value="16" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/scar/src/main/java/com/t2/service/PaymentService.java</url>
-          <line>49</line>
-          <option name="timeStamp" value="23" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/scar/src/main/java/com/t2/controller/PaymentController.java</url>
-          <line>31</line>
-          <option name="timeStamp" value="24" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/scar/src/main/java/com/t2/service/PaymentService.java</url>
-          <line>128</line>
-          <option name="timeStamp" value="25" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/scar/src/main/java/com/t2/service/CarService.java</url>
-          <line>231</line>
-          <option name="timeStamp" value="28" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

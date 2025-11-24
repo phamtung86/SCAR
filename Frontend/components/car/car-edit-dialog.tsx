@@ -23,7 +23,7 @@ export default function CarEditDialog({
     const [open, setOpen] = useState(false)
 
     const handleCancel = () => {
-        setOpen(false) // Close dialog on cancel
+        setOpen(false)
     }
 
     return (

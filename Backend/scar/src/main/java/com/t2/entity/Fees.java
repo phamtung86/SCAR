@@ -28,6 +28,9 @@ public class Fees {
     @Enumerated(EnumType.STRING)
     private Type type;
 
+    @Column(name = "type_name")
+    private String typeName;
+
     private double price;
 
     private float sale;
@@ -61,5 +64,9 @@ public class Fees {
         public static Type fromString(String value) {
             return Type.valueOf(value.toUpperCase());
         }
+    }
+
+    public enum Status{
+        ACTIVE, INACTIVE, LOCKED, EXPIRY
     }
 }

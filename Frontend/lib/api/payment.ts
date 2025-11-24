@@ -40,11 +40,29 @@ const updateStatusPaymentById = async (id: number, status: string) => {
     return res;
 }
 
+const getMonthlyTotalRevenue = async(year : number) => {
+    const res = await axiosClient.get(`${URL}/monthly-revenue/${year}`);
+    return res;
+}
+
+const getRevenueByType = async (type : string) => {
+    const res = await axiosClient.get(`${URL}/revenue?type=${type}`);
+    return res;
+}
+
+const getPaymentsByUserIdAndStatus = async (userId: number, status: string) => {
+    const res = await axiosClient.get(`${URL}/user/${userId}/status/${status}`)
+    return res;
+}
+
 const PaymentAPI = {
     vnpayCreatePayment,
     vnpayGetResult,
     getPaymentByUserId,
-    updateStatusPaymentById
+    updateStatusPaymentById,
+    getMonthlyTotalRevenue,
+    getRevenueByType,
+    getPaymentsByUserIdAndStatus
 }
 
 export default PaymentAPI;

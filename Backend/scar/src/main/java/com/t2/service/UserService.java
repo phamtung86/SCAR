@@ -191,4 +191,26 @@ public class UserService implements IUserService {
         }
     }
 
+    @Override
+    public List<UserDTO> findByAccountStatus(String status) {
+        List<User> users = repository.findByAccountStatus(User.AccountStatus.valueOf(status));
+        return modelMapper.map(users, new TypeToken<List<UserDTO>>(){}.getType());
+    }
+
+    @Override
+    public List<UserDTO> findByRole(String role) {
+        List<User> users = repository.findByRole(User.Role.valueOf(role));
+        return modelMapper.map(users, new TypeToken<List<UserDTO>>(){}.getType());
+    }
+
+    @Override
+    public void changeAccountStatusUser(Integer id, String status) {
+        User user = repository.findById(id).orElse(null);
+        if (user != null){
+            user.setAccountStatus(User.AccountStatus.valueOf(status));
+            user.setUpdateAt(new Date());
+            repository.save(user);
+        }
+    }
+
 }

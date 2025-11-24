@@ -1,7 +1,6 @@
 import { CarDetails } from "@/components/car/car-details";
-import { Header } from "@/components/header";
-import CarAPI from "@/lib/api/car";
-import { useEffect, useState } from "react";
+import { Header } from "@/components/layout/header";
+
 
 
 export default async function CarDetailPage({ params }: { params: { id: string } }) {

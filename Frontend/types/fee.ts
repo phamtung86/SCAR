@@ -28,7 +28,12 @@ export type FeeCRUDForm = {
     type: string
     price: number
     sale: number
-    expitySale: string
     creatorId: number
-    feeServiceDetailName: [string]
+    expirySale: string
+    feeServiceDetailName:  string[];
+}
+
+export type FeeTypeNameDTO = {
+    type : string
+    typeName : string
 }

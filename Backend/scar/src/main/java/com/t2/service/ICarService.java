@@ -34,4 +34,16 @@ public interface ICarService {
     void updateCar(CreateCarForm createCarForm, List<MultipartFile> carImages, List<CarFeaturesDTO> carFeatures, List<CarHistoryDTO> carHistories, Integer userId, Integer carId);
 
     void deleteCarById(Integer id);
+
+    List<CarDTO> findRelatedCars(Integer carTypeId , Integer carId);
+
+    List<CarDTO> findByBrandId(String Integer);
+
+    List<CarDTO> getTopCarsOrderByView(int limit);
+
+    List<CarDTO> findCarsByStatus(String status);
+
+    void changeStatusCar(Integer id, String status, String reasonReject);
+
+    void changeSold(Integer id, boolean isSold);
 }

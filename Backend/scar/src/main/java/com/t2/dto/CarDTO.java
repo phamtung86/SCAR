@@ -2,6 +2,7 @@ package com.t2.dto;
 
 import com.t2.entity.Cars;
 import com.t2.models.UserResponse;
+import jakarta.persistence.Column;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -67,6 +68,8 @@ public class CarDTO {
 
     private String carModelsCarTypeName;
 
+    private boolean deleted;
+
     private UserResponse user;
 
     private boolean isHighLight;
@@ -78,4 +81,12 @@ public class CarDTO {
     private List<CarFeaturesDTO> carFeatures;
 
     private List<CarHistoryDTO> carHistories;
+
+    private String status;
+
+    private String rejectionReason;
+
+    private Date approvedDate;
+
+    private Date rejectedDate;
 }

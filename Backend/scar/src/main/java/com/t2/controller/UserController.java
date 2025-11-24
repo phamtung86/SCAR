@@ -87,4 +87,21 @@ public class UserController {
         userService.upgradeRankUser(id, rank);
     }
 
+    @GetMapping("/role/{role}")
+    public ResponseEntity<List<UserDTO>> getAllByRole(@PathVariable(name = "role") String role){
+        List<UserDTO> userDTOS = userService.findByRole(role);
+        return ResponseEntity.status(200).body(userDTOS);
+    }
+
+    @GetMapping("/account-status/{accountStatus}")
+    public ResponseEntity<List<UserDTO>> getAllByAccountStatus(@PathVariable(name = "accountStatus") String accountStatus){
+        List<UserDTO> userDTOS = userService.findByRole(accountStatus);
+        return ResponseEntity.status(200).body(userDTOS);
+    }
+
+    @PutMapping("/{id}/change-account-status")
+    public void updateAccountStatus(@PathVariable(name = "id") Integer id, @RequestParam(value = "accountStatus") String status){
+        userService.changeAccountStatusUser(id, status);
+    }
+
 }

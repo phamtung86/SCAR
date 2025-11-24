@@ -86,8 +86,25 @@ public class PaymentController {
         return ResponseEntity.status(200).body(paymentDTOS);
     }
 
+    @GetMapping("/user/{id}/status/{status}")
+    public ResponseEntity<List<PaymentDTO>> getListPaymentByUserIdAndStatus(@PathVariable(name = "id") Integer userId, @PathVariable(name = "status") String status) {
+        List<PaymentDTO> paymentDTOS = paymentService.getPaymentsByUserIdAndStatus(userId, status);
+        return ResponseEntity.status(200).body(paymentDTOS);
+    }
+
     @PutMapping("/{id}/{status}")
     public void updateStatusPaymentById(@PathVariable(name = "id") Integer id, @PathVariable(name = "status") String status) {
         paymentService.updateStatusPaymentById(id, status);
+    }
+
+    @GetMapping("/monthly-revenue/{year}")
+    public ResponseEntity<List<Map<String, Object>>> getMonthlyRevenue(@PathVariable(name = "year") int year) {
+        List<Map<String, Object>> totalRevenue = paymentService.getMonthlyRevenueChart(year);
+        return ResponseEntity.ok(totalRevenue);
+    }
+
+    @GetMapping("/revenue")
+    public Map<String, Map<String, Long>> getRevenueComparisonByType(@RequestParam(name = "type") String type) {
+        return paymentService.getRevenueComparisonByType(type);
     }
 }

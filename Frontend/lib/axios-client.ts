@@ -1,12 +1,11 @@
 import axios from "axios";
-import { useRouter } from "next/navigation";
 
 const axiosClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api",
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 30000,
+  timeout: 3000,
 });
 
 // Optional: thêm interceptor request
@@ -33,7 +32,7 @@ axiosClient.interceptors.response.use(
       localStorage.removeItem("accessToken");
       sessionStorage.removeItem("accessToken");
       if (typeof window !== "undefined") {
-        window.location.href = "/auth"; // Chuyển hướng
+        window.location.href = "/auth";
       }
     }
     return Promise.reject(error);

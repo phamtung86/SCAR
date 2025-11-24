@@ -18,6 +18,7 @@ export type UserDTO = {
   rank: string
   registerRankAt: string
   expiryRankAt: string
+  accountStatus: string
 }
 
 export type Location = {

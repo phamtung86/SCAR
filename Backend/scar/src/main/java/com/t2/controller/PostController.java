@@ -30,12 +30,10 @@ public class PostController {
     public ResponseEntity<?> createPost(@ModelAttribute CreatePostForm createPostForm) {
         try {
             if (createPostForm.getImages() != null && !createPostForm.getImages().isEmpty()) {
-
                 boolean check = clarifaiService.areAllImagesValid(createPostForm.getImages());
                 if (!check) {
                     return ResponseEntity.status(400).body("Hình ảnh không hợp lệ");
                 }
-
             }
             postService.createPost(createPostForm);
             return ResponseEntity.ok().build();
@@ -45,7 +43,7 @@ public class PostController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<?> deletePost(@PathVariable(name = "id") Integer id) {
         postService.deletePost(id);
         return ResponseEntity.ok().build();
@@ -56,4 +54,5 @@ public class PostController {
         List<PostsDTO> postsDTOS = postService.findPostsByUserId(userId);
         return ResponseEntity.ok(postsDTOS);
     }
+
 }

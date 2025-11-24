@@ -1,6 +1,7 @@
 package com.t2.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.t2.entity.User;
 import jakarta.persistence.Column;
 import lombok.Data;
 
@@ -41,6 +42,8 @@ public class UserDTO {
     private String fullName;
 
     private String rank;
+
+    private String accountStatus;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate registerRankAt;
