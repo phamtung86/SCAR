@@ -1,63 +1,88 @@
+"use client"
+
 import { CreatePost } from "@/components/home/create-post"
 import { PostCard } from "@/components/home/post-card"
 import { MarketplacePreview } from "@/components/home/marketplace-preview"
 import { StoriesSection } from "@/components/home/stories-section"
+import { useEffect, useState } from "react"
+import PostAPI, { PostType } from "@/lib/api/post"
+
+// Helper function to format timestamp
+const formatTimestamp = (dateString: string): string => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (diffInSeconds < 60) {
+    return `${diffInSeconds} giây trước`;
+  }
+  if (diffInSeconds < 3600) {
+    const minutes = Math.floor(diffInSeconds / 60);
+    return `${minutes} phút trước`;
+  }
+  if (diffInSeconds < 86400) {
+    const hours = Math.floor(diffInSeconds / 3600);
+    return `${hours} giờ trước`;
+  }
+  const days = Math.floor(diffInSeconds / 86400);
+  return `${days} ngày trước`;
+};
 
 export function NewsFeed() {
-  const posts = [
-    {
-      id: 1,
-      user: {
-        name: "Nguyễn Văn A",
-        avatar: "/placeholder.svg",
-        verified: true,
-        role: "BMW Expert",
-      },
-      content:
-        "Vừa hoàn thành việc độ lại chiếc BMW M3 của mình! Cảm giác lái thật tuyệt vời 🔥 Ai có kinh nghiệm về việc tune ECU không?",
-      images: ["/placeholder.svg?height=400&width=600", "/placeholder.svg?height=400&width=600"],
-      likes: 124,
-      comments: 23,
-      shares: 5,
-      timestamp: "2 giờ trước",
-      location: "Hà Nội",
-      tags: ["#BMW", "#M3", "#CarMod"],
-    },
-    {
-      id: 2,
-      user: {
-        name: "Trần Thị B",
-        avatar: "/placeholder.svg",
-        verified: false,
-        role: "Car Enthusiast",
-      },
-      content:
-        "Ai có kinh nghiệm về việc bảo dưỡng Mercedes C-Class không? Mình cần tư vấn về việc thay dầu máy và kiểm tra hệ thống phanh.",
-      likes: 45,
-      comments: 12,
-      shares: 2,
-      timestamp: "4 giờ trước",
-      tags: ["#Mercedes", "#Maintenance"],
-    },
-    {
-      id: 3,
-      user: {
-        name: "Lê Minh C",
-        avatar: "/placeholder.svg",
-        verified: true,
-        role: "Car Dealer",
-      },
-      content:
-        "Vừa nhập về lô xe Toyota Camry 2024 mới nhất! Giá cực tốt cho anh em. Inbox để được tư vấn chi tiết nhé! 🚗✨",
-      images: ["/placeholder.svg?height=400&width=600"],
-      likes: 89,
-      comments: 34,
-      shares: 12,
-      timestamp: "6 giờ trước",
-      location: "TP.HCM",
-      tags: ["#Toyota", "#Camry2024", "#NewCar"],
-    },
-  ]
+  const [posts, setPosts] = useState<PostType[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const response = await PostAPI.getPosts()
+        if (response.status === 200) {
+          // Transform the response data to match our expected format
+          console.log(response.data);
+
+          const transformedPosts = response.data.map((post: any) => ({
+            ...post,
+            userId: post?.user?.id,
+            timestamp: formatTimestamp(post.createdDate),
+            // Convert image URLs to match expected format
+            images: post.images?.map((img: any) => img.imageUrl) || [],
+            // Calculate likes and comments count from the response
+            likes: post.likes?.length || 0,
+            comments: post.comments?.length || 0,
+            shares: 0 // Shares not available in the backend DTO, default to 0
+          }));
+          setPosts(transformedPosts);
+        } else {
+          // Fallback to sample data if API fails
+          setPosts([
+
+          ])
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy bài viết:", error)
+        // Fallback to sample data if API fails
+        setPosts([
+        ])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchPosts()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <StoriesSection />
+        <CreatePost />
+        <MarketplacePreview />
+        <div className="flex justify-center items-center py-10">
+          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">

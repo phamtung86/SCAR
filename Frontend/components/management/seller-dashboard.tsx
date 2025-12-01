@@ -352,7 +352,7 @@ export function SellerDashboard() {
       }
     } catch (error) {
       console.log("Lỗi khi cập nhật trạng thái: ", error)
-      alert("Có lỗi xảy ra khi cập nhật trạng thái")
+      toast.error("Có lỗi xảy ra khi cập nhật trạng thái")
     }
   }
 

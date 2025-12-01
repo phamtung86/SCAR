@@ -96,11 +96,16 @@ export function MarketplacePreview() {
                     <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-white dark:bg-gray-800 h-full">
                       <div className="relative">
                         <Image
-                          src={car?.carImages[0]?.imageUrl || "/placeholder.svg"}
-                          alt={car?.title}
+                          src={car?.carImages?.[0]?.imageUrl || "/placeholder.jpg"}
+                          alt={car?.title || "Car image"}
                           width={300}
                           height={200}
                           className="w-full h-48 object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.onerror = null; // prevents infinite loop if fallback also fails
+                            target.src = "/placeholder.svg"; // fallback image
+                          }}
                         />
                         {car?.featured && (
                           <Badge className="absolute top-2 left-2 bg-yellow-500 text-black font-semibold shadow-md border-0">
