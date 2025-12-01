@@ -1,10 +1,11 @@
 import { WebSocketProvider } from "@/components/contexts/WebsocketContext";
 import { LayoutClient } from "@/components/layout/layout-client";
 import { Inter } from "next/font/google";
-import { type ReactNode } from "react";
+import { type ReactNode, Suspense } from "react";
 import Script from "next/script";
 import "./globals.css";
 import ConnectionStatus from "@/components/ui/Connection-status";
+import { FloatingCarChatbot } from "@/components/chatbot/floating-car-chatbot";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,7 +27,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <LayoutClient>{children}</LayoutClient>
           <ConnectionStatus />
         </WebSocketProvider>
-        <Script
+        {/* <Script
           id="kami-chat-widget"
           src="https://kamimind.ai/kami-chat-widget.js"
           strategy="afterInteractive"
@@ -47,7 +48,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             opacityBackground: "100",
             isNewStory: "false"
           }}
-        ></Script>
+        ></Script> */}
+        {/* Car Recommendation Chatbot */}
+        <Suspense fallback={null}>
+          <FloatingCarChatbot />
+        </Suspense>
       </body>
     </html>
   );

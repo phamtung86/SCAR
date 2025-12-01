@@ -6,10 +6,17 @@ import { Card, CardContent } from "@/components/ui/card"
 import { getCurrentUser } from "@/lib/utils/get-current-user"
 import { Book, Calendar, Home, MessageSquare, Settings, ShoppingCart, Star, TrendingUp, Users, Wallet } from "lucide-react"
 import { usePathname, useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
 
 export function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true); // This will ensure admin menu only renders on client-side
+  }, []);
+
   const currentUser = getCurrentUser();
   const menuItems = [
     { icon: Home, label: "Trang chủ", href: "/", active: pathname === "/" },
@@ -21,11 +28,12 @@ export function Sidebar() {
     { icon: Star, label: "Yêu thích", href: "/favorites", active: pathname === "/favorites" },
     { icon: Wallet, label: "Thanh toán", href: "/payment", active: pathname === "/payment" },
     { icon: Book, label: "Quản lý", href: "/management/user", active: pathname === "/management/user" },
-    currentUser?.role === "ADMIN"
-      ? { icon: Book, label: "Quản trị", href: "/management/admin", active: pathname === "/management/admin" }
-      : null, 
     { icon: Settings, label: "Cài đặt", href: "/settings", active: pathname === "/settings" },
-  ].filter(Boolean); 
+  ];
+
+  const adminMenuItem = isClient && currentUser?.role === "ADMIN"
+    ? { icon: Book, label: "Quản trị", href: "/management/admin", active: pathname === "/management/admin" }
+    : null;
 
 
   const carBrands = [
@@ -63,6 +71,19 @@ export function Sidebar() {
                 {item?.badge && <Badge className="ml-auto bg-red-500 text-white">{item?.badge}</Badge>}
               </Button>
             ))}
+            {isClient && adminMenuItem && (
+              <Button
+                onClick={() => handleNavigation(String(adminMenuItem?.href), Boolean(adminMenuItem?.active))}
+                variant={adminMenuItem?.active ? "default" : "ghost"}
+                className={`w-full justify-start relative transition-all duration-200 ${adminMenuItem?.active
+                  ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
+                  : "hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                  }`}
+              >
+                <adminMenuItem.icon className="mr-3 h-4 w-4" />
+                {adminMenuItem?.label}
+              </Button>
+            )}
           </nav>
         </CardContent>
       </Card>

@@ -109,6 +109,12 @@ const changeStatusCar = async (carId: number, status: string, rejectReason?: str
   const res = await axiosClient.put(`${URL}/${carId}/change-status`, { status, rejectReason });
   return res;
 }
+
+const getCarsWithImages = async () => {
+  const res = await axiosClient.get(`${URL}?includeImages=true`);
+  return res;
+}
+
 const CarAPI = {
   getCars,
   getCarById,
@@ -126,6 +132,7 @@ const CarAPI = {
   getCarsByBrandId,
   getTopCarsOrderByView,
   getCarsByStatus,
-  changeStatusCar
+  changeStatusCar,
+  getCarsWithImages
 };
 export default CarAPI;
