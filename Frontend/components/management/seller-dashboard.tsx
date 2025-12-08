@@ -32,21 +32,21 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import {
   Area,
-  AreaChart,
   Bar,
-  BarChart,
   CartesianGrid,
   Cell,
+  DynamicAreaChart,
+  DynamicBarChart,
+  DynamicLineChart,
+  DynamicPieChart,
+  DynamicResponsiveContainer,
   Legend,
   Line,
-  LineChart,
   Pie,
-  PieChart,
-  ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
-} from "recharts"
+} from "@/components/ui/charts"
 import CarEditDialog from "../car/car-edit-dialog"
 import { ContractGenerator } from "./contract-generator"
 import { TransactionEditDialog } from "./transaction-edit-dialog"
@@ -135,7 +135,7 @@ export function SellerDashboard() {
     const completedTransactions = transactions.filter(t => t.status === "COMPLETED")
     const totalRevenue = completedTransactions.reduce((sum, t) => sum + (t.priceAgreed || 0), 0)
 
-    const availableBalance = totalRevenue 
+    const availableBalance = totalRevenue
 
     setDashboardStats({
       totalActiveCars: activeCars,
@@ -437,8 +437,8 @@ export function SellerDashboard() {
                 <CardTitle>Xu hướng doanh thu 6 tháng</CardTitle>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={getMonthlyRevenueData()}>
+                <DynamicResponsiveContainer width="100%" height={300}>
+                  <DynamicAreaChart data={getMonthlyRevenueData()}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
                     <YAxis />
@@ -453,8 +453,8 @@ export function SellerDashboard() {
                       fillOpacity={0.6}
                       name="Doanh thu"
                     />
-                  </AreaChart>
-                </ResponsiveContainer>
+                  </DynamicAreaChart>
+                </DynamicResponsiveContainer>
               </CardContent>
             </Card>
 
@@ -463,8 +463,8 @@ export function SellerDashboard() {
                 <CardTitle>Phễu bán hàng</CardTitle>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
+                <DynamicResponsiveContainer width="100%" height={300}>
+                  <DynamicPieChart>
                     <Pie
                       data={getSalesFunnelData()}
                       cx="50%"
@@ -479,8 +479,8 @@ export function SellerDashboard() {
                       ))}
                     </Pie>
                     <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
+                  </DynamicPieChart>
+                </DynamicResponsiveContainer>
               </CardContent>
             </Card>
 
@@ -489,8 +489,8 @@ export function SellerDashboard() {
                 <CardTitle>Hiệu suất theo hãng xe</CardTitle>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={getCarPerformanceByBrand()}>
+                <DynamicResponsiveContainer width="100%" height={300}>
+                  <DynamicBarChart data={getCarPerformanceByBrand()}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="brand" />
                     <YAxis />
@@ -498,8 +498,8 @@ export function SellerDashboard() {
                     <Legend />
                     <Bar dataKey="sold" fill="#3b82f6" name="Xe đã bán" />
                     <Bar dataKey="revenue" fill="#10b981" name="Doanh thu (M VNĐ)" />
-                  </BarChart>
-                </ResponsiveContainer>
+                  </DynamicBarChart>
+                </DynamicResponsiveContainer>
               </CardContent>
             </Card>
 
@@ -508,8 +508,8 @@ export function SellerDashboard() {
                 <CardTitle>Hoạt động hàng tuần</CardTitle>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={weeklyActivityChart}>
+                <DynamicResponsiveContainer width="100%" height={300}>
+                  <DynamicLineChart data={weeklyActivityChart}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="day" />
                     <YAxis />
@@ -518,8 +518,8 @@ export function SellerDashboard() {
                     <Line type="monotone" dataKey="views" stroke="#3b82f6" strokeWidth={3} name="Lượt xem" />
                     <Line type="monotone" dataKey="messages" stroke="#f59e0b" strokeWidth={3} name="Tin nhắn" />
                     <Line type="monotone" dataKey="inquiries" stroke="#10b981" strokeWidth={3} name="Yêu cầu xem xe" />
-                  </LineChart>
-                </ResponsiveContainer>
+                  </DynamicLineChart>
+                </DynamicResponsiveContainer>
               </CardContent>
             </Card>
           </div>
@@ -574,11 +574,11 @@ export function SellerDashboard() {
                         transactions
                           .filter(t => {
                             console.log(t);
-                            
+
                             if (t.status === "COMPLETED" && t.contractDate) {
                               const date = new Date(t.contractDate)
                               console.log(date);
-                              
+
                               const now = new Date()
                               return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()
                             }
