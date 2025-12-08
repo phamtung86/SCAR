@@ -1,0 +1,9 @@
+# Nixpacks configuration for Spring Boot
+[phases.setup]
+nixPkgs = ["jdk21", "maven"]
+
+[phases.build]
+cmds = ["mvn clean package -DskipTests"]
+
+[start]
+cmd = "java -jar target/scar-0.0.1-SNAPSHOT.jar"

@@ -6,7 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="53c808c2-df58-4669-b87d-fc60738f5d7a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/components/management/seller-dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/management/seller-dashboard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Cars.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Cars.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Comments.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Comments.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/CarService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/CarService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/components/home/post-card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/home/post-card.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

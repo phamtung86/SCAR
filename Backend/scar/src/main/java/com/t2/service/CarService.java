@@ -164,9 +164,6 @@ public class CarService implements ICarService {
         // 5. Lượt thích
         score += Math.min(car.getLikes().size(), 25) * 0.2; // max 5 điểm
 
-        // 6. Lượt bình luận
-        score += Math.min(car.getComments().size(), 25) * 0.2; // max 5 điểm
-
         // 7. Số lượng hình ảnh
         score += Math.min(car.getCarImages().size(), 5); // mỗi ảnh 1 điểm, max 5
 

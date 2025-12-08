@@ -27,11 +27,6 @@ public class Comments {
     private User user;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "car_id", referencedColumnName = "id", nullable = false)
-    private Cars car;
-
-
-    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "post_id", referencedColumnName = "id", nullable = false)
     private Posts posts;
 

@@ -6,10 +6,11 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import Image from "next/image"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { UserDTO } from "@/types/user"
 import { getCurrentUser } from "@/lib/utils/get-current-user"
-import PostAPI from "@/lib/api/post"
+import { useWebSocket } from "../contexts/WebsocketContext"
+import { useSocial } from "@/hooks/use-social"
 
 interface Post {
   id: number
@@ -35,83 +36,56 @@ interface PostCardProps {
 }
 
 export function PostCard({ post }: PostCardProps) {
-  const [liked, setLiked] = useState(() => {
-    // Check if user has already liked this post based on the initial data
-    if (post.likes && typeof post.likes === 'object' && post.likes.length > 0) {
-      // This assumes the backend sends user-specific like data
-      const userId = getCurrentUser()?.id;
-      return userId ? post.likes.some((like: any) => like.userId === userId) : false;
-    }
-    // Fallback: if likes is just a number, we can't determine if user liked it
-    return false;
-  });
+  const { stompClient } = useWebSocket();
+  const {
+    handleLike: sendLike,
+    handleComment: sendComment,
+    handleCommentLike: sendCommentLike,
+    getLikesForPost,
+    getCommentsForPost,
+    getCommentLikes,
+    isLikedByCurrentUser,
+    isCommentLikedByCurrentUser,
+    initializePostData
+  } = useSocial(stompClient);
 
-  const [likeCount, setLikeCount] = useState(post.likes && typeof post.likes === 'object' ? post.likes.length : post.likes || 0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showCommentBox, setShowCommentBox] = useState(false);
   const [newComment, setNewComment] = useState("");
-  const [comments, setComments] = useState(post.comments || []);
 
-  const handleLike = async () => {
+  // Initialize post data when component mounts
+  useEffect(() => {
+    const initialLikes = Array.isArray(post.likes) ? post.likes : [];
+    const initialComments = Array.isArray(post.comments) ? post.comments : [];
+    initializePostData(post.id, initialLikes, initialComments);
+  }, [post.id, post.likes, post.comments, initializePostData]);
+
+  // Get current likes and comments from the hook
+  const likes = getLikesForPost(post.id);
+  const comments = getCommentsForPost(post.id);
+  const liked = isLikedByCurrentUser(post.id);
+  const likeCount = likes.length;
+
+  const handleLike = () => {
     if (!getCurrentUser()) {
       // Redirect to login if not authenticated
       window.location.href = '/auth';
       return;
     }
 
-    const previousLikedState = liked;
-    const previousLikeCount = likeCount;
-
-    try {
-      // Optimistically update UI
-      setLiked(!liked);
-      setLikeCount(prev => liked ? prev - 1 : prev + 1);
-
-      // Call the real API
-      if (!previousLikedState) {
-        // Like the post
-        await PostAPI.likePost(post.id);
-      } else {
-        // Unlike the post
-        await PostAPI.unlikePost(post.id);
-      }
-    } catch (error) {
-      console.error("Lỗi khi thích bài viết:", error);
-      // Revert the optimistic update if the API call fails
-      setLiked(previousLikedState);
-      setLikeCount(previousLikeCount);
-    }
+    // Send like/unlike via WebSocket
+    sendLike(post.id);
   };
 
-  const handleCommentSubmit = async (e: React.FormEvent) => {
+  const handleCommentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newComment.trim() || !getCurrentUser()) {
       return;
     }
 
-    const currentUser = getCurrentUser();
-    const commentData = {
-      content: newComment,
-      user: {
-        id: currentUser?.id,
-        fullName: currentUser?.fullName,
-        profilePicture: currentUser?.profilePicture
-      },
-      createdDate: new Date().toISOString()
-    };
-
-    try {
-      // Optimistically add the comment
-      setComments(prev => [...prev, commentData]);
-      setNewComment("");
-
-      // Call the actual API to submit the comment
-      await PostAPI.commentOnPost(post.id, newComment);
-    } catch (error) {
-      console.error("Lỗi khi bình luận bài viết:", error);
-      // Revert the optimistic update if the API call fails
-      setComments(prev => prev.slice(0, -1));
-    }
+    // Send comment via WebSocket
+    sendComment(post.id, newComment);
+    setNewComment("");
   };
 
   return (
@@ -254,7 +228,7 @@ export function PostCard({ post }: PostCardProps) {
             {/* Comment Input */}
             <form onSubmit={handleCommentSubmit} className="flex items-center space-x-2 mb-4">
               <Avatar className="h-8 w-8">
-                <AvatarImage src={getCurrentUser()?.avatar || "/placeholder.svg"} />
+                <AvatarImage src={getCurrentUser()?.profilePicture || "/placeholder.svg"} />
                 <AvatarFallback>{getCurrentUser()?.fullName ? getCurrentUser()?.fullName[0].toUpperCase() : 'U'}</AvatarFallback>
               </Avatar>
               <div className="flex-1 flex">
@@ -278,15 +252,37 @@ export function PostCard({ post }: PostCardProps) {
             {/* Comments List */}
             <div className="space-y-3">
               {comments?.map((comment: any, index: number) => (
-                <div key={index} className="flex items-start space-x-2">
+                <div key={comment.id || index} className="flex items-start space-x-2">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={comment.user?.avatar || "/placeholder.svg"} />
-                    <AvatarFallback>{comment.user?.name ? comment.user.name[0].toUpperCase() : 'U'}</AvatarFallback>
+                    <AvatarImage src={comment.user?.profilePicture || "/placeholder.svg"} />
+                    <AvatarFallback>{comment.user?.fullName ? comment.user.fullName[0].toUpperCase() : 'U'}</AvatarFallback>
                   </Avatar>
                   <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-3 py-2 flex-1">
                     <div className="font-semibold text-sm">{comment.user?.fullName}</div>
                     <p className="text-sm">{comment.content}</p>
-                    <div className="text-xs text-gray-500 mt-1">Vừa xong</div>
+                    <div className="flex items-center gap-3 mt-1">
+                      <span className="text-xs text-gray-500">
+                        {new Date(comment.createdDate).toLocaleDateString('vi-VN', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          day: '2-digit',
+                          month: '2-digit'
+                        })}
+                      </span>
+                      <button
+                        onClick={() => sendCommentLike(comment.id)}
+                        className={`flex items-center gap-1 text-xs transition-colors ${isCommentLikedByCurrentUser(comment.id)
+                          ? 'text-red-500 hover:text-red-600'
+                          : 'text-gray-500 hover:text-red-500'
+                          }`}
+                      >
+                        <Heart
+                          className={`h-3 w-3 ${isCommentLikedByCurrentUser(comment.id) ? 'fill-current' : ''
+                            }`}
+                        />
+                        <span>{getCommentLikes(comment.id).length > 0 && getCommentLikes(comment.id).length}</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
