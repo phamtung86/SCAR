@@ -119,9 +119,6 @@ public class Cars {
     private List<Likes> likes;
 
     @OneToMany(mappedBy = "car", fetch = FetchType.LAZY)
-    private List<Comments> comments;
-
-    @OneToMany(mappedBy = "car", fetch = FetchType.LAZY)
     private List<Reports> reports;
 
     @OneToMany(mappedBy = "car", fetch = FetchType.LAZY)
