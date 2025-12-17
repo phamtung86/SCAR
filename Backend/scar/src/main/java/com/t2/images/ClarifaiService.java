@@ -89,7 +89,73 @@ public class ClarifaiService {
             return true;
         }
     }
+    public boolean areAllImagesValidByUrls(List<String> imageUrls) throws IOException {
+        if (imageUrls == null || imageUrls.isEmpty()) return false;
 
+        OkHttpClient client = new OkHttpClient();
+        JsonArray inputsArray = new JsonArray();
+
+        for (String url : imageUrls) {
+            JsonObject imageData = new JsonObject();
+            JsonObject image = new JsonObject();
+            image.addProperty("url", url);  // Thay vì "base64", dùng "url"
+            imageData.add("image", image);
+
+            JsonObject input = new JsonObject();
+            input.add("data", imageData);
+
+            inputsArray.add(input);
+        }
+
+        JsonObject requestBodyJson = new JsonObject();
+        JsonObject userAppId = new JsonObject();
+        userAppId.addProperty("user_id", "clarifai");
+        userAppId.addProperty("app_id", "main");
+
+        requestBodyJson.add("user_app_id", userAppId);
+        requestBodyJson.add("inputs", inputsArray);
+
+        Request request = new Request.Builder()
+                .url("https://api.clarifai.com/v2/models/general-image-recognition/outputs")
+                .post(RequestBody.create(requestBodyJson.toString(), MediaType.parse("application/json")))
+                .addHeader("Authorization", "Key " + PAT)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            String json = response.body().string();
+            log.info("Clarifai multi-image URL response: {}", json);
+
+            if (!response.isSuccessful()) {
+                log.error("Clarifai API error: {} - {}", response.code(), response.message());
+                return false;
+            }
+
+            JsonObject root = JsonParser.parseString(json).getAsJsonObject();
+            JsonArray outputs = root.getAsJsonArray("outputs");
+
+            for (JsonElement outputElement : outputs) {
+                JsonObject data = outputElement.getAsJsonObject().getAsJsonObject("data");
+                if (data == null || !data.has("concepts")) return false;
+
+                JsonArray concepts = data.getAsJsonArray("concepts");
+                boolean foundCar = false;
+
+                for (JsonElement concept : concepts) {
+                    String name = concept.getAsJsonObject().get("name").getAsString().toLowerCase();
+                    double confidence = concept.getAsJsonObject().get("value").getAsDouble();
+                    log.info("name: " + name + " - confidence " + confidence);
+                    if (isCarRelated(name) && confidence > 0.7) {
+                        foundCar = true;
+                        break;
+                    }
+                }
+
+                if (!foundCar) return false;
+            }
+
+            return true;
+        }
+    }
 
     /**
      * Method để lấy user_id và app_id của tài khoản

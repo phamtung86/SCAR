@@ -15,12 +15,14 @@ import type { CarDTO } from "@/types/car"
 import { TransactionDTO } from "@/types/transactions"
 import {
   AlertCircle,
+  BarChart,
   Car,
   CreditCard,
   DollarSign,
   Eye,
   FileText,
   Filter,
+  LineChart,
   MessageCircle,
   Plus,
   Search,
@@ -51,6 +53,7 @@ import CarEditDialog from "../car/car-edit-dialog"
 import { ContractGenerator } from "./contract-generator"
 import { TransactionEditDialog } from "./transaction-edit-dialog"
 import { toast } from "sonner"
+import { ResponsiveContainer } from "recharts"
 
 // Fallback data for charts when no real data is available
 const monthlyRevenueChart = [

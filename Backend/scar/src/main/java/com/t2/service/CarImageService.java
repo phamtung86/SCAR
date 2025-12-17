@@ -59,4 +59,9 @@ public class CarImageService implements ICarImageService {
             }
         }
     }
+
+    @Override
+    public List<CarImages> findByCarId(Integer carId) {
+        return iCarImageRepository.findByCarId(carId);
+    }
 }

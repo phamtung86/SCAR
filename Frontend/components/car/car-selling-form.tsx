@@ -16,6 +16,7 @@ import CarModelAPI from "@/lib/api/car-models"
 import CarTypesAPI from "@/lib/api/car-types"
 import { Car, DollarSign, History, MapPin, Plus, Settings, Upload, X } from "lucide-react"
 import { useState } from "react"
+import { toast } from "sonner"
 
 export default function CarSellingForm({ onCancel }: { onCancel?: () => void }) {
   const [formData, setFormData] = useState({
@@ -180,9 +181,10 @@ export default function CarSellingForm({ onCancel }: { onCancel?: () => void }) 
 
     try {
       const response = await CarAPI.createNewCar(form);
-      console.log("Car created successfully:", response);
+      console.log(response);
+
       if (response.status === 200) {
-        alert("Đăng tin bán xe thành công!");
+        toast.success("Tin đăng đã được gửi đi thành công!");
         setImages([]);
         setImagePreviews([]);
         setHistoryEvents([{ id: 1, eventDate: "", description: "" }]);
@@ -279,7 +281,7 @@ export default function CarSellingForm({ onCancel }: { onCancel?: () => void }) 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files)
-      const newImages = [...images, ...files].slice(0, 10) 
+      const newImages = [...images, ...files].slice(0, 10)
 
       imagePreviews.forEach((url) => URL.revokeObjectURL(url))
 

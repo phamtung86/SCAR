@@ -41,25 +41,26 @@ public class JwtFilter extends OncePerRequestFilter {
 			return;
 		}
 
-		String username = null;
-		String token = null;
-
 		try {
-			token = tokenHeader.substring(7);
-			username = tokenManager.getUsernameFromToken(token);
+			String token = tokenHeader.substring(7);
+			String username = tokenManager.getUsernameFromToken(token);
 
 			if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-				Claims claims = tokenManager.extractClaimsIgnoreExpiration(token);
-				String role = claims.get("role", String.class); // Lấy role từ token
-				if (role == null) role = "ROLE_USER"; // Mặc định nếu thiếu
+				// Load CustomUserDetails
+				CustomUserDetails userDetails = (CustomUserDetails) jwtUserDetailsService.loadUserByUsername(username);
 
-				List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role));
+				// Tạo Authentication với principal là userDetails (CustomUserDetails)
+				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+						userDetails,
+						null,
+						userDetails.getAuthorities()
+				);
 
-				UsernamePasswordAuthenticationToken authenticationToken =
-						new UsernamePasswordAuthenticationToken(username, null, authorities);
+				// Set details (nếu cần, ví dụ WebAuthenticationDetails)
+				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-				authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-				SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+				// Set vào SecurityContext (CHỈ MỘT LẦN)
+				SecurityContextHolder.getContext().setAuthentication(authentication);
 			}
 
 			filterChain.doFilter(request, response);

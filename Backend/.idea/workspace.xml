@@ -5,11 +5,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="53c808c2-df58-4669-b87d-fc60738f5d7a" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/consumer/CarEventConsumer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/dto/CarCreatedEvent.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Cars.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Cars.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Comments.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Comments.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/config/RabbitConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/config/RabbitConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/CarController.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/CarController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/dto/CarDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/dto/CarDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/images/ClarifaiService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/images/ClarifaiService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/jwtutils/JwtFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/jwtutils/JwtFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/ICarImageRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/ICarImageRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/CarImageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/CarImageService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/CarService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/CarService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/components/home/post-card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/home/post-card.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ICarImageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ICarImageService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/components/car/car-selling-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/car/car-selling-form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/components/management/seller-dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/management/seller-dashboard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/components/payment/payment-fee.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/payment/payment-fee.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/lib/api/car.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/lib/api/car.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,7 +52,7 @@
     &quot;Application.ScarApplication.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;PT&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
     &quot;last_opened_file_path&quot;: &quot;M:/Source Code/VS Code/SCAR_DETAIL/SCAR/Backend/scar/src/main/java/com/t2/vnpay&quot;
   }
 }</component>
