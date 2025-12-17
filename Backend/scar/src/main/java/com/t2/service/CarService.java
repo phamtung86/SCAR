@@ -1,5 +1,6 @@
 package com.t2.service;
 
+import com.t2.dto.CarCreatedEvent;
 import com.t2.dto.CarDTO;
 import com.t2.dto.CarFeaturesDTO;
 import com.t2.dto.CarHistoryDTO;
@@ -15,6 +16,7 @@ import com.t2.specification.CarSpecification;
 import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
@@ -57,6 +59,9 @@ public class CarService implements ICarService {
     private HttpServletRequest request;
     @Autowired
     private IFeesService iFeesService;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
 
     @Override
     public List<CarDTO> getAllCars() {
@@ -118,7 +123,6 @@ public class CarService implements ICarService {
             iPaymentService.createPaymentUrl(userId, car.getId(), (long) fee.getPrice(), "NCB", "vn", request, null, fee.getId());
         }
 
-
         if (carImages != null && !carImages.isEmpty()) {
             iCarImageService.createNewCarImages(carImages, savedCar);
         }
@@ -134,6 +138,13 @@ public class CarService implements ICarService {
                 iCarFeatureService.createCarFeature(dto, savedCar);
             }
         }
+        CarCreatedEvent carCreatedEvent = CarCreatedEvent.builder()
+                .carId(car.getId())
+                .userId(userId)
+                .carTitle(car.getTitle())
+                .createdAt(LocalDateTime.now())
+                .build();
+        rabbitTemplate.convertAndSend("car.exchange", "car.created", carCreatedEvent);
     }
 
 

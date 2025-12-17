@@ -1,5 +1,6 @@
 package com.t2.service;
 
+import com.t2.entity.CarImages;
 import com.t2.entity.Cars;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -10,4 +11,6 @@ public interface ICarImageService {
     void createNewCarImages(List<MultipartFile> carImages, Cars cars);
 
     void deleteImageById(Integer id);
+
+    List<CarImages> findByCarId(Integer carId);
 }

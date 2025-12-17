@@ -3,6 +3,7 @@ package com.t2.dto;
 import com.t2.entity.Cars;
 import com.t2.models.UserResponse;
 import jakarta.persistence.Column;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,6 +13,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@Data
 public class CarDTO {
 
     private Integer id;

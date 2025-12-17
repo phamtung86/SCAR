@@ -64,43 +64,45 @@ const createNewCar = async (form: FormData) => {
   if (!user) {
     throw new Error("User not authenticated");
   }
-  const res = await axiosClient.post(URL + `/user/${user.id}`, form, {
+  const res = await axiosClient.post(URL, form, {
     headers: {
       "Content-Type": "multipart/form-data"
-    }
+    },
+    timeout: 60000 // 60 seconds for file upload
   });
   return res;
 }
 
 const updateCar = async (form: FormData, carId: number) => {
-  const res = await axiosClient.put(`${URL}/${carId}/user/${user?.id}`,form,
+  const res = await axiosClient.put(`${URL}/${carId}`, form,
     {
       headers: {
         "Content-Type": "multipart/form-data"
-      }
+      },
+      timeout: 60000 // 60 seconds for file upload
     }
   )
   return res;
 }
 
 const deleteCarById = async (id: number) => {
-    const res = axiosClient.put(`${URL}/${id}`)
-    return res;
+  const res = axiosClient.put(`${URL}/${id}`)
+  return res;
 }
-const getRelatedCars = async (carId: number ,carTypeId: number ) => {
-    const res = axiosClient.get(`${URL}/${carId}/related/type/${carTypeId}`)
-    return res;
+const getRelatedCars = async (carId: number, carTypeId: number) => {
+  const res = axiosClient.get(`${URL}/${carId}/related/type/${carTypeId}`)
+  return res;
 }
-const getCarsByBrandId = async (brandName: string  ) => {
-    const res = axiosClient.get(`${URL}/brand/${brandName}`)
-    return res;
+const getCarsByBrandId = async (brandName: string) => {
+  const res = axiosClient.get(`${URL}/brand/${brandName}`)
+  return res;
 }
 
-const getTopCarsOrderByView = async (limit : number) => {
+const getTopCarsOrderByView = async (limit: number) => {
   const res = axiosClient.get(`${URL}/top/${limit}`)
   return res;
 }
-const getCarsByStatus = async (status : string) => {
+const getCarsByStatus = async (status: string) => {
   const res = axiosClient.get(`${URL}/status/${status}`)
   return res;
 }

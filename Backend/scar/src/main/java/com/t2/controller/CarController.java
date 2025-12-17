@@ -2,6 +2,7 @@ package com.t2.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.t2.dto.CarCreatedEvent;
 import com.t2.dto.CarDTO;
 import com.t2.dto.CarFeaturesDTO;
 import com.t2.dto.CarHistoryDTO;
@@ -10,17 +11,24 @@ import com.t2.form.Car.CarFilterForm;
 import com.t2.form.Car.ChangeStatusCarForm;
 import com.t2.form.Car.CreateCarForm;
 import com.t2.images.ClarifaiService;
+import com.t2.jwtutils.CustomUserDetails;
 import com.t2.models.EnumResponse;
 import com.t2.service.ICarService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.attribute.UserPrincipal;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -33,6 +41,7 @@ public class CarController {
     private ICarService carService;
     @Autowired
     private ClarifaiService clarifaiService;
+
 
     @GetMapping
     public ResponseEntity<List<CarDTO>> getAllCars() {
@@ -65,12 +74,12 @@ public class CarController {
         return ResponseEntity.status(200).body("success");
     }
 
-    @PostMapping("/user/{id}")
+    @PostMapping
     public ResponseEntity<?> createNewCar(@RequestPart("carData") String carDataJson,
                                           @RequestPart("carImages") List<MultipartFile> carImages,
                                           @RequestPart(value = "carFeatures", required = false) String carFeaturesJson,
                                           @RequestPart(value = "carHistories", required = false) String carHistoriesJson,
-                                          @PathVariable("id") Integer userId) {
+                                          @AuthenticationPrincipal CustomUserDetails currentUser) {
         ObjectMapper mapper = new ObjectMapper();
         try {
             CreateCarForm createCarForm = mapper.readValue(carDataJson, CreateCarForm.class);
@@ -81,16 +90,8 @@ public class CarController {
                     mapper.readValue(carHistoriesJson, new TypeReference<>() {
                     }) : null;
 
-            if (carImages != null && !carImages.isEmpty()) {
-                boolean allValid = clarifaiService.areAllImagesValid(carImages);
-                if (!allValid) {
-                    return ResponseEntity.badRequest().body("Hình ảnh xe không hợp lệ");
-                }
-            }
-
-            carService.createNewCar(createCarForm, carImages, carFeatures, carHistories, userId);
-            return ResponseEntity.ok("Tạo tin bán thành công");
-
+            carService.createNewCar(createCarForm, carImages, carFeatures, carHistories, currentUser.getUserId());
+            return ResponseEntity.ok("Tin đăng đã được gửi");
         } catch (Exception e) {
             log.error("Lỗi khi tạo tin đăng xe: ", e);
             return ResponseEntity.status(500).body("Đã xảy ra lỗi trong quá trình xử lý");
