@@ -22,7 +22,6 @@ public class Posts {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    // Optional: captions, locations, etc.
     private String caption;
 
     private String location;

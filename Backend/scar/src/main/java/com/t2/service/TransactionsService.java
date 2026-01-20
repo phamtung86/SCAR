@@ -27,7 +27,6 @@ public class TransactionsService implements ITransactionsService {
     @Autowired
     private TransactionsMapper transactionsMapper;
 
-
     @Override
     public void createNewTransaction(TransactionsCRUDForm transactionsCRUDForm) {
         Cars car = iCarService.findById(transactionsCRUDForm.getCarId());
@@ -70,13 +69,13 @@ public class TransactionsService implements ITransactionsService {
     public void updateTransaction(Integer transactionId, TransactionsCRUDForm transactionsCRUDForm) {
         Transactions transaction = iTransactionsRepository.findById(transactionId)
                 .orElseThrow(() -> new RuntimeException("Transaction not found with id: " + transactionId));
-        
+
         // Cập nhật thông tin xe nếu có
         if (transactionsCRUDForm.getCarId() != null) {
             Cars car = iCarService.findById(transactionsCRUDForm.getCarId());
             transaction.setCar(car);
         }
-        
+
         // Cập nhật thông tin buyer nếu có
         if (transactionsCRUDForm.getBuyerId() != null) {
             User buyer = userService.findUserById(transactionsCRUDForm.getBuyerId());
@@ -88,24 +87,24 @@ public class TransactionsService implements ITransactionsService {
             transaction.setBuyerPhone(transactionsCRUDForm.getBuyerPhone());
             transaction.setBuyerAddress(transactionsCRUDForm.getBuyerAddress());
         }
-        
+
         // Cập nhật các thông tin khác
         if (transactionsCRUDForm.getPriceAgreed() != null) {
             transaction.setPriceAgreed(transactionsCRUDForm.getPriceAgreed());
         }
-        
+
         if (transactionsCRUDForm.getPaymentMethod() != null) {
             transaction.setPaymentMethod(Transactions.PaymentMethod.valueOf(transactionsCRUDForm.getPaymentMethod()));
         }
-        
+
         if (transactionsCRUDForm.getContractNumber() != null) {
             transaction.setContractNumber(transactionsCRUDForm.getContractNumber());
         }
-        
+
         if (transactionsCRUDForm.getNotes() != null) {
             transaction.setNotes(transactionsCRUDForm.getNotes());
         }
-        
+
         transaction.setUpdatedAt(new Date());
         iTransactionsRepository.save(transaction);
     }
@@ -116,13 +115,32 @@ public class TransactionsService implements ITransactionsService {
         Transactions transaction = iTransactionsRepository.findById(transactionId)
                 .orElseThrow(() -> new RuntimeException("Transaction not found with id: " + transactionId));
 
-        transaction.setStatus(Transactions.Status.valueOf(status.toUpperCase()));
+        Transactions.Status newStatus = Transactions.Status.valueOf(status.toUpperCase());
+        transaction.setStatus(newStatus);
         transaction.setUpdatedAt(new Date());
 
-        if (Transactions.Status.CONFIRMED.name().equals(status.toUpperCase())) {
-            Cars car = transaction.getCar();
-            if (car != null) {
-                iCarService.changeSold(car.getId(), true);
+        Cars car = transaction.getCar();
+        if (car != null) {
+            switch (newStatus) {
+                case CONFIRMED:
+                    // Khi xác nhận giao dịch: đánh dấu xe đã bán
+                    iCarService.changeSold(car.getId(), true);
+                    break;
+
+                case COMPLETED:
+                    // Khi hoàn thành giao dịch: ẩn xe khỏi public (vẫn giữ trong lịch sử)
+                    iCarService.changeSold(car.getId(), true);
+                    iCarService.changeDisplay(car.getId(), false);
+                    break;
+
+                case CANCELLED:
+                    // Khi hủy giao dịch: khôi phục lại trạng thái xe
+                    iCarService.changeSold(car.getId(), false);
+                    iCarService.changeDisplay(car.getId(), true);
+                    break;
+
+                default:
+                    break;
             }
         }
         iTransactionsRepository.save(transaction);

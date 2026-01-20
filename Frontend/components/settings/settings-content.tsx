@@ -11,12 +11,26 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import ProvinceAPI from "@/lib/api/province"
 import userAPI from "@/lib/api/user"
+import settingsAPI from "@/lib/api/settings"
 import { getCurrentUser } from "@/lib/utils/get-current-user"
+import { logoutWithConfirmation } from "@/lib/utils/logout"
 import { UserDTO, Location } from "@/types/user"
+import {
+  NotificationSettings,
+  PrivacySettings,
+  AppearanceSettings,
+  LanguageSettings,
+  defaultNotificationSettings,
+  defaultPrivacySettings,
+  defaultAppearanceSettings,
+  defaultLanguageSettings
+} from "@/types/settings"
 import { Bell, CheckCircle, CircleArrowUp, Globe, HelpCircle, LogOut, Palette, Shield, User, XCircle } from "lucide-react"
 import { useEffect, useState } from "react"
 import { UpgradeModal } from "../upgrade-rank-user"
 import { validateEmail, validatePhoneVN } from "@/lib/utils/validate"
+import { useTheme } from "@/components/contexts/theme-context"
+import { toast } from "sonner"
 
 
 export function SettingsContent() {
@@ -40,7 +54,8 @@ export function SettingsContent() {
     rating: 0,
     rank: "",
     registerRankAt: "",
-    expiryRankAt: ""
+    expiryRankAt: "",
+    accountStatus: ""
   });
   const [address, setAddress] = useState<Location[]>([]);
   const [provinceIndex, setProvinceIndex] = useState<number>(0)
@@ -50,6 +65,17 @@ export function SettingsContent() {
   const [file, setFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [displayUpgrandeRank, setDisplayUpgrandeRank] = useState(false)
+
+  // Settings states
+  const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>(defaultNotificationSettings)
+  const [privacySettings, setPrivacySettings] = useState<PrivacySettings>(defaultPrivacySettings)
+  const [appearanceSettings, setAppearanceSettings] = useState<AppearanceSettings>(defaultAppearanceSettings)
+  const [languageSettings, setLanguageSettings] = useState<LanguageSettings>(defaultLanguageSettings)
+  const [isLoadingSettings, setIsLoadingSettings] = useState(false)
+
+  // Theme context
+  const { theme, setTheme } = useTheme()
+
 
   // Xử lý chọn ảnh
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,6 +87,29 @@ export function SettingsContent() {
       setPreview(URL.createObjectURL(selectedFile))
     }
   }
+
+  // Fetch user settings
+  const fetchUserSettings = async (userId: number) => {
+    setIsLoadingSettings(true)
+    try {
+      const res = await settingsAPI.getUserSettings(userId)
+      if (res.status === 200 && res.data) {
+        if (res.data.notifications) setNotificationSettings(res.data.notifications)
+        if (res.data.privacy) setPrivacySettings(res.data.privacy)
+        if (res.data.appearance) {
+          setAppearanceSettings(res.data.appearance)
+          setTheme(res.data.appearance.theme)
+        }
+        if (res.data.language) setLanguageSettings(res.data.language)
+      }
+    } catch (error) {
+      console.error("Failed to load settings:", error)
+      // Use default settings if loading fails
+    } finally {
+      setIsLoadingSettings(false)
+    }
+  }
+
   const fetchDataUser = async (id: number) => {
     const res = await userAPI.findById(id);
     if (res.status === 200) {
@@ -80,35 +129,40 @@ export function SettingsContent() {
 
 
   useEffect(() => {
-    fetchDataUser(currentUser?.id)
-    fetchDataLocation()
+    if (currentUser?.id) {
+      fetchDataUser(currentUser.id)
+      fetchDataLocation()
+      fetchUserSettings(currentUser.id)
+    }
   }, [])
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setUser((prev) => ({
       ...prev,
       [name]: value
     }));
   };
+
   const handleUpdateUser = async () => {
     let updatedUser = { ...user }
     if (ward || province) {
       updatedUser.location = `${ward || ""} - ${province || ""}`
 
       if (Object.values(updatedUser).some(value => value === "" || value === null || value === undefined)) {
-        alert("Vui lòng điền đầy đủ các trường");
+        toast.error("Vui lòng điền đầy đủ các trường");
         return;
       }
 
 
       if (!validateEmail(updatedUser.email)) {
-        alert("Email chưa đúng định dạng")
+        toast.error("Email chưa đúng định dạng")
         return;
       }
 
       if (!validatePhoneVN(updatedUser.phone)) {
-        alert("Số điện thoại chưa đúng")
+        toast.error("Số điện thoại chưa đúng")
         return;
       }
     }
@@ -126,11 +180,87 @@ export function SettingsContent() {
 
     const res = await userAPI.updateUser(formData, updatedUser.id)
     if (res.status === 200) {
-      alert("Cập nhật tài khoản thành công")
-      fetchDataUser(currentUser?.id)
+      toast.success("Cập nhật tài khoản thành công")
+      if (currentUser?.id) {
+        fetchDataUser(currentUser.id)
+      }
       setPreview(null)
     } else {
-      alert("Cập nhật tài khoản không thành công")
+      toast.error("Cập nhật tài khoản không thành công")
+    }
+  }
+
+  // Handle notification settings update
+  const handleUpdateNotifications = async () => {
+    if (!currentUser?.id) return
+    setIsLoadingSettings(true)
+    try {
+      const res = await settingsAPI.updateNotifications(currentUser.id, notificationSettings)
+      if (res.status === 200) {
+        toast.success("Đã lưu cài đặt thông báo")
+      } else {
+        toast.error("Không thể lưu cài đặt thông báo")
+      }
+    } catch (error) {
+      toast.error("Đã xảy ra lỗi")
+    } finally {
+      setIsLoadingSettings(false)
+    }
+  }
+
+  // Handle privacy settings update
+  const handleUpdatePrivacy = async () => {
+    if (!currentUser?.id) return
+    setIsLoadingSettings(true)
+    try {
+      const res = await settingsAPI.updatePrivacy(currentUser.id, privacySettings)
+      if (res.status === 200) {
+        toast.success("Đã lưu cài đặt riêng tư")
+      } else {
+        toast.error("Không thể lưu cài đặt riêng tư")
+      }
+    } catch (error) {
+      toast.error("Đã xảy ra lỗi")
+    } finally {
+      setIsLoadingSettings(false)
+    }
+  }
+
+  // Handle appearance settings update
+  const handleUpdateAppearance = async () => {
+    if (!currentUser?.id) return
+    setIsLoadingSettings(true)
+    try {
+      const res = await settingsAPI.updateAppearance(currentUser.id, appearanceSettings)
+      if (res.status === 200) {
+        toast.success("Đã lưu cài đặt giao diện")
+        // Apply theme immediately
+        setTheme(appearanceSettings.theme)
+      } else {
+        toast.error("Không thể lưu cài đặt giao diện")
+      }
+    } catch (error) {
+      toast.error("Đã xảy ra lỗi")
+    } finally {
+      setIsLoadingSettings(false)
+    }
+  }
+
+  // Handle language settings update
+  const handleUpdateLanguage = async () => {
+    if (!currentUser?.id) return
+    setIsLoadingSettings(true)
+    try {
+      const res = await settingsAPI.updateLanguage(currentUser.id, languageSettings)
+      if (res.status === 200) {
+        toast.success("Đã lưu cài đặt ngôn ngữ")
+      } else {
+        toast.error("Không thể lưu cài đặt ngôn ngữ")
+      }
+    } catch (error) {
+      toast.error("Đã xảy ra lỗi")
+    } finally {
+      setIsLoadingSettings(false)
     }
   }
 
@@ -150,7 +280,7 @@ export function SettingsContent() {
       </div>
 
       <Card className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm">
-        {displayUpgrandeRank && <UpgradeModal
+        {displayUpgrandeRank && currentUser && <UpgradeModal
           isOpen={displayUpgrandeRank}
           onClose={handleCloseUpgradeRank}
           currentRank={user.rank}
@@ -291,7 +421,9 @@ export function SettingsContent() {
                       const ward = address[provinceIndex].wards.find(
                         (a) => a.code === Number(value)
                       );
-                      setWard(ward.name);
+                      if (ward) {
+                        setWard(ward.name);
+                      }
                     }
                     }>
                       <SelectTrigger>
@@ -322,21 +454,30 @@ export function SettingsContent() {
                         <Label>Bình luận mới</Label>
                         <p className="text-sm text-gray-500">Nhận thông báo khi có người bình luận bài viết của bạn</p>
                       </div>
-                      <Switch defaultChecked />
+                      <Switch
+                        checked={notificationSettings.emailNewComments}
+                        onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, emailNewComments: checked }))}
+                      />
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
                         <Label>Lượt thích</Label>
                         <p className="text-sm text-gray-500">Nhận thông báo khi có người thích bài viết của bạn</p>
                       </div>
-                      <Switch defaultChecked />
+                      <Switch
+                        checked={notificationSettings.emailNewLikes}
+                        onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, emailNewLikes: checked }))}
+                      />
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
                         <Label>Người theo dõi mới</Label>
                         <p className="text-sm text-gray-500">Nhận thông báo khi có người theo dõi bạn</p>
                       </div>
-                      <Switch defaultChecked />
+                      <Switch
+                        checked={notificationSettings.emailNewFollowers}
+                        onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, emailNewFollowers: checked }))}
+                      />
                     </div>
                   </div>
                 </div>
@@ -349,17 +490,27 @@ export function SettingsContent() {
                         <Label>Tin nhắn mới</Label>
                         <p className="text-sm text-gray-500">Nhận thông báo đẩy khi có tin nhắn mới</p>
                       </div>
-                      <Switch defaultChecked />
+                      <Switch
+                        checked={notificationSettings.pushNewMessages}
+                        onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, pushNewMessages: checked }))}
+                      />
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
                         <Label>Sự kiện</Label>
                         <p className="text-sm text-gray-500">Nhận thông báo về sự kiện sắp diễn ra</p>
                       </div>
-                      <Switch />
+                      <Switch
+                        checked={notificationSettings.pushEvents}
+                        onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, pushEvents: checked }))}
+                      />
                     </div>
                   </div>
                 </div>
+
+                <Button onClick={handleUpdateNotifications} disabled={isLoadingSettings}>
+                  {isLoadingSettings ? "Đang lưu..." : "Lưu cài đặt"}
+                </Button>
               </div>
             </TabsContent>
 
@@ -373,14 +524,20 @@ export function SettingsContent() {
                         <Label>Tài khoản riêng tư</Label>
                         <p className="text-sm text-gray-500">Chỉ người theo dõi mới có thể xem bài viết của bạn</p>
                       </div>
-                      <Switch />
+                      <Switch
+                        checked={privacySettings.privateAccount}
+                        onCheckedChange={(checked) => setPrivacySettings(prev => ({ ...prev, privateAccount: checked }))}
+                      />
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
                         <Label>Hiển thị trạng thái hoạt động</Label>
                         <p className="text-sm text-gray-500">Cho phép người khác biết khi bạn đang online</p>
                       </div>
-                      <Switch defaultChecked />
+                      <Switch
+                        checked={privacySettings.showActivityStatus}
+                        onCheckedChange={(checked) => setPrivacySettings(prev => ({ ...prev, showActivityStatus: checked }))}
+                      />
                     </div>
                   </div>
                 </div>
@@ -390,7 +547,12 @@ export function SettingsContent() {
                   <div className="space-y-4">
                     <div>
                       <Label>Tin nhắn</Label>
-                      <Select defaultValue="everyone">
+                      <Select
+                        value={privacySettings.allowMessagesFrom}
+                        onValueChange={(value: "everyone" | "followers" | "none") =>
+                          setPrivacySettings(prev => ({ ...prev, allowMessagesFrom: value }))
+                        }
+                      >
                         <SelectTrigger className="w-full">
                           <SelectValue />
                         </SelectTrigger>
@@ -403,6 +565,10 @@ export function SettingsContent() {
                     </div>
                   </div>
                 </div>
+
+                <Button onClick={handleUpdatePrivacy} disabled={isLoadingSettings}>
+                  {isLoadingSettings ? "Đang lưu..." : "Lưu cài đặt"}
+                </Button>
               </div>
             </TabsContent>
 
@@ -410,7 +576,12 @@ export function SettingsContent() {
               <div className="space-y-6">
                 <div>
                   <h3 className="text-lg font-semibold mb-4">Chủ đề</h3>
-                  <Select defaultValue="system">
+                  <Select
+                    value={appearanceSettings.theme}
+                    onValueChange={(value: "light" | "dark" | "system") =>
+                      setAppearanceSettings(prev => ({ ...prev, theme: value }))
+                    }
+                  >
                     <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>
@@ -424,7 +595,12 @@ export function SettingsContent() {
 
                 <div>
                   <h3 className="text-lg font-semibold mb-4">Kích thước chữ</h3>
-                  <Select defaultValue="medium">
+                  <Select
+                    value={appearanceSettings.fontSize}
+                    onValueChange={(value: "small" | "medium" | "large") =>
+                      setAppearanceSettings(prev => ({ ...prev, fontSize: value }))
+                    }
+                  >
                     <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>
@@ -435,6 +611,10 @@ export function SettingsContent() {
                     </SelectContent>
                   </Select>
                 </div>
+
+                <Button onClick={handleUpdateAppearance} disabled={isLoadingSettings}>
+                  {isLoadingSettings ? "Đang lưu..." : "Áp dụng"}
+                </Button>
               </div>
             </TabsContent>
 
@@ -442,7 +622,12 @@ export function SettingsContent() {
               <div className="space-y-6">
                 <div>
                   <h3 className="text-lg font-semibold mb-4">Ngôn ngữ hiển thị</h3>
-                  <Select defaultValue="vi">
+                  <Select
+                    value={languageSettings.language}
+                    onValueChange={(value: "vi" | "en") =>
+                      setLanguageSettings(prev => ({ ...prev, language: value }))
+                    }
+                  >
                     <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>
@@ -455,7 +640,12 @@ export function SettingsContent() {
 
                 <div>
                   <h3 className="text-lg font-semibold mb-4">Múi giờ</h3>
-                  <Select defaultValue="asia/ho_chi_minh">
+                  <Select
+                    value={languageSettings.timezone}
+                    onValueChange={(value) =>
+                      setLanguageSettings(prev => ({ ...prev, timezone: value }))
+                    }
+                  >
                     <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>
@@ -466,6 +656,10 @@ export function SettingsContent() {
                     </SelectContent>
                   </Select>
                 </div>
+
+                <Button onClick={handleUpdateLanguage} disabled={isLoadingSettings}>
+                  {isLoadingSettings ? "Đang lưu..." : "Lưu cài đặt"}
+                </Button>
               </div>
             </TabsContent>
 
@@ -474,26 +668,26 @@ export function SettingsContent() {
                 <div>
                   <h3 className="text-lg font-semibold mb-4">Trung tâm trợ giúp</h3>
                   <div className="space-y-3">
-                    <Button variant="outline" className="w-full justify-start">
+                    <Button variant="outline" className="w-full justify-start" onClick={() => toast.info("Tính năng đang phát triển")}>
                       Câu hỏi thường gặp
                     </Button>
-                    <Button variant="outline" className="w-full justify-start">
+                    <Button variant="outline" className="w-full justify-start" onClick={() => toast.info("Tính năng đang phát triển")}>
                       Liên hệ hỗ trợ
                     </Button>
-                    <Button variant="outline" className="w-full justify-start">
+                    <Button variant="outline" className="w-full justify-start" onClick={() => toast.info("Tính năng đang phát triển")}>
                       Báo cáo lỗi
                     </Button>
-                    <Button variant="outline" className="w-full justify-start">
+                    <Button variant="outline" className="w-full justify-start" onClick={() => toast.info("Tính năng đang phát triển")}>
                       Điều khoản sử dụng
                     </Button>
-                    <Button variant="outline" className="w-full justify-start">
+                    <Button variant="outline" className="w-full justify-start" onClick={() => toast.info("Tính năng đang phát triển")}>
                       Chính sách bảo mật
                     </Button>
                   </div>
                 </div>
 
                 <div className="border-t pt-6">
-                  <Button variant="destructive" className="w-full">
+                  <Button variant="destructive" className="w-full" onClick={logoutWithConfirmation}>
                     <LogOut className="h-4 w-4 mr-2" />
                     Đăng xuất
                   </Button>

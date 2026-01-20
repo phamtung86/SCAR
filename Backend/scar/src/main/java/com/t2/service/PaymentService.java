@@ -45,7 +45,8 @@ public class PaymentService implements IPaymentService {
     private IFeesService iFeesService;
 
     @Override
-    public String createPaymentUrl(Integer userId, Integer carId, long amount, String bankCode, String language, HttpServletRequest request, Integer paymentId, Integer feeId) {
+    public String createPaymentUrl(Integer userId, Integer carId, long amount, String bankCode, String language,
+            HttpServletRequest request, Integer paymentId, Integer feeId) {
         Payment payment;
         String vnp_TxnRef = "";
         if (paymentId != null) {
@@ -69,7 +70,8 @@ public class PaymentService implements IPaymentService {
         vnp_Params.put("vnp_TmnCode", vnPayConfig.getTmnCode());
         vnp_Params.put("vnp_Amount", String.valueOf(vnp_Amount));
         vnp_Params.put("vnp_CurrCode", "VND");
-        if (bankCode != null && !bankCode.isEmpty()) vnp_Params.put("vnp_BankCode", bankCode.trim());
+        if (bankCode != null && !bankCode.isEmpty())
+            vnp_Params.put("vnp_BankCode", bankCode.trim());
         vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
         vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang:" + vnp_TxnRef);
         vnp_Params.put("vnp_OrderType", orderType);
@@ -135,12 +137,13 @@ public class PaymentService implements IPaymentService {
 
         // Build data string để verify
         StringBuilder hashData = new StringBuilder();
-        for (Iterator<Map.Entry<String, String>> itr = fields.entrySet().iterator(); itr.hasNext(); ) {
+        for (Iterator<Map.Entry<String, String>> itr = fields.entrySet().iterator(); itr.hasNext();) {
             Map.Entry<String, String> entry = itr.next();
             hashData.append(URLEncoder.encode(entry.getKey(), StandardCharsets.US_ASCII));
             hashData.append('=');
             hashData.append(URLEncoder.encode(entry.getValue(), StandardCharsets.US_ASCII));
-            if (itr.hasNext()) hashData.append('&');
+            if (itr.hasNext())
+                hashData.append('&');
         }
 
         String secretKey = vnPayConfig.getSecretKey().trim();
@@ -157,9 +160,9 @@ public class PaymentService implements IPaymentService {
         // Các field quan trọng
         String responseCode = fields.get("vnp_ResponseCode");
         String transactionStatus = fields.get("vnp_TransactionStatus");
-        String bankTranNo = fields.get("vnp_BankTranNo");        // Mã GD tại ngân hàng (gatewayTransactionId)
+        String bankTranNo = fields.get("vnp_BankTranNo"); // Mã GD tại ngân hàng (gatewayTransactionId)
         String vnpTransactionNo = fields.get("vnp_TransactionNo"); // Mã GD tại VNPAY
-        String txnRef = fields.get("vnp_TxnRef");                // Mã đơn hàng nội bộ
+        String txnRef = fields.get("vnp_TxnRef"); // Mã đơn hàng nội bộ
 
         if ("00".equals(responseCode) && "00".equals(transactionStatus)) {
             // Thanh toán thành công
@@ -190,7 +193,6 @@ public class PaymentService implements IPaymentService {
         result.put("vnp_PayDate", fields.get("vnp_PayDate"));
         return result;
     }
-
 
     @Transactional
     @Override
@@ -288,7 +290,6 @@ public class PaymentService implements IPaymentService {
         return chartData;
     }
 
-
     @Override
     public String queryTransaction(String orderId, String transDate, HttpServletRequest request) {
         String vnp_RequestId = VnPayConfig.getRandomNumber(8);
@@ -367,7 +368,8 @@ public class PaymentService implements IPaymentService {
 
         while (true) {
             try {
-                if (!((inputLine = in.readLine()) != null)) break;
+                if (!((inputLine = in.readLine()) != null))
+                    break;
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -383,7 +385,8 @@ public class PaymentService implements IPaymentService {
     }
 
     @Override
-    public String refundTransaction(String tranType, String orderId, String amount, String transDate, String user, HttpServletRequest request) {
+    public String refundTransaction(String tranType, String orderId, String amount, String transDate, String user,
+            HttpServletRequest request) {
         String vnp_RequestId = VnPayConfig.getRandomNumber(8);
         String vnp_Version = "2.1.0";
         String vnp_Command = "refund";
@@ -470,7 +473,8 @@ public class PaymentService implements IPaymentService {
 
         while (true) {
             try {
-                if (!((inputLine = in.readLine()) != null)) break;
+                if (!((inputLine = in.readLine()) != null))
+                    break;
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -548,7 +552,8 @@ public class PaymentService implements IPaymentService {
     @Override
     public List<PaymentDTO> getPaymentsByUserIdAndStatus(Integer userId, String status) {
         List<Payment> payments = paymentRepository.findByUserIdAndStatus(userId, Payment.Status.valueOf(status));
-        return modelMapper.map(payments,new TypeToken<List<PaymentDTO>>(){}.getType());
+        return modelMapper.map(payments, new TypeToken<List<PaymentDTO>>() {
+        }.getType());
     }
 
     private Map<String, Long> calculateRevenue(List<Object[]> results) {

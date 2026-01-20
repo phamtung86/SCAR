@@ -18,6 +18,7 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -62,10 +63,10 @@ public class CarService implements ICarService {
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
-
     @Override
     public List<CarDTO> getAllCars() {
-        List<Cars> cars = carRepository.findByIsSold(false).stream().sorted(Comparator.comparingDouble(c -> -calculateCarScore(c))).collect(Collectors.toList());
+        List<Cars> cars = carRepository.findByIsSold(false).stream()
+                .sorted(Comparator.comparingDouble(c -> -calculateCarScore(c))).collect(Collectors.toList());
         List<CarDTO> carResponses = modelMapper.map(cars, new TypeToken<List<CarDTO>>() {
         }.getType());
         Set<Integer> userIds = carResponses.stream().map(car -> car.getUser().getId()).collect(Collectors.toSet());
@@ -82,7 +83,8 @@ public class CarService implements ICarService {
         return carResponses;
     }
 
-    @Override
+    @Cacheable(value = "car", key = "#id")
+    @Override()
     public CarDTO getCarById(int id) {
         Cars car = carRepository.findById(id).get();
         CarDTO carDTO = modelMapper.map(car, CarDTO.class);
@@ -100,7 +102,7 @@ public class CarService implements ICarService {
     @Transactional
     @Override
     public void createNewCar(CreateCarForm createCarForm, List<MultipartFile> carImages,
-                             List<CarFeaturesDTO> carFeatures, List<CarHistoryDTO> carHistories, Integer userId) {
+            List<CarFeaturesDTO> carFeatures, List<CarHistoryDTO> carHistories, Integer userId) {
 
         User user = userService.findUserById(userId);
         Cars car = modelMapper.map(createCarForm, Cars.class);
@@ -118,9 +120,11 @@ public class CarService implements ICarService {
 
         if (createCarForm.isHighLight()) {
             Fees feeHighLight = iFeesService.findByCode("POST_HIGHLIGHT_FEE");
-            iPaymentService.createPaymentUrl(userId, car.getId(), (long) (fee.getPrice() + feeHighLight.getPrice()), "NCB", "vn", request, null, feeHighLight.getId());
+            iPaymentService.createPaymentUrl(userId, car.getId(), (long) (fee.getPrice() + feeHighLight.getPrice()),
+                    "NCB", "vn", request, null, feeHighLight.getId());
         } else {
-            iPaymentService.createPaymentUrl(userId, car.getId(), (long) fee.getPrice(), "NCB", "vn", request, null, fee.getId());
+            iPaymentService.createPaymentUrl(userId, car.getId(), (long) fee.getPrice(), "NCB", "vn", request, null,
+                    fee.getId());
         }
 
         if (carImages != null && !carImages.isEmpty()) {
@@ -147,7 +151,6 @@ public class CarService implements ICarService {
         rabbitTemplate.convertAndSend("car.exchange", "car.created", carCreatedEvent);
     }
 
-
     public double calculateCarScore(Cars car) {
         double score = 0.0;
 
@@ -160,14 +163,14 @@ public class CarService implements ICarService {
         score += view * 0.02; // Max ~10 điểm
 
         // 3. Tin nổi bật
-        if (car.isHighLight()) score += 3;
+        if (car.isHighLight())
+            score += 3;
 
         // 4. Mức độ mới (trong vòng 7 ngày đầu được 10 điểm, sau đó giảm dần)
         if (car.getCreatedAt() != null) {
             long hoursSincePost = ChronoUnit.HOURS.between(
                     car.getCreatedAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),
-                    LocalDateTime.now()
-            );
+                    LocalDateTime.now());
             double freshnessScore = Math.max(0, 168 - hoursSincePost) / 16.8; // 0–10
             score += freshnessScore;
         }
@@ -186,12 +189,12 @@ public class CarService implements ICarService {
         // 9. Giảm giá mạnh
         if (car.getOriginalPrice() != null && car.getPrice() != null) {
             double diff = car.getOriginalPrice() - car.getPrice();
-            if (diff >= 50_000_000) score += 2;
+            if (diff >= 50_000_000)
+                score += 2;
         }
 
         return Math.min(score, 50);
     }
-
 
     @Override
     public Page<CarDTO> getAllCarsPages(Pageable pageable, String search, CarFilterForm carFilterForm) {
@@ -231,13 +234,15 @@ public class CarService implements ICarService {
 
     @Override
     public List<CarDTO> findByUserId(Integer userId) {
-        List<Cars> cars = carRepository.findByUserIdAndIsSoldAndIsDisplay(userId, false, true);
+        // Lấy tất cả xe của user (bao gồm cả xe đã bán) để hiển thị trong dashboard
+        List<Cars> cars = carRepository.findByUserIdAndDeletedFalse(userId);
         return modelMapper.map(cars, new TypeToken<List<CarDTO>>() {
         }.getType());
     }
 
     @Override
-    public void updateCar(CreateCarForm createCarForm, List<MultipartFile> carImages, List<CarFeaturesDTO> carFeatures, List<CarHistoryDTO> carHistories, Integer userId, Integer carId) {
+    public void updateCar(CreateCarForm createCarForm, List<MultipartFile> carImages, List<CarFeaturesDTO> carFeatures,
+            List<CarHistoryDTO> carHistories, Integer userId, Integer carId) {
         Cars car = findById(carId);
         if (car != null) {
             if (!Objects.equals(car.getCarModels().getId(), createCarForm.getCarModelsId())) {
@@ -263,7 +268,8 @@ public class CarService implements ICarService {
             if (createCarForm.isHighLight()) {
                 Fees fee = iFeesService.findByCode("POST_FEE");
                 Fees feeHighLight = iFeesService.findByCode("POST_HIGHLIGHT_FEE");
-                iPaymentService.createPaymentUrl(userId, car.getId(), (long) (fee.getPrice() + feeHighLight.getPrice()), "NCB", "vn", request, null, feeHighLight.getId());
+                iPaymentService.createPaymentUrl(userId, car.getId(), (long) (fee.getPrice() + feeHighLight.getPrice()),
+                        "NCB", "vn", request, null, feeHighLight.getId());
             }
 
             if (carImages != null && !carImages.isEmpty()) {
@@ -307,7 +313,6 @@ public class CarService implements ICarService {
         }.getType());
     }
 
-
     @Override
     public List<CarDTO> findByBrandId(String Integer) {
         List<Cars> cars = carRepository.findCarByBrandName(Integer);
@@ -348,8 +353,17 @@ public class CarService implements ICarService {
     @Override
     public void changeSold(Integer id, boolean isSold) {
         Cars car = carRepository.findById(id).orElse(null);
-        if (car != null){
+        if (car != null) {
             car.setSold(isSold);
+            carRepository.save(car);
+        }
+    }
+
+    @Override
+    public void changeDisplay(Integer id, boolean isDisplay) {
+        Cars car = carRepository.findById(id).orElse(null);
+        if (car != null) {
+            car.setDisplay(isDisplay);
             carRepository.save(car);
         }
     }

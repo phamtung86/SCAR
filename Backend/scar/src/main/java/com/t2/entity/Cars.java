@@ -3,6 +3,7 @@ package com.t2.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.List;
 @Entity
 @Table(name = "cars")
 @Data
-public class Cars {
+public class Cars implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

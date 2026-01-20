@@ -1,5 +1,6 @@
 package com.t2.service;
 
+import com.t2.config.security.BaseService;
 import com.t2.dto.CommentsDTO;
 import com.t2.entity.Comments;
 import com.t2.entity.Posts;
@@ -12,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
 @Service
-public class CommentService implements ICommentService {
+public class CommentService extends BaseService implements ICommentService {
 
     @Autowired
     private CommentRepository commentRepository;
@@ -53,14 +54,20 @@ public class CommentService implements ICommentService {
         for (CommentsDTO dto : rootComments) {
             dto.getReplies().sort(Comparator.comparing(CommentsDTO::getCreatedDate).reversed());
         }
-         rootComments.sort(Comparator.comparing(CommentsDTO::getCreatedDate).reversed());
+        rootComments.sort(Comparator.comparing(CommentsDTO::getCreatedDate).reversed());
         return rootComments;
     }
 
     @Override
     public void saveComment(CommentsDTO comment) {
+        // IDOR Check
+        Integer userIdToCheck = comment.getUser() != null ? comment.getUser().getId() : null;
+        if (userIdToCheck != null && !isSelfOrAdmin(userIdToCheck)) {
+            throw new SecurityException("Access denied: You cannot create comment for another user");
+        }
+
         Comments comments = modelMapper.map(comment, Comments.class);
-        if(comment.getParentCommentId() != null){
+        if (comment.getParentCommentId() != null) {
             Comments c = commentRepository.findById(comment.getParentCommentId()).orElse(null);
             comments.setParentComment(c);
         }
@@ -71,9 +78,19 @@ public class CommentService implements ICommentService {
 
     @Override
     public Comments findCommentById(Integer id) {
-
         return commentRepository.findById(id).orElse(null);
     }
 
-
+    @Override
+    public void deleteComment(Integer id) {
+        Comments comment = commentRepository.findById(id).orElse(null);
+        if (comment != null) {
+            // IDOR Check: Ensure user is owner or admin or moderator
+            // Note: BaseService isModerator() checks role
+            if (!isSelf(comment.getUser().getId()) && !isAdmin() && !isModerator()) {
+                throw new SecurityException("Access denied: You are not authorized to delete this comment");
+            }
+            commentRepository.delete(comment);
+        }
+    }
 }

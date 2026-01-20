@@ -1,6 +1,7 @@
 package com.t2.config;
 
-import com.t2.jwtutils.JwtAuthenticationEntryPoint;
+import com.t2.common.SecurityConstants;
+import com.t2.config.exception.AuthExceptionHandler;
 import com.t2.jwtutils.JwtFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -27,7 +28,7 @@ import java.util.List;
 public class WebSecurityCongfig {
 
     @Autowired
-    private JwtAuthenticationEntryPoint authenticationEntryPoint;
+    private AuthExceptionHandler authExceptionHandler;
     @Autowired
     private JwtFilter filter;
     @Autowired
@@ -39,37 +40,39 @@ public class WebSecurityCongfig {
                 .csrf(AbstractHttpConfigurer::disable) // Tắt CSRF
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(request -> request
+                        // Cho phép Request OPTIONS (CORS Pre-flight) cho tất cả
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/v1/auth/**").permitAll()
-                        .requestMatchers("/api/v1/appointments/**").permitAll()
-                        .requestMatchers("/api/v1/cars/page").permitAll()
-                        .requestMatchers("/api/v1/payment/vnpay/return").permitAll()
-                        .requestMatchers("/ws/**").permitAll() 
-                        .anyRequest().authenticated()
-
-                )
+                        // Cho phép các API công khai đã định nghĩa trong SecurityConstants
+                        .requestMatchers(SecurityConstants.PUBLIC_URLS).permitAll()
+                        // Tất cả các request còn lại bắt buộc phải ĐĂNG NHẬP
+                        .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2
-                        .defaultSuccessUrl("http://localhost:3000/oauth2/success", true)
+                        .successHandler(successHandler))
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(authExceptionHandler) // Xử lý lỗi 401
+                        .accessDeniedHandler(authExceptionHandler) // Xử lý lỗi 403
                 )
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(authenticationEntryPoint)) // Xử lý 401 Unauthorized
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless session
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless
+                                                                                                              // session
                 .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class) // Thêm JWT filter
                 .build();
     }
+
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowCredentials(true);  // Allow credentials (cookies)
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));  // Allow frontend origin
-        configuration.setAllowedHeaders(List.of("*"));  // Allow all headers
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));  // Allow all methods
-        configuration.addExposedHeader("Authorization");  // Expose Authorization header
-        configuration.addExposedHeader("Set-Cookie");  // Expose Set-Cookie header (required for cookies to be sent)
+        configuration.setAllowCredentials(true); // Allow credentials (cookies)
+        configuration.setAllowedOrigins(List.of("http://localhost:3000")); // Allow frontend origin
+        configuration.setAllowedHeaders(List.of("*")); // Allow all headers
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Allow all methods
+        configuration.addExposedHeader("Authorization"); // Expose Authorization header
+        configuration.addExposedHeader("Set-Cookie"); // Expose Set-Cookie header (required for cookies to be sent)
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

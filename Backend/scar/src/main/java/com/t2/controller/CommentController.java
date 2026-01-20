@@ -1,5 +1,6 @@
 package com.t2.controller;
 
+import com.t2.common.ServiceResponse;
 import com.t2.dto.CommentsDTO;
 import com.t2.service.ICommentService;
 import jakarta.transaction.Transactional;
@@ -7,10 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,18 +21,25 @@ public class CommentController {
     private ICommentService commentService;
 
     @GetMapping("/post/{id}")
-    public ResponseEntity<List<CommentsDTO> > findCommentsByPost(@PathVariable Integer id) {
-        return ResponseEntity.ok(commentService.getCommentsByPostId(id));
+    public ResponseEntity<ServiceResponse> findCommentsByPost(@PathVariable Integer id) {
+        return ResponseEntity.ok(ServiceResponse.RESPONSE_SUCCESS(commentService.getCommentsByPostId(id)));
     }
 
     @Transactional
     @MessageMapping("/comment")
     @SendTo("/topic/comments")
-    public ResponseEntity<List<CommentsDTO>> addComment(CommentsDTO comment) {
+    public ResponseEntity<ServiceResponse> addComment(CommentsDTO comment) {
         commentService.saveComment(comment);
         List<CommentsDTO> commentsDTOS = commentService.getCommentsByPostId(comment.getPostsId());
-        return ResponseEntity.ok(commentsDTOS);
+        return ResponseEntity.ok(ServiceResponse.RESPONSE_SUCCESS(commentsDTOS));
+    }
+
+    // Yêu cầu quyền COMMENT_DELETE để xóa comment và phải là owner hoặc mod/admin
+    @PreAuthorize("hasAuthority('COMMENT_DELETE') and @securityExpr.isCommentOwnerOrMod(#id)")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ServiceResponse> deleteComment(@PathVariable(name = "id") Integer id) {
+        commentService.deleteComment(id);
+        return ResponseEntity.ok(ServiceResponse.RESPONSE_SUCCESS("Deleted", null));
     }
 
 }
-

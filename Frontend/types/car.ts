@@ -33,6 +33,7 @@ export type CarDTO = {
   description: string
   highLight: boolean
   display: boolean
+  sold: boolean
   user: UserDTO
   carFeatures?: [
     CarFeatures

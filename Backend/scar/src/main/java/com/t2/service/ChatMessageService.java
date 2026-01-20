@@ -31,6 +31,7 @@ public class ChatMessageService implements IChatMessageService {
         var chatId = chatRoomService
                 .getChatRoomId(chatMessage.getSender().getId(), chatMessage.getRecipient().getId(), true)
                 .orElseThrow(() -> new IllegalArgumentException("Unable to find or create chat room"));
+        System.out.println(chatId);
         chatMessage.setChatId(chatId);
         chatMessage.setCreatedAt(new Date());
         chatMessage.setRead(false);

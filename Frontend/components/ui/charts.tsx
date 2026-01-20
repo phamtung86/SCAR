@@ -44,20 +44,16 @@ export const DynamicResponsiveContainer = dynamic(
 // These child components are safe to re-export directly because
 // they will only be rendered inside the dynamic parent components above
 // The parent being ssr:false means these never run on server
-let Area: any, Bar: any, CartesianGrid: any, Cell: any, Legend: any, Line: any, Pie: any, Tooltip: any, XAxis: any, YAxis: any
 
-if (typeof window !== "undefined") {
-    const recharts = require("recharts")
-    Area = recharts.Area
-    Bar = recharts.Bar
-    CartesianGrid = recharts.CartesianGrid
-    Cell = recharts.Cell
-    Legend = recharts.Legend
-    Line = recharts.Line
-    Pie = recharts.Pie
-    Tooltip = recharts.Tooltip
-    XAxis = recharts.XAxis
-    YAxis = recharts.YAxis
-}
-
-export { Area, Bar, CartesianGrid, Cell, Legend, Line, Pie, Tooltip, XAxis, YAxis }
+// Export empty components for server-side, real ones for client-side
+export const Area = typeof window !== "undefined" ? require("recharts").Area : (() => null) as any
+export const Bar = typeof window !== "undefined" ? require("recharts").Bar : (() => null) as any
+export const CartesianGrid = typeof window !== "undefined" ? require("recharts").CartesianGrid : (() => null) as any
+export const Cell = typeof window !== "undefined" ? require("recharts").Cell : (() => null) as any
+export const Legend = typeof window !== "undefined" ? require("recharts").Legend : (() => null) as any
+export const Line = typeof window !== "undefined" ? require("recharts").Line : (() => null) as any
+export const Pie = typeof window !== "undefined" ? require("recharts").Pie : (() => null) as any
+export const Tooltip = typeof window !== "undefined" ? require("recharts").Tooltip : (() => null) as any
+export const XAxis = typeof window !== "undefined" ? require("recharts").XAxis : (() => null) as any
+export const YAxis = typeof window !== "undefined" ? require("recharts").YAxis : (() => null) as any
+export const ResponsiveContainer = typeof window !== "undefined" ? require("recharts").ResponsiveContainer : (() => null) as any
