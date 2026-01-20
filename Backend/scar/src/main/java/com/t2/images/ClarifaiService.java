@@ -107,6 +107,8 @@ public class ClarifaiService {
             inputsArray.add(input);
         }
 
+        System.out.println(inputsArray);
+
         JsonObject requestBodyJson = new JsonObject();
         JsonObject userAppId = new JsonObject();
         userAppId.addProperty("user_id", "clarifai");
@@ -144,6 +146,7 @@ public class ClarifaiService {
                     String name = concept.getAsJsonObject().get("name").getAsString().toLowerCase();
                     double confidence = concept.getAsJsonObject().get("value").getAsDouble();
                     log.info("name: " + name + " - confidence " + confidence);
+                    System.out.println(isCarRelated(name));
                     if (isCarRelated(name) && confidence > 0.7) {
                         foundCar = true;
                         break;
@@ -218,19 +221,19 @@ public class ClarifaiService {
 
     private boolean isCarRelated(String label) {
         String lowerLabel = label.toLowerCase();
-        return lowerLabel.contains("car") ||
-                lowerLabel.contains("vehicle") ||
-                lowerLabel.contains("automobile") ||
-                lowerLabel.contains("sedan") ||
-                lowerLabel.contains("suv") ||
-                lowerLabel.contains("truck") ||
-                lowerLabel.contains("transportation") ||
-                lowerLabel.contains("motor") ||
-                lowerLabel.contains("auto") ||
-                lowerLabel.contains("bus") ||
-                lowerLabel.contains("van") ||
-                lowerLabel.contains("taxi") ||
-                lowerLabel.contains("wheel") ||
-                lowerLabel.contains("drive");
+        return lowerLabel.equals("car") ||
+                lowerLabel.equals("vehicle") ||
+                lowerLabel.equals("automobile") ||
+                lowerLabel.equals("sedan") ||
+                lowerLabel.equals("suv") ||
+                lowerLabel.equals("truck") ||
+                lowerLabel.equals("transportation") ||
+                lowerLabel.equals("motor") ||
+                lowerLabel.equals("auto") ||
+                lowerLabel.equals("bus") ||
+                lowerLabel.equals("van") ||
+                lowerLabel.equals("taxi") ||
+                lowerLabel.equals("wheel") ||
+                lowerLabel.equals("drive");
     }
 }

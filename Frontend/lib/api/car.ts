@@ -86,7 +86,7 @@ const updateCar = async (form: FormData, carId: number) => {
 }
 
 const deleteCarById = async (id: number) => {
-  const res = axiosClient.put(`${URL}/${id}`)
+  const res = axiosClient.delete(`${URL}/${id}`)
   return res;
 }
 const getRelatedCars = async (carId: number, carTypeId: number) => {

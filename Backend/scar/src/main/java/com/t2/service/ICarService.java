@@ -21,7 +21,8 @@ public interface ICarService {
 
     void updateViewCar(int id);
 
-    void createNewCar(CreateCarForm createCarForm, List<MultipartFile> carImages, List<CarFeaturesDTO> carFeatures, List<CarHistoryDTO> carHistories, Integer userId);
+    void createNewCar(CreateCarForm createCarForm, List<MultipartFile> carImages, List<CarFeaturesDTO> carFeatures,
+            List<CarHistoryDTO> carHistories, Integer userId);
 
     Page<CarDTO> getAllCarsPages(Pageable pageable, String search, CarFilterForm carFilterForm);
 
@@ -31,11 +32,12 @@ public interface ICarService {
 
     List<CarDTO> findByUserId(Integer userId);
 
-    void updateCar(CreateCarForm createCarForm, List<MultipartFile> carImages, List<CarFeaturesDTO> carFeatures, List<CarHistoryDTO> carHistories, Integer userId, Integer carId);
+    void updateCar(CreateCarForm createCarForm, List<MultipartFile> carImages, List<CarFeaturesDTO> carFeatures,
+            List<CarHistoryDTO> carHistories, Integer userId, Integer carId);
 
     void deleteCarById(Integer id);
 
-    List<CarDTO> findRelatedCars(Integer carTypeId , Integer carId);
+    List<CarDTO> findRelatedCars(Integer carTypeId, Integer carId);
 
     List<CarDTO> findByBrandId(String Integer);
 
@@ -46,4 +48,6 @@ public interface ICarService {
     void changeStatusCar(Integer id, String status, String reasonReject);
 
     void changeSold(Integer id, boolean isSold);
+
+    void changeDisplay(Integer id, boolean isDisplay);
 }

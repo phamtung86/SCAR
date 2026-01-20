@@ -1,11 +1,13 @@
 package com.t2.config.exception;
 
+import com.t2.common.ServiceResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -29,9 +31,23 @@ public class RestExceptionHandler {
 		return messageSource.getMessage(key, null, Locale.getDefault());
 	}
 
+	@ExceptionHandler(AccessDeniedException.class)
+	public ResponseEntity<ServiceResponse> handleAccessDeniedException(AccessDeniedException exception) {
+		return new ResponseEntity<>(
+				ServiceResponse.builder()
+						.statusCode(HttpStatus.UNAUTHORIZED.value())
+						.status("UNAUTHORIZED")
+						.message(exception.getMessage())
+						.data(null)
+						.build(),
+				HttpStatus.UNAUTHORIZED);
+	}
+
 	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-	public ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException exception) {
-		StringBuilder message = new StringBuilder(exception.getMethod() + " " + getMessage("HttpRequestMethodNotSupportedException.message"));
+	public ResponseEntity<Object> handleHttpRequestMethodNotSupported(
+			HttpRequestMethodNotSupportedException exception) {
+		StringBuilder message = new StringBuilder(
+				exception.getMethod() + " " + getMessage("HttpRequestMethodNotSupportedException.message"));
 
 		if (exception.getSupportedHttpMethods() != null) {
 			message.append(" Supported Methods: ");
@@ -46,14 +62,15 @@ public class RestExceptionHandler {
 	@ExceptionHandler(HttpMediaTypeNotSupportedException.class)
 	public ResponseEntity<Object> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException exception) {
 		StringBuilder message = new StringBuilder();
-		message.append(exception.getContentType()).append(" ").append(getMessage("HttpMediaTypeNotSupportedException.message"));
+		message.append(exception.getContentType()).append(" ")
+				.append(getMessage("HttpMediaTypeNotSupportedException.message"));
 
 		if (!exception.getSupportedMediaTypes().isEmpty()) {
 			message.append(" Supported: ");
 			for (MediaType mediaType : exception.getSupportedMediaTypes()) {
 				message.append(mediaType).append(", ");
 			}
-			message.setLength(message.length() - 2); // Xóa dấu ", " cuối cùng
+			message.setLength(message.length() - 2);
 		}
 
 		return buildResponseEntity(HttpStatus.UNSUPPORTED_MEDIA_TYPE, message.toString());
@@ -71,18 +88,22 @@ public class RestExceptionHandler {
 			}
 		}
 
-		return buildResponseEntity(HttpStatus.BAD_REQUEST, getMessage("MethodArgumentNotValidException.message"), errors);
+		return buildResponseEntity(HttpStatus.BAD_REQUEST, getMessage("MethodArgumentNotValidException.message"),
+				errors);
 	}
 
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
 	public ResponseEntity<Object> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException exception) {
-		String requiredType = (exception.getRequiredType() != null) ? exception.getRequiredType().getName() : "Unknown Type";
-		String message = exception.getName() + " " + getMessage("MethodArgumentTypeMismatchException.message") + requiredType;
+		String requiredType = (exception.getRequiredType() != null) ? exception.getRequiredType().getName()
+				: "Unknown Type";
+		String message = exception.getName() + " " + getMessage("MethodArgumentTypeMismatchException.message")
+				+ requiredType;
 		return buildResponseEntity(HttpStatus.BAD_REQUEST, message);
 	}
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<Object> handleAll(Exception exception) {
+		exception.printStackTrace();
 		String detailMessage = exception.getClass().getName() + ": " + exception.getLocalizedMessage();
 		return buildResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, getMessage("Exception.message"), detailMessage);
 	}

@@ -9,7 +9,7 @@ const login = async (username: string, password: string) => {
 
 const register = async (formData: any) => {
   console.log(formData);
-  
+
   const res = await axios.post(URL + "/auth/register", formData);
   return res;
 };
@@ -21,5 +21,22 @@ const loginWithGoogle = async (idToken: string) => {
   return res
 }
 
-const AuthAPI = { login, register, loginWithGoogle };
+const forgotPassword = async (email: string) => {
+  const res = await axios.post(`${URL}/auth/forgot-password`, { email });
+  return res;
+}
+
+const validateResetToken = async (token: string) => {
+  const res = await axios.get(`${URL}/auth/validate-reset-token`, {
+    params: { token }
+  });
+  return res;
+}
+
+const resetPassword = async (token: string, newPassword: string) => {
+  const res = await axios.post(`${URL}/auth/reset-password`, { token, newPassword });
+  return res;
+}
+
+const AuthAPI = { login, register, loginWithGoogle, forgotPassword, validateResetToken, resetPassword };
 export default AuthAPI;

@@ -14,25 +14,36 @@ import java.util.Map;
 
 @Component
 public class TokenManager {
-    private static final long TOKEN_VALIDITY = 1000 * 60 * 15;
+    // Access Token: 150 phút (2.5 giờ)
+    private static final long ACCESS_TOKEN_VALIDITY = 1000 * 60 * 15 * 10;
 
-    // Generate JWT Token
+    // Refresh Token: (~10.4 ngày)
+    private static final long REFRESH_TOKEN_VALIDITY = 1000 * 60 * 15 * 1000;
+
     public String generateToken(CustomUserDetails customUserDetails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("sub", customUserDetails.getUsername());
-        claims.put("exp", (new Date().getTime() + TOKEN_VALIDITY));
+        claims.put("role", "ROLE_" + customUserDetails.getRole());
+
         return Jwts
                 .builder()
                 .setClaims(claims)
-                .claim("role", "ROLE_" + customUserDetails.getRole())
                 .setSubject(customUserDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + TOKEN_VALIDITY *10))
-                .signWith(key(), SignatureAlgorithm.HS256)  // Use HS256 for HMAC
+                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY))
+                .signWith(key(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    // Validate JWT Token
+    public String generateRefreshToken(CustomUserDetails userDetails) {
+        return Jwts.builder()
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALIDITY))
+                .signWith(key(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
     public Boolean validateJwtToken(String token, UserDetails userDetails) {
         final String username = getUsernameFromToken(token);
         final Claims claims = Jwts
@@ -52,11 +63,11 @@ public class TokenManager {
                     .parseClaimsJws(token);
             return true;
         } catch (JwtException e) {
-            return false; // Token không hợp lệ (hết hạn, sai chữ ký, bị chỉnh sửa)
+            return false;
         }
     }
-    // Extract username from JWT Token
-    public String getUsernameFromToken(String token) {  
+
+    public String getUsernameFromToken(String token) {
         final Claims claims = Jwts
                 .parserBuilder()
                 .setSigningKey(key())
@@ -73,24 +84,14 @@ public class TokenManager {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (ExpiredJwtException e) {
-            return e.getClaims(); // Trả về nội dung token ngay cả khi đã hết hạn
+            return e.getClaims();
         }
     }
 
-    // Lấy username từ token
     public String extractUsername(String token) {
         return extractClaimsIgnoreExpiration(token).getSubject();
     }
-    public String generateRefreshToken(CustomUserDetails userDetails) {
-        return Jwts.builder()
-                .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + TOKEN_VALIDITY * 1000))
-                .signWith(key(), SignatureAlgorithm.HS256)
-                .compact();
-    }
 
-    // Create HMAC key from jwtSecret
     private Key key() {
         DotEnvConfig dotENV = new DotEnvConfig();
         String jwtSecret = DotEnvConfig.getSecret();

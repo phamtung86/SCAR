@@ -38,7 +38,6 @@ public class PostService implements IPostService {
     @Autowired
     private IPostImageService postImageService;
 
-
     @Transactional
     @Override
     public void createPost(CreatePostForm createPostForm) throws IOException {
@@ -60,14 +59,14 @@ public class PostService implements IPostService {
 
     @Override
     public Double calculateScore(PostsDTO posts, Integer userId) {
-        if (posts == null) return 0.0;
+        if (posts == null)
+            return 0.0;
 
         int likes = posts.getLikes() != null ? posts.getLikes().size() : 0;
         int comments = (posts.getComments() != null) ? posts.getComments().size() : 0;
         long hoursSincePosted = ChronoUnit.HOURS.between(
                 posts.getCreatedDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
 
         double recencyScore = Math.exp(-0.1 * hoursSincePosted);
 
@@ -77,7 +76,8 @@ public class PostService implements IPostService {
         User user = modelMapper.map(userDTO, User.class);
         UserDTO postUserDto = posts.getUser();
         User postUser = modelMapper.map(postUserDto, User.class);
-        if (postUser == null) return engagementScore;
+        if (postUser == null)
+            return engagementScore;
 
         boolean isFriend = friendShipService.isFriendShip(user, postUser);
         double socialFactor = isFriend ? 1.5 : 1.0;
@@ -95,7 +95,6 @@ public class PostService implements IPostService {
                 .sorted(Comparator.comparingDouble(post -> -calculateScore(post, userId)))
                 .collect(Collectors.toList());
     }
-
 
     @Override
     public Posts findPostById(Integer postId) {

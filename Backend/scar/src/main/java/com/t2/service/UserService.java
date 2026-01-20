@@ -42,12 +42,12 @@ public class UserService implements IUserService {
         return repository.findByUsername(username);
     }
 
-
     @Override
     public void createUser(CreateUserForm createUserForm) {
         User user = modelMapper.map(createUserForm, User.class);
         if (user != null) {
-            user.setProfilePicture("https://res.cloudinary.com/dspqk9rl9/image/upload/v1737165699/360_F_549983970_bRCkYfk0P6PP5fKbMhZMIb07mCJ6esXL_dkutwd.jpg");
+            user.setProfilePicture(
+                    "https://res.cloudinary.com/dspqk9rl9/image/upload/v1737165699/360_F_549983970_bRCkYfk0P6PP5fKbMhZMIb07mCJ6esXL_dkutwd.jpg");
             user.setRole(User.Role.USER);
             user.setStatus("ACTIVE");
             user.setRank(User.Rank.NORMAL);
@@ -151,7 +151,8 @@ public class UserService implements IUserService {
                 CarResponse carResponse = modelMapper.map(car, CarResponse.class);
                 Double rate = iUserReviewService.calculateRateByUserId(userResponse.getId());
                 userResponse.setRating(rate);
-                boolean isReadLastMessage = iChatMessageService.hasUnreadMessagesByReceiver(receiver, sender.getId(), car.getId(), false);
+                boolean isReadLastMessage = iChatMessageService.hasUnreadMessagesByReceiver(receiver, sender.getId(),
+                        car.getId(), false);
 
                 Map<String, Object> map = new HashMap<>();
                 map.put("sender", userResponse);
@@ -180,7 +181,7 @@ public class UserService implements IUserService {
         String rankStr = rank;
         rankStr = rankStr.replace("\"", "").trim();
         User.Rank targetRank = User.Rank.valueOf(rankStr);
-        System.out.println("user rank "+ targetRank);
+        System.out.println("user rank " + targetRank);
         User user = findUserById(userId);
         if (user != null) {
             user.setRegisterRankAt(LocalDate.now());
@@ -194,19 +195,21 @@ public class UserService implements IUserService {
     @Override
     public List<UserDTO> findByAccountStatus(String status) {
         List<User> users = repository.findByAccountStatus(User.AccountStatus.valueOf(status));
-        return modelMapper.map(users, new TypeToken<List<UserDTO>>(){}.getType());
+        return modelMapper.map(users, new TypeToken<List<UserDTO>>() {
+        }.getType());
     }
 
     @Override
     public List<UserDTO> findByRole(String role) {
         List<User> users = repository.findByRole(User.Role.valueOf(role));
-        return modelMapper.map(users, new TypeToken<List<UserDTO>>(){}.getType());
+        return modelMapper.map(users, new TypeToken<List<UserDTO>>() {
+        }.getType());
     }
 
     @Override
     public void changeAccountStatusUser(Integer id, String status) {
         User user = repository.findById(id).orElse(null);
-        if (user != null){
+        if (user != null) {
             user.setAccountStatus(User.AccountStatus.valueOf(status));
             user.setUpdateAt(new Date());
             repository.save(user);

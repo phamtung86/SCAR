@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -26,6 +27,7 @@ import {
   MessageCircle,
   Plus,
   Search,
+  Trash2,
   TrendingUp,
   Wallet,
   X,
@@ -45,6 +47,7 @@ import {
   Legend,
   Line,
   Pie,
+  ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
@@ -53,7 +56,6 @@ import CarEditDialog from "../car/car-edit-dialog"
 import { ContractGenerator } from "./contract-generator"
 import { TransactionEditDialog } from "./transaction-edit-dialog"
 import { toast } from "sonner"
-import { ResponsiveContainer } from "recharts"
 
 // Fallback data for charts when no real data is available
 const monthlyRevenueChart = [
@@ -79,6 +81,8 @@ export function SellerDashboard() {
   const [carPosts, setCarPosts] = useState<CarDTO[]>([])
   const [filteredCarPosts, setFilteredCarPosts] = useState<CarDTO[]>([])
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [carToDelete, setCarToDelete] = useState<CarDTO | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
@@ -359,6 +363,33 @@ export function SellerDashboard() {
     }
   }
 
+  // Xử lý xóa mềm tin đăng
+  const handleDeleteCar = async () => {
+    if (!carToDelete) return
+
+    setIsDeleting(true)
+    try {
+      const res = await CarAPI.deleteCarById(carToDelete.id)
+      if (res.status === 200) {
+        toast.success(`Đã xóa tin "${carToDelete.title}" thành công!`)
+        setIsDeleteDialogOpen(false)
+        setCarToDelete(null)
+        // Refresh danh sách
+        await fetchListCarPosts(Number(currentUser?.id))
+      }
+    } catch (error) {
+      console.log("Lỗi khi xóa tin đăng: ", error)
+      toast.error("Có lỗi xảy ra khi xóa tin đăng")
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+  const openDeleteDialog = (car: CarDTO) => {
+    setCarToDelete(car)
+    setIsDeleteDialogOpen(true)
+  }
+
   return (
     <div className="space-y-6">
       {/* Stats Overview */}
@@ -618,10 +649,85 @@ export function SellerDashboard() {
         <TabsContent value="listings" className="space-y-6">
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-semibold">Tin đăng của tôi</h2>
-            <Button>
+            <Button onClick={() => route.push("/sell-car")}>
               <Plus className="h-4 w-4 mr-2" />
               Đăng tin mới
             </Button>
+          </div>
+
+          {/* Status Summary Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Card
+              className={`cursor-pointer transition-all hover:shadow-md ${statusFilter === "all" ? "ring-2 ring-blue-500" : ""}`}
+              onClick={() => setStatusFilter("all")}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Tất cả</p>
+                    <p className="text-2xl font-bold">{carPosts.length}</p>
+                  </div>
+                  <Car className="h-8 w-8 text-blue-600" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card
+              className={`cursor-pointer transition-all hover:shadow-md ${statusFilter === "PENDING" ? "ring-2 ring-yellow-500" : ""}`}
+              onClick={() => setStatusFilter("PENDING")}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">⏳ Chờ duyệt</p>
+                    <p className="text-2xl font-bold text-yellow-600">
+                      {carPosts.filter(car => car.status === "PENDING").length}
+                    </p>
+                  </div>
+                  <div className="h-8 w-8 rounded-full bg-yellow-100 flex items-center justify-center">
+                    <span className="text-lg">⏳</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card
+              className={`cursor-pointer transition-all hover:shadow-md ${statusFilter === "APPROVED" ? "ring-2 ring-green-500" : ""}`}
+              onClick={() => setStatusFilter("APPROVED")}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">✅ Đã duyệt</p>
+                    <p className="text-2xl font-bold text-green-600">
+                      {carPosts.filter(car => car.status === "APPROVED").length}
+                    </p>
+                  </div>
+                  <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
+                    <span className="text-lg">✅</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card
+              className={`cursor-pointer transition-all hover:shadow-md ${statusFilter === "REJECTED" ? "ring-2 ring-red-500" : ""}`}
+              onClick={() => setStatusFilter("REJECTED")}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">❌ Từ chối</p>
+                    <p className="text-2xl font-bold text-red-600">
+                      {carPosts.filter(car => car.status === "REJECTED").length}
+                    </p>
+                  </div>
+                  <div className="h-8 w-8 rounded-full bg-red-100 flex items-center justify-center">
+                    <span className="text-lg">❌</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           <Card>
@@ -646,13 +752,14 @@ export function SellerDashboard() {
                   </div>
 
                   <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-[140px]">
+                    <SelectTrigger className="w-[160px]">
                       <SelectValue placeholder="Trạng thái" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Tất cả</SelectItem>
-                      <SelectItem value="active">Đang bán</SelectItem>
-                      <SelectItem value="sold">Đã bán</SelectItem>
+                      <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                      <SelectItem value="PENDING">⏳ Chờ duyệt</SelectItem>
+                      <SelectItem value="APPROVED">✅ Đã duyệt</SelectItem>
+                      <SelectItem value="REJECTED">❌ Từ chối</SelectItem>
                     </SelectContent>
                   </Select>
 
@@ -722,7 +829,7 @@ export function SellerDashboard() {
               </Card>
             ) : (
               filteredCarPosts.map((car) => (
-                <Card key={car?.id}>
+                <Card key={car?.id} className={car?.status === "REJECTED" ? "border-red-200 bg-red-50/50" : car?.status === "PENDING" ? "border-yellow-200 bg-yellow-50/50" : ""}>
                   <CardContent className="p-4">
                     <div className="flex items-center gap-4">
                       <img
@@ -734,31 +841,68 @@ export function SellerDashboard() {
                         <h3 className="font-semibold">{car?.title}</h3>
                         <p className="text-lg font-bold text-blue-600">{formatMoney(car?.price)}</p>
                         <p className="text-sm text-muted-foreground">Đăng ngày: {formatDateToDate(car?.createdAt)}</p>
+                        {/* Hiển thị lý do từ chối nếu có */}
+                        {car?.status === "REJECTED" && car?.rejectionReason && (
+                          <div className="mt-2 p-2 bg-red-100 border border-red-200 rounded-md">
+                            <p className="text-sm text-red-700 flex items-center gap-1">
+                              <AlertCircle className="h-4 w-4" />
+                              <span className="font-medium">Lý do từ chối:</span> {car.rejectionReason}
+                            </p>
+                          </div>
+                        )}
                       </div>
-                      <div className="text-center">
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <div className="text-center min-w-[120px]">
+                        <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
                           <div className="flex items-center gap-1">
                             <Eye className="h-4 w-4" />
-                            {car?.view}
+                            {car?.view || 0}
                           </div>
                           <div className="flex items-center gap-1">
                             <MessageCircle className="h-4 w-4" />
-                            {car?.inquiries}
+                            {car?.inquiries || 0}
                           </div>
                         </div>
-                        <Badge variant={car?.status === "APPROVED" ? "default" : "secondary"} className="mt-2">
-                          {car?.status === "APPROVED" ? "Đang bán" : "Đã bán"}
+                        <Badge
+                          variant={
+                            car?.status === "APPROVED" ? "default" :
+                              car?.status === "PENDING" ? "outline" :
+                                "destructive"
+                          }
+                          className={`mt-2 ${car?.status === "APPROVED" ? "bg-green-600" :
+                            car?.status === "PENDING" ? "bg-yellow-500 text-white border-yellow-500" :
+                              ""
+                            }`}
+                        >
+                          {car?.status === "APPROVED" ? "✅ Đang bán" :
+                            car?.status === "PENDING" ? "⏳ Chờ duyệt" :
+                              "❌ Từ chối"}
                         </Badge>
                       </div>
                       <div className="flex flex-col gap-2">
-                        <CarEditDialog
-                          car={car}
-                          triggerText="Chỉnh sửa"
-                          triggerVariant="outline"
-                          onRefresh={fetchListCarPosts}
-                        />
+                        {car?.status !== "REJECTED" && (
+                          <CarEditDialog
+                            car={car}
+                            triggerText="Chỉnh sửa"
+                            triggerVariant="outline"
+                            onRefresh={fetchListCarPosts}
+                          />
+                        )}
                         <Button variant="outline" size="sm" onClick={() => route.push(`/car/${car?.id}`)}>
                           Xem chi tiết
+                        </Button>
+                        {car?.status === "REJECTED" && (
+                          <Button variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700">
+                            Đăng lại
+                          </Button>
+                        )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          onClick={() => openDeleteDialog(car)}
+                        >
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          Xóa
                         </Button>
                       </div>
                     </div>
@@ -1092,6 +1236,55 @@ export function SellerDashboard() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-red-600 flex items-center gap-2">
+              <Trash2 className="h-5 w-5" />
+              Xác nhận xóa tin đăng
+            </DialogTitle>
+            <DialogDescription>
+              Bạn có chắc chắn muốn xóa tin đăng này không? Hành động này không thể hoàn tác.
+            </DialogDescription>
+          </DialogHeader>
+
+          {carToDelete && (
+            <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+              <img
+                src={carToDelete.carImages?.[0]?.imageUrl || "/placeholder.svg"}
+                alt={carToDelete.title}
+                className="w-20 h-14 object-cover rounded"
+              />
+              <div>
+                <h4 className="font-semibold">{carToDelete.title}</h4>
+                <p className="text-sm text-muted-foreground">{formatMoney(carToDelete.price)}</p>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsDeleteDialogOpen(false)
+                setCarToDelete(null)
+              }}
+              disabled={isDeleting}
+            >
+              Hủy
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteCar}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Đang xóa..." : "Xác nhận xóa"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

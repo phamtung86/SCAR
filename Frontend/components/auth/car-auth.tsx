@@ -8,10 +8,18 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import AuthAPI from "@/lib/api/auth"
 import { validateEmail } from "@/lib/utils/validate"
-import { Eye, EyeOff, Mail } from "lucide-react"
+import { Eye, EyeOff, Mail, ArrowLeft, Loader2, CheckCircle2 } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from "react"
+
+interface RegisterError {
+  notMatch?: string;
+  passwordNotValid?: string;
+  emailNotValid?: string;
+  isEmpty?: string;
+  termsNotAccepted?: string;
+}
 
 export default function Component() {
   const router = useRouter();
@@ -19,6 +27,13 @@ export default function Component() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isChecked, setIsChecked] = useState(false);
+
+  // Forgot Password States
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
+  const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
+  const [forgotPasswordSuccess, setForgotPasswordSuccess] = useState(false);
+  const [forgotPasswordError, setForgotPasswordError] = useState("");
 
   const [datalogin, setDatalogin] = useState({
     username: "",
@@ -34,7 +49,7 @@ export default function Component() {
     email: "",
   })
 
-  const [error, setError] = useState({
+  const [error, setError] = useState<RegisterError>({
     notMatch: "",
     passwordNotValid: "",
     emailNotValid: "",
@@ -63,7 +78,7 @@ export default function Component() {
   }
 
   const handleLogin = async () => {
-    setError({}); 
+    setError({});
     const messages = {
       isEmpty: "Vui lòng điền đầy đủ các trường",
       passwordNotValid: "Mật khẩu phải ít nhất 8 ký tự, có chữ hoa, chữ thường, số và ký tự đặc biệt",
@@ -187,6 +202,46 @@ export default function Component() {
       console.error("Đăng ký thất bại:", err);
     }
   };
+
+  // Handle Forgot Password
+  const handleForgotPassword = async () => {
+    setForgotPasswordError("");
+
+    if (!forgotPasswordEmail) {
+      setForgotPasswordError("Vui lòng nhập email");
+      return;
+    }
+
+    if (!validateEmail(forgotPasswordEmail)) {
+      setForgotPasswordError("Email không đúng định dạng");
+      return;
+    }
+
+    setForgotPasswordLoading(true);
+    try {
+      const res = await AuthAPI.forgotPassword(forgotPasswordEmail);
+      if (res.status === 200) {
+        setForgotPasswordSuccess(true);
+      }
+    } catch (err: any) {
+      if (err.response?.status === 404) {
+        setForgotPasswordError("Email không tồn tại trong hệ thống");
+      } else {
+        setForgotPasswordError("Có lỗi xảy ra, vui lòng thử lại sau");
+      }
+    } finally {
+      setForgotPasswordLoading(false);
+    }
+  };
+
+  // Reset forgot password form
+  const resetForgotPasswordForm = () => {
+    setShowForgotPassword(false);
+    setForgotPasswordEmail("");
+    setForgotPasswordSuccess(false);
+    setForgotPasswordError("");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -381,7 +436,11 @@ export default function Component() {
             {/* Forgot Password for Login */}
             {isLogin && (
               <div className="text-right">
-                <Button variant="link" className="text-sm text-blue-600 p-0">
+                <Button
+                  variant="link"
+                  className="text-sm text-blue-600 p-0"
+                  onClick={() => setShowForgotPassword(true)}
+                >
                   Quên mật khẩu?
                 </Button>
               </div>
@@ -435,6 +494,111 @@ export default function Component() {
           </div>
         </div>
       </div>
+
+      {/* Forgot Password Modal */}
+      {showForgotPassword && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-md shadow-2xl border-0 animate-in fade-in zoom-in duration-200">
+            <CardHeader className="space-y-1 pb-4">
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="p-2 hover:bg-gray-100 rounded-full"
+                  onClick={resetForgotPasswordForm}
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Quên mật khẩu</h2>
+                  <p className="text-sm text-gray-500">Đặt lại mật khẩu qua email</p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {!forgotPasswordSuccess ? (
+                <>
+                  <div className="text-center mb-4">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+                      <Mail className="h-8 w-8 text-blue-600" />
+                    </div>
+                    <p className="text-gray-600 text-sm">
+                      Nhập email đã đăng ký, chúng tôi sẽ gửi liên kết đặt lại mật khẩu cho bạn.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="forgotEmail">Email</Label>
+                    <Input
+                      id="forgotEmail"
+                      type="email"
+                      placeholder="example@gmail.com"
+                      value={forgotPasswordEmail}
+                      onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                      className="w-full"
+                      disabled={forgotPasswordLoading}
+                    />
+                  </div>
+
+                  {forgotPasswordError && (
+                    <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+                      {forgotPasswordError}
+                    </div>
+                  )}
+
+                  <Button
+                    className="w-full bg-blue-600 hover:bg-blue-700"
+                    size="lg"
+                    onClick={handleForgotPassword}
+                    disabled={forgotPasswordLoading}
+                  >
+                    {forgotPasswordLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Đang gửi...
+                      </>
+                    ) : (
+                      "Gửi liên kết đặt lại"
+                    )}
+                  </Button>
+
+                  <div className="text-center">
+                    <Button
+                      variant="link"
+                      className="text-sm text-gray-500"
+                      onClick={resetForgotPasswordForm}
+                    >
+                      Quay lại đăng nhập
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-6">
+                  <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4">
+                    <CheckCircle2 className="h-10 w-10 text-green-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    Email đã được gửi!
+                  </h3>
+                  <p className="text-gray-600 text-sm mb-4">
+                    Chúng tôi đã gửi liên kết đặt lại mật khẩu đến <strong>{forgotPasswordEmail}</strong>.
+                    Vui lòng kiểm tra hộp thư (bao gồm cả thư rác).
+                  </p>
+                  <p className="text-gray-500 text-xs mb-6">
+                    Liên kết sẽ hết hạn sau 30 phút.
+                  </p>
+                  <Button
+                    className="w-full bg-blue-600 hover:bg-blue-700"
+                    onClick={resetForgotPasswordForm}
+                  >
+                    Quay lại đăng nhập
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   )
 }

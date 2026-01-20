@@ -15,28 +15,31 @@ import java.util.List;
 @Repository
 public interface ICarRepository extends JpaRepository<Cars, Integer>, JpaSpecificationExecutor<Cars> {
 
-    Cars findTopByOrderByIdDesc();
+        Cars findTopByOrderByIdDesc();
 
-    List<Cars> findByIsSold(boolean isSold);
+        List<Cars> findByIsSold(boolean isSold);
 
-    Page<Cars> findAll(Specification<Cars> spec, Pageable pageable);
+        Page<Cars> findAll(Specification<Cars> spec, Pageable pageable);
 
-    List<Cars> findByUserIdAndIsSoldAndIsDisplay(Integer userId, boolean isSold, boolean isDisplay);
+        List<Cars> findByUserIdAndIsSoldAndIsDisplay(Integer userId, boolean isSold, boolean isDisplay);
 
-    @Query("SELECT c FROM Cars c " +
-            "JOIN c.carModels cm " +
-            "JOIN cm.carType ct " +
-            "WHERE ct.id = :carTypeId AND c.id != :carId")
-    List<Cars> findRelatedCar(@Param("carTypeId") Integer carTypeId, @Param("carId") Integer carId);
+        // Lấy tất cả xe của user (bao gồm cả xe đã bán) để hiển thị trong dashboard
+        List<Cars> findByUserIdAndDeletedFalse(Integer userId);
 
-    @Query("SELECT c FROM Cars c " +
-            "JOIN c.carModels cm " +
-            "JOIN cm.brand b " +
-            "WHERE b.name = :brandName")
-    List<Cars> findCarByBrandName(@Param("brandName") String brandName);
+        @Query("SELECT c FROM Cars c " +
+                        "JOIN c.carModels cm " +
+                        "JOIN cm.carType ct " +
+                        "WHERE ct.id = :carTypeId AND c.id != :carId")
+        List<Cars> findRelatedCar(@Param("carTypeId") Integer carTypeId, @Param("carId") Integer carId);
 
-    @Query(value = "SELECT c FROM Cars c ORDER BY c.view DESC LIMIT :limit")
-    List<Cars> findTopCarsOrderByView(@Param("limit") int limit);
+        @Query("SELECT c FROM Cars c " +
+                        "JOIN c.carModels cm " +
+                        "JOIN cm.brand b " +
+                        "WHERE b.name = :brandName")
+        List<Cars> findCarByBrandName(@Param("brandName") String brandName);
 
-    List<Cars> findByStatus(Cars.Status status);
+        @Query(value = "SELECT c FROM Cars c ORDER BY c.view DESC LIMIT :limit")
+        List<Cars> findTopCarsOrderByView(@Param("limit") int limit);
+
+        List<Cars> findByStatus(Cars.Status status);
 }

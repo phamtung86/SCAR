@@ -12,5 +12,6 @@ public interface ICommentService {
 
     Comments findCommentById(Integer id);
 
+    void deleteComment(Integer id);
 
 }

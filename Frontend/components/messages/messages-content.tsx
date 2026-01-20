@@ -507,14 +507,18 @@ export default function FullCarChatApp() {
 
   const filterChatMessage = (search: string) => {
     return users?.filter(u => u?.sender?.fullName.toLowerCase().includes(search.toLowerCase()) ||
-      u?.car?.carModelsBrandName.toLowerCase().includes(search.toLowerCase()) || 
+      u?.car?.carModelsBrandName.toLowerCase().includes(search.toLowerCase()) ||
       u?.car?.carModelsCarTypeName.toLowerCase().includes(search.toLowerCase())
     )
   }
 
   const renderMessage = (message: any, index: number) => {
+    console.log(message);
+
     if (!message?.content?.trim()) return null
     const isMe = message?.sender?.id === currentUserId
+    console.log(isMe);
+
     return (
       <div id={`message-${message?.id}`} key={index} className={`flex items-end gap-2 mb-4 ${isMe ? "justify-end" : "justify-start"} items-center`}>
         {!isMe && (

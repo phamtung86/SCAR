@@ -5,22 +5,53 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="53c808c2-df58-4669-b87d-fc60738f5d7a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/consumer/CarEventConsumer.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/dto/CarCreatedEvent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/config/RedisConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/config/RabbitConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/config/RabbitConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/scar/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/railway.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/ScarApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/ScarApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/config/WebSecurityCongfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/config/WebSecurityCongfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/config/exception/AuthExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/config/exception/AuthExceptionHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/config/exception/RestExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/config/exception/RestExceptionHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/AuthController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/CarController.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/CarController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/dto/CarDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/dto/CarDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/CommentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/CommentController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/FeeController.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/FeeController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/PaymentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/PaymentController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/PostController.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/PostController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Cars.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Cars.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Posts.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/entity/Posts.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/images/ClarifaiService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/images/ClarifaiService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/jwtutils/JwtFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/jwtutils/JwtFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/ICarImageRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/ICarImageRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/CarImageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/CarImageService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/jwtutils/JwtUserDetailsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/jwtutils/JwtUserDetailsService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/jwtutils/TokenManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/jwtutils/TokenManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/models/JwtRequestModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/models/JwtRequestModel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/models/JwtResponseModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/models/JwtResponseModel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/ChatMessageRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/ChatMessageRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/ChatRoomRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/ChatRoomRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/ICarRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/repository/ICarRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/CarService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/CarService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ICarImageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ICarImageService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/components/car/car-selling-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/car/car-selling-form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ChatMessageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ChatMessageService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/CommentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/CommentService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ICarService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ICarService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ICommentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/ICommentService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/PaymentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/PaymentService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/PostService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/PostService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/TransactionsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/TransactionsService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/java/com/t2/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scar/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/scar/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/app/car/[id]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/app/car/[id]/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/app/layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/app/management/user/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/app/management/user/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/components/auth/car-auth.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/auth/car-auth.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Frontend/components/management/seller-dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/management/seller-dashboard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Frontend/components/payment/payment-fee.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/payment/payment-fee.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/components/messages/messages-content.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/messages/messages-content.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/components/settings/settings-content.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/settings/settings-content.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/components/ui/charts.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/components/ui/charts.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/lib/api/auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/lib/api/auth.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Frontend/lib/api/car.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/lib/api/car.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Frontend/types/car.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../Frontend/types/car.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,6 +69,22 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "phamtung86"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/phamtung86/SCAR.git",
+    "accountId": "70672999-4a19-4911-b8bf-32588a3176ef"
+  }
+}]]></component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 3
 }</component>
@@ -50,10 +97,26 @@
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;Application.ScarApplication.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;M:/Source Code/VS Code/SCAR_DETAIL/SCAR/Backend/scar/src/main/java/com/t2/vnpay&quot;
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;PT&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;M:/Source Code/VS Code/SCAR_DETAIL/SCAR/Backend/scar/src/main/java/com/t2/vnpay&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;promo.database&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mysql&quot;
+    ]
   }
 }</component>
   <component name="RecentsManager">
@@ -64,7 +127,7 @@
       <recent name="com.t2.config" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Application.ScarApplication">
     <configuration name="ScarApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.t2.ScarApplication" />
       <module name="scar" />
@@ -78,11 +141,21 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="ScarApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="scar" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.t2.ScarApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Application.ScarApplication" />
       </list>
     </recent_temporary>
+  </component>
+  <component name="StructureViewState">
+    <option name="selectedTab" value="Logical" />
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -91,8 +164,13 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1755189772558</updated>
+      <workItem from="1766074981313" duration="2728000" />
+      <workItem from="1766110250543" duration="5888000" />
     </task>
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -112,6 +190,26 @@
           <url>file://$PROJECT_DIR$/scar/src/main/java/com/t2/service/UserService.java</url>
           <line>84</line>
           <option name="timeStamp" value="7" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/scar/src/main/java/com/t2/service/ChatMessageService.java</url>
+          <line>30</line>
+          <option name="timeStamp" value="8" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/scar/src/main/java/com/t2/controller/ChatMessageController.java</url>
+          <line>49</line>
+          <option name="timeStamp" value="9" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/scar/src/main/java/com/t2/controller/ChatMessageController.java</url>
+          <line>69</line>
+          <option name="timeStamp" value="10" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/scar/src/main/java/com/t2/service/ChatRoomService.java</url>
+          <line>26</line>
+          <option name="timeStamp" value="11" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
